@@ -10,42 +10,19 @@
 
     <meta name="generator" content="Gridea Pro 1.1.1">
     <title>Gridea Pro 完全上手指南 —— 从写作到发布，一篇搞定 | Gridea Pro</title>
-    
-    
-    <meta name="keywords" content="Gridea Pro,Gridea,入门" />
-    <meta name="description" content="&lt;p&gt;这篇指南会带你一步一步熟悉 Gridea Pro 的界面和操作，从写第一篇文章到把博客发布到互联网上。&lt;/p&gt;
-">
 
-    <!-- Social Media Meta Tags -->
-    <meta property="og:type" content="article">
-    <meta property="og:url" content="/post/quick-start/">
-    <meta property="og:title" content="Gridea Pro 完全上手指南 —— 从写作到发布，一篇搞定 | Gridea Pro">
-    <meta property="og:description" content="&lt;p&gt;这篇指南会带你一步一步熟悉 Gridea Pro 的界面和操作，从写第一篇文章到把博客发布到互联网上。&lt;/p&gt;
-">
-    <meta property="og:image" content="/images/avatar.png">
-    <meta property="og:site_name" content="Gridea Pro">
-
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:url" content="/post/quick-start/">
-    <meta name="twitter:title" content="Gridea Pro 完全上手指南 —— 从写作到发布，一篇搞定 | Gridea Pro">
-    <meta name="twitter:description" content="&lt;p&gt;这篇指南会带你一步一步熟悉 Gridea Pro 的界面和操作，从写第一篇文章到把博客发布到互联网上。&lt;/p&gt;
-">
-    <meta name="twitter:image" content="/images/avatar.png">
-
-    <!-- Structured Data (JSON-LD) -->
     
-    <script type="application/ld+json">
-        {"@context":"https://schema.org","@type":"BlogPosting","headline":"Gridea Pro 完全上手指南 —— 从写作到发布，一篇搞定 | Gridea Pro","description":"<p>这篇指南会带你一步一步熟悉 Gridea Pro 的界面和操作，从写第一篇文章到把博客发布到互联网上。</p>\n","image":"/images/avatar.png","author":{"@type":"Person","name":"Gridea Pro"},"publisher":{"@type":"Organization","name":"Gridea Pro","logo":{"@type":"ImageObject","url":"/images/avatar.png"}},"datePublished":"2026-04-18T11:54:08.000Z","dateModified":"2026-04-18T11:54:08.000Z","mainEntityOfPage":{"@type":"WebPage","@id":"/post/quick-start/"}}
-    </script>
     <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
     <meta name="theme-color" content="#292a2d" media="(prefers-color-scheme: dark)">
 
     
+    <link rel="shortcut icon" href="/media/images/favicon.ico">
+<link rel="stylesheet" href="/styles/main.min.css">
+
     
-    <link rel="shortcut icon" href="https://xlmm.github.io/media/images/favicon.ico">
+    <style>:root{--accent-color:#28df99;}</style>
     
-    <link rel="stylesheet" href="https://xlmm.github.io/styles/main.css">
-    
+
     <script>
     // 自动为所有 target="_blank" 的链接添加 rel="noopener noreferrer"
     document.addEventListener('DOMContentLoaded', function() {
@@ -64,118 +41,8 @@
 </script>
 
 
-<script>
-/**
- * 作用：将 GitHub Pages 的原图链接替换为 jsDelivr CDN 链接，加速图片加载
- */
-(function() {
-    // === 配置区域，需要替换成自己的 GitHub 用户名和仓库名 ===
-    const CONFIG = {
-        githubUser: 'tespera',
-        repoName:   'tespera.github.io',
-        branch:     'master',
-        cdnDomain:  'https://cdn.jsdelivr.net/gh',
-    };
-
-    // === 主逻辑 ===
-    function optimizeImages() {
-        // 如果没有配置 GitHub 信息，则直接返回
-        if (!CONFIG.githubUser || !CONFIG.repoName) {
-            return;
-        }
-
-        // 1. 获取页面上所有图片
-        const images = document.querySelectorAll('img');
-        
-        // 2. 构造旧域名的匹配规则 (强制转小写以避免大小写不匹配)
-        const oldDomain = `${CONFIG.githubUser}.github.io`.toLowerCase();
-        // 获取当前站点域名 (处理自定义域名的情况，如 are.ink)
-        const currentDomain = window.location.host.toLowerCase(); 
-
-        images.forEach((img) => {
-            // 获取当前图片的 src
-            let src = img.getAttribute('src'); 
-            
-            // 忽略空值、Base64图片、已经是CDN的链接
-            if (!src || src.startsWith('data:') || src.includes(CONFIG.cdnDomain)) {
-                return;
-            }
-
-            // 为了匹配检查，构造一个用于比较的 src
-            const srcForCheck = src.toLowerCase();
-
-            let relativePath = null;
-
-            // Case A: 包含 github.io 域名 (标准 GitHub Pages)
-            if (srcForCheck.includes(oldDomain)) {
-                const startIndex = srcForCheck.indexOf(oldDomain);
-                if (startIndex !== -1) {
-                    relativePath = src.substring(startIndex + oldDomain.length);
-                }
-            }
-            // Case B: 包含当前域名 (自定义域名 或 Localhost)
-            else if (srcForCheck.includes(currentDomain)) {
-                try {
-                    // 尝试解析 URL 获取 pathname
-                    const url = new URL(src, window.location.href);
-                    relativePath = decodeURIComponent(url.pathname);
-                } catch (e) {
-                    // 降级处理
-                    const parts = src.split(currentDomain);
-                    if (parts.length > 1) relativePath = parts[1];
-                }
-            }
-            // Case C: 相对路径 (以 / 开头，且不包含 //)
-            else if (src.startsWith('/') && !src.startsWith('//')) {
-                relativePath = src;
-            }
-
-            // 如果成功提取到了相对路径
-            if (relativePath) {
-                // 移除开头的斜杠，防止双斜杠
-                if (relativePath.startsWith('/')) {
-                    relativePath = relativePath.substring(1); 
-                }
-                
-                // 构造新的 CDN 链接
-                // 注意：jsDelivr 必须使用 GitHub 仓库的原始路径 (User/Repo)，与自定义域名 (CNAME) 无关
-                const newSrc = `${CONFIG.cdnDomain}/${CONFIG.githubUser}/${CONFIG.repoName}@${CONFIG.branch}/${relativePath}`;
-
-                // 替换图片链接
-                img.src = newSrc;
-                img.setAttribute('data-optimized', 'true');
-
-                // 添加错误回退机制
-                img.onerror = function() {
-                    this.src = src; // 恢复原图
-                    this.onerror = null; // 防止死循环
-                };
-            }
-        });
-    }
-
-    // 页面加载完成后立即执行
-    document.addEventListener('DOMContentLoaded', optimizeImages);
-    
-    // 兼容一些使用 Pjax (无刷新跳转) 的主题
-    document.addEventListener('pjax:complete', optimizeImages);
-
-})();
-</script>
 
     <script>
-    // Theme Copyright
-    console.log(
-        '\n' +
-        '%c Gridea Theme for Amore v1.0 %c https://www.amore.ink ',
-        'color: #fadfa3; background: #030307; padding: 12px 10px; border-radius: 3px 0 0 3px;',
-        'color: #030307; background: #fadfa3; padding: 12px 10px; border-radius: 0 3px 3px 0;'
-        + '\n',
-    );
-</script>
-
-
-<script>
     // declaraction of document.ready() function.
     (function () {
         var ie = !!(window.attachEvent && !window.opera);
@@ -218,8 +85,9 @@
                 return 'light';
             };
 
+            const configDefault = 'dark';
             const currentTheme = window.localStorage && window.localStorage.getItem('theme');
-            const initialTheme = currentTheme || getSystemTheme();
+            const initialTheme = currentTheme || configDefault || getSystemTheme();
             const isDark = initialTheme === 'dark';
 
             const updateButtons = (dark) => {
@@ -307,7 +175,7 @@
             };
             _Blog.toggleTheme();
 
-            if (window.matchMedia) {
+            if (window.matchMedia && !configDefault) {
                 window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
                     const newTheme = e.matches ? 'dark' : 'light';
                     applyTheme(e.matches);
@@ -379,6 +247,8 @@
 
 
     
+
+    
 <meta name="description" content="这篇指南会带你一步一步熟悉 Gridea Pro 的界面和操作，从写第一篇文章到把博客发布到互联网上。">
 <link rel="canonical" href="https://xlmm.github.io/post/quick-start/">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"Gridea Pro 完全上手指南 —— 从写作到发布，一篇搞定","url":"https://xlmm.github.io/post/quick-start/","description":"这篇指南会带你一步一步熟悉 Gridea Pro 的界面和操作，从写第一篇文章到把博客发布到互联网上。","datePublished":"2026-04-18T19:54:08+08:00","dateModified":"2026-04-18T19:55:08+08:00","author":{"@type":"Person","name":"Gridea Pro"},"publisher":{"@type":"Organization","logo":{"@type":"ImageObject","url":"/images/avatar.png"},"name":"Gridea Pro"}}</script>
@@ -407,8 +277,9 @@
             return 'light';
         };
 
+        const configDefault = 'dark';
         const savedTheme = localStorage.getItem('theme');
-        const theme = savedTheme || getSystemTheme();
+        const theme = savedTheme || configDefault || getSystemTheme();
 
         if (theme === 'dark') {
             document.body.classList.add('dark-theme');
@@ -422,7 +293,8 @@
 <header class="mod-head">
     <div class="mod-head__left">
         <div class="mod-head__logo">
-            <a href="https://xlmm.github.io">
+            <a href="/">
+                
                 
                     <img class="avatar" alt="avatar" src="/images/avatar.png">
                 
@@ -742,41 +614,58 @@
     <nav>
         
             
-            <a class="menu-item" href="/">首页</a>
-        
+                    <a class="menu-item" href="/">
+                        首页
+                    </a>
+                    
              · 
-            <a class="menu-item" href="/post">博客</a>
-        
+                    <a class="menu-item" href="/post">
+                        博客
+                    </a>
+                    
              · 
-            <a class="menu-item" href="/memos">闪念</a>
-        
+                    <a class="menu-item" href="/memos">
+                        闪念
+                    </a>
+                    
              · 
-            <a class="menu-item" href="/archives">归档</a>
-        
+                    <a class="menu-item" href="/archives">
+                        归档
+                    </a>
+                    
              · 
-            <a class="menu-item" href="/tags">标签</a>
-        
+                    <a class="menu-item" href="/tags">
+                        标签
+                    </a>
+                    
              · 
-            <a class="menu-item" href="/links">友链</a>
-        
+                    <a class="menu-item" href="/links">
+                        友链
+                    </a>
+                    
              · 
-            <a class="menu-item" href="/post/about">关于</a>
-        
+                    <a class="menu-item" href="/post/about">
+                        关于
+                    </a>
+                    
     </nav>
 
-    <div class="Copyright">Copyright &copy; 2026 <a href="https://xlmm.github.io">Gridea Pro</a></div>
+    <div class="Copyright">Copyright &copy; 2026 <a href="https://xlmm.github.io">
+                Gridea Pro
+            </a></div>
 
-    <footer id="footer" class="index_footer">
-        Powered by Gridea Pro · 
-        <a class="rss" href="https://xlmm.github.io/atom.xml" target="_blank" rel="noopener noreferrer">
-        <i class="ri-rss-line"></i> 🍀 RSS
-  </a>
-    </footer>
+    <div class="index_footer">
+        Powered by Gridea Pro ·
+            <a class="rss" href="/feed.xml" target="_blank" rel="noopener noreferrer">
+                <i class="ri-rss-line"></i> RSS
+            </a>
+    </div>
 </footer>
 
 
 
-    <script>console.log("\n%c ✦ Gridea Pro v1.1.1 %c · Theme: amore v1.0.0 · https://gridea.pro %c\n","color:#fadfa3;background:#111111;padding:9px 14px;border-radius:4px 0 0 4px;font-weight:500;font-size:12px","color:#e05c00;background:#fff3ec;padding:9px 14px;border-radius:0 4px 4px 0;font-size:11px","")</script>
+
+    <script>console.log("\n%c ✦ Gridea Pro v1.1.1 %c · Theme: amore v1.1.0 · https://gridea.pro %c\n","color:#fadfa3;background:#111111;padding:9px 14px;border-radius:4px 0 0 4px;font-weight:500;font-size:12px","color:#e05c00;background:#fff3ec;padding:9px 14px;border-radius:0 4px 4px 0;font-size:11px","")</script>
 </body>
 
     </html>

@@ -10,39 +10,19 @@
 
     <meta name="generator" content="Gridea Pro 1.1.1">
     <title>闪念 | Gridea Pro</title>
-    
-    
-    <meta name="keywords" content="Gridea Pro,Gridea,入门" />
-    <meta name="description" content="Welcome to Gridea Pro">
 
-    <!-- Social Media Meta Tags -->
-    <meta property="og:type" content="article">
-    <meta property="og:url" content="https://xlmm.github.io">
-    <meta property="og:title" content="闪念 | Gridea Pro">
-    <meta property="og:description" content="Welcome to Gridea Pro">
-    <meta property="og:image" content="/images/avatar.png">
-    <meta property="og:site_name" content="Gridea Pro">
-
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:url" content="https://xlmm.github.io">
-    <meta name="twitter:title" content="闪念 | Gridea Pro">
-    <meta name="twitter:description" content="Welcome to Gridea Pro">
-    <meta name="twitter:image" content="/images/avatar.png">
-
-    <!-- Structured Data (JSON-LD) -->
     
-    <script type="application/ld+json">
-        {"@context":"https://schema.org","@type":"BlogPosting","headline":"闪念 | Gridea Pro","description":"Welcome to Gridea Pro","image":"/images/avatar.png","author":{"@type":"Person","name":"Gridea Pro"},"publisher":{"@type":"Organization","name":"Gridea Pro","logo":{"@type":"ImageObject","url":"/images/avatar.png"}},"datePublished":"0001-01-01T00:00:00.000Z","dateModified":"0001-01-01T00:00:00.000Z","mainEntityOfPage":{"@type":"WebPage","@id":"https://xlmm.github.io"}}
-    </script>
     <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
     <meta name="theme-color" content="#292a2d" media="(prefers-color-scheme: dark)">
 
     
+    <link rel="shortcut icon" href="/media/images/favicon.ico">
+<link rel="stylesheet" href="/styles/main.min.css">
+
     
-    <link rel="shortcut icon" href="https://xlmm.github.io/media/images/favicon.ico">
+    <style>:root{--accent-color:#28df99;}</style>
     
-    <link rel="stylesheet" href="https://xlmm.github.io/styles/main.css">
-    
+
     <script>
     // 自动为所有 target="_blank" 的链接添加 rel="noopener noreferrer"
     document.addEventListener('DOMContentLoaded', function() {
@@ -61,118 +41,8 @@
 </script>
 
 
-<script>
-/**
- * 作用：将 GitHub Pages 的原图链接替换为 jsDelivr CDN 链接，加速图片加载
- */
-(function() {
-    // === 配置区域，需要替换成自己的 GitHub 用户名和仓库名 ===
-    const CONFIG = {
-        githubUser: 'tespera',
-        repoName:   'tespera.github.io',
-        branch:     'master',
-        cdnDomain:  'https://cdn.jsdelivr.net/gh',
-    };
-
-    // === 主逻辑 ===
-    function optimizeImages() {
-        // 如果没有配置 GitHub 信息，则直接返回
-        if (!CONFIG.githubUser || !CONFIG.repoName) {
-            return;
-        }
-
-        // 1. 获取页面上所有图片
-        const images = document.querySelectorAll('img');
-        
-        // 2. 构造旧域名的匹配规则 (强制转小写以避免大小写不匹配)
-        const oldDomain = `${CONFIG.githubUser}.github.io`.toLowerCase();
-        // 获取当前站点域名 (处理自定义域名的情况，如 are.ink)
-        const currentDomain = window.location.host.toLowerCase(); 
-
-        images.forEach((img) => {
-            // 获取当前图片的 src
-            let src = img.getAttribute('src'); 
-            
-            // 忽略空值、Base64图片、已经是CDN的链接
-            if (!src || src.startsWith('data:') || src.includes(CONFIG.cdnDomain)) {
-                return;
-            }
-
-            // 为了匹配检查，构造一个用于比较的 src
-            const srcForCheck = src.toLowerCase();
-
-            let relativePath = null;
-
-            // Case A: 包含 github.io 域名 (标准 GitHub Pages)
-            if (srcForCheck.includes(oldDomain)) {
-                const startIndex = srcForCheck.indexOf(oldDomain);
-                if (startIndex !== -1) {
-                    relativePath = src.substring(startIndex + oldDomain.length);
-                }
-            }
-            // Case B: 包含当前域名 (自定义域名 或 Localhost)
-            else if (srcForCheck.includes(currentDomain)) {
-                try {
-                    // 尝试解析 URL 获取 pathname
-                    const url = new URL(src, window.location.href);
-                    relativePath = decodeURIComponent(url.pathname);
-                } catch (e) {
-                    // 降级处理
-                    const parts = src.split(currentDomain);
-                    if (parts.length > 1) relativePath = parts[1];
-                }
-            }
-            // Case C: 相对路径 (以 / 开头，且不包含 //)
-            else if (src.startsWith('/') && !src.startsWith('//')) {
-                relativePath = src;
-            }
-
-            // 如果成功提取到了相对路径
-            if (relativePath) {
-                // 移除开头的斜杠，防止双斜杠
-                if (relativePath.startsWith('/')) {
-                    relativePath = relativePath.substring(1); 
-                }
-                
-                // 构造新的 CDN 链接
-                // 注意：jsDelivr 必须使用 GitHub 仓库的原始路径 (User/Repo)，与自定义域名 (CNAME) 无关
-                const newSrc = `${CONFIG.cdnDomain}/${CONFIG.githubUser}/${CONFIG.repoName}@${CONFIG.branch}/${relativePath}`;
-
-                // 替换图片链接
-                img.src = newSrc;
-                img.setAttribute('data-optimized', 'true');
-
-                // 添加错误回退机制
-                img.onerror = function() {
-                    this.src = src; // 恢复原图
-                    this.onerror = null; // 防止死循环
-                };
-            }
-        });
-    }
-
-    // 页面加载完成后立即执行
-    document.addEventListener('DOMContentLoaded', optimizeImages);
-    
-    // 兼容一些使用 Pjax (无刷新跳转) 的主题
-    document.addEventListener('pjax:complete', optimizeImages);
-
-})();
-</script>
 
     <script>
-    // Theme Copyright
-    console.log(
-        '\n' +
-        '%c Gridea Theme for Amore v1.0 %c https://www.amore.ink ',
-        'color: #fadfa3; background: #030307; padding: 12px 10px; border-radius: 3px 0 0 3px;',
-        'color: #030307; background: #fadfa3; padding: 12px 10px; border-radius: 0 3px 3px 0;'
-        + '\n',
-    );
-</script>
-
-
-<script>
     // declaraction of document.ready() function.
     (function () {
         var ie = !!(window.attachEvent && !window.opera);
@@ -215,8 +85,9 @@
                 return 'light';
             };
 
+            const configDefault = 'dark';
             const currentTheme = window.localStorage && window.localStorage.getItem('theme');
-            const initialTheme = currentTheme || getSystemTheme();
+            const initialTheme = currentTheme || configDefault || getSystemTheme();
             const isDark = initialTheme === 'dark';
 
             const updateButtons = (dark) => {
@@ -304,7 +175,7 @@
             };
             _Blog.toggleTheme();
 
-            if (window.matchMedia) {
+            if (window.matchMedia && !configDefault) {
                 window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
                     const newTheme = e.matches ? 'dark' : 'light';
                     applyTheme(e.matches);
@@ -376,6 +247,8 @@
 
 
     
+
+    
 <meta name="description" content="Welcome to Gridea Pro">
 <link rel="canonical" href="https://xlmm.github.io/memos/">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"Gridea Pro","url":"https://xlmm.github.io","description":"Welcome to Gridea Pro","potentialAction":{"@type":"SearchAction","query-input":"required name=search_term_string","target":"https://xlmm.github.io/search?q={search_term_string}"}}</script>
@@ -403,8 +276,9 @@
             return 'light';
         };
 
+        const configDefault = 'dark';
         const savedTheme = localStorage.getItem('theme');
-        const theme = savedTheme || getSystemTheme();
+        const theme = savedTheme || configDefault || getSystemTheme();
 
         if (theme === 'dark') {
             document.body.classList.add('dark-theme');
@@ -418,7 +292,8 @@
 <header class="mod-head">
     <div class="mod-head__left">
         <div class="mod-head__logo">
-            <a href="https://xlmm.github.io">
+            <a href="/">
+                
                 
                     <img class="avatar" alt="avatar" src="/images/avatar.png">
                 
@@ -463,101 +338,6 @@
                     
 
                         <!-- 热力图 -->
-                        <style>
-                            .heatmap-wrap {
-                                margin-bottom: 32px;
-                                overflow-x: auto;
-                            }
-
-                            .heatmap-wrap table {
-                                border-collapse: separate;
-                                border-spacing: 3px;
-                                width: 100%;
-                                table-layout: fixed;
-                            }
-
-                            .heatmap-wrap td.cell {
-                                border-radius: 2px;
-                                height: 13px;
-                                cursor: default;
-                            }
-
-                            .heatmap-wrap td.cell:hover {
-                                outline: 1px solid rgba(40, 223, 153, 0.6);
-                                outline-offset: -1px;
-                            }
-
-                            .heatmap-wrap td:empty {
-                                height: 13px;
-                            }
-
-                            .heatmap-month-label {
-                                font-size: 11px;
-                                color: #999;
-                                text-align: left;
-                                padding: 0 0 4px 0;
-                                line-height: 1;
-                            }
-
-                            .heatmap-day-label {
-                                font-size: 10px;
-                                color: #999;
-                                width: 28px;
-                                min-width: 28px;
-                                max-width: 28px;
-                                text-align: right;
-                                padding-right: 6px;
-                                line-height: 1;
-                            }
-
-                            .dark-theme .heatmap-month-label,
-                            .dark-theme .heatmap-day-label {
-                                color: #666;
-                            }
-
-                            .dark-theme .heatmap-wrap td.cell[data-level="0"] {
-                                background: #161b22 !important;
-                            }
-
-                            .dark-theme .heatmap-wrap td.cell[data-level="1"] {
-                                background: #0e4429 !important;
-                            }
-
-                            .dark-theme .heatmap-wrap td.cell[data-level="2"] {
-                                background: #006d32 !important;
-                            }
-
-                            .dark-theme .heatmap-wrap td.cell[data-level="3"] {
-                                background: #28df99 !important;
-                            }
-
-                            .dark-theme .heatmap-wrap td.cell[data-level="4"] {
-                                background: #39d353 !important;
-                            }
-
-                            .heatmap-footer {
-                                display: flex;
-                                justify-content: space-between;
-                                align-items: center;
-                                margin-top: 6px;
-                                font-size: 11px;
-                                color: #999;
-                            }
-
-                            .heatmap-legend {
-                                display: flex;
-                                align-items: center;
-                                gap: 4px;
-                            }
-
-                            .heatmap-legend-cell {
-                                width: 10px;
-                                height: 10px;
-                                border-radius: 2px;
-                                display: inline-block;
-                            }
-                        </style>
-
                         <div class="heatmap-wrap">
                             <div id="heatmap-root"></div>
                             <div class="heatmap-footer">
@@ -578,69 +358,47 @@
                         <div class="memos-list">
                             
                                 <div class="memo-item "
-                                    data-created="2026-04-18"
-                                    style="position: relative; margin-bottom: 20px; padding: 20px 24px; border-left: 3px solid #28df99; background: linear-gradient(135deg, rgba(40,223,153,0.03) 0%, rgba(255,255,255,0.8) 100%); border-radius: 0 10px 10px 0; transition: all 0.2s ease;">
-                                    <div class="memo-body"
-                                        style="max-height: 160px; overflow: hidden; position: relative; transition: max-height 0.3s ease;">
-                                        <div class="memo-content"
-                                            style="font-size: 14px; line-height: 1.9; color: #333; word-wrap: break-word;">
+                                    data-created="2026-04-18">
+                                    <div class="memo-body">
+                                        <div class="memo-content">
                                             <p>开了这个博客。不知道能坚持多久，但至少今天，我开始了。</p>
 <p>#日常 #里程碑</p>
 
                                         </div>
                                     </div>
                                     
-                                        <div class="memo-tags"
-                                            style="margin-top: 10px; display: flex; flex-wrap: wrap; gap: 6px;">
-                                            
-                                                <span
-                                                    style="display: inline-block; padding: 1px 10px; font-size: 11px; color: #28df99; background: rgba(40,223,153,0.08); border-radius: 20px; border: 1px solid rgba(40,223,153,0.2);">#
-                                                    日常
-                                                </span>
-                                                
-                                                <span
-                                                    style="display: inline-block; padding: 1px 10px; font-size: 11px; color: #28df99; background: rgba(40,223,153,0.08); border-radius: 20px; border: 1px solid rgba(40,223,153,0.2);">#
-                                                    里程碑
-                                                </span>
-                                                
-                                        </div>
+                                    <div class="memo-tags">
                                         
-                                            <div class="memo-meta"
-                                                style="margin-top: 10px; font-size: 12px; color: #aaa; display: flex; justify-content: space-between; align-items: center;">
-                                                <time>
-                                                    2026-04-18
-                                                </time>
-                                            </div>
+                                            <span class="memo-tag"># 日常</span>
+                                        
+                                            <span class="memo-tag"># 里程碑</span>
+                                        
+                                    </div>
+                                    
+                                    <div class="memo-meta">
+                                        <time>2026-04-18</time>
+                                    </div>
                                 </div>
-                                
+                            
                                 <div class="memo-item "
-                                    data-created="2026-04-18"
-                                    style="position: relative; margin-bottom: 20px; padding: 20px 24px; border-left: 3px solid #28df99; background: linear-gradient(135deg, rgba(40,223,153,0.03) 0%, rgba(255,255,255,0.8) 100%); border-radius: 0 10px 10px 0; transition: all 0.2s ease;">
-                                    <div class="memo-body"
-                                        style="max-height: 160px; overflow: hidden; position: relative; transition: max-height 0.3s ease;">
-                                        <div class="memo-content"
-                                            style="font-size: 14px; line-height: 1.9; color: #333; word-wrap: break-word;">
+                                    data-created="2026-04-18">
+                                    <div class="memo-body">
+                                        <div class="memo-content">
                                             <p>有些话，发朋友圈怕矫情，发微博怕没人看，跟朋友说怕打扰。<br />
 放在自己的博客里刚刚好——说了，但没有打扰任何人。</p>
 
                                         </div>
                                     </div>
                                     
-                                            <div class="memo-meta"
-                                                style="margin-top: 10px; font-size: 12px; color: #aaa; display: flex; justify-content: space-between; align-items: center;">
-                                                <time>
-                                                    2026-04-18
-                                                </time>
-                                            </div>
+                                    <div class="memo-meta">
+                                        <time>2026-04-18</time>
+                                    </div>
                                 </div>
-                                
+                            
                                 <div class="memo-item "
-                                    data-created="2026-04-18"
-                                    style="position: relative; margin-bottom: 20px; padding: 20px 24px; border-left: 3px solid #28df99; background: linear-gradient(135deg, rgba(40,223,153,0.03) 0%, rgba(255,255,255,0.8) 100%); border-radius: 0 10px 10px 0; transition: all 0.2s ease;">
-                                    <div class="memo-body"
-                                        style="max-height: 160px; overflow: hidden; position: relative; transition: max-height 0.3s ease;">
-                                        <div class="memo-content"
-                                            style="font-size: 14px; line-height: 1.9; color: #333; word-wrap: break-word;">
+                                    data-created="2026-04-18">
+                                    <div class="memo-body">
+                                        <div class="memo-content">
                                             <p>翻到两年前写的一段话，完全不记得当时为什么写。但那个情绪，隔着屏幕都能感觉到。<br />
 幸好当时写下来了。不然这段经历就真的不存在了。</p>
 <p>#记忆</p>
@@ -648,52 +406,36 @@
                                         </div>
                                     </div>
                                     
-                                        <div class="memo-tags"
-                                            style="margin-top: 10px; display: flex; flex-wrap: wrap; gap: 6px;">
-                                            
-                                                <span
-                                                    style="display: inline-block; padding: 1px 10px; font-size: 11px; color: #28df99; background: rgba(40,223,153,0.08); border-radius: 20px; border: 1px solid rgba(40,223,153,0.2);">#
-                                                    记忆
-                                                </span>
-                                                
-                                        </div>
+                                    <div class="memo-tags">
                                         
-                                            <div class="memo-meta"
-                                                style="margin-top: 10px; font-size: 12px; color: #aaa; display: flex; justify-content: space-between; align-items: center;">
-                                                <time>
-                                                    2026-04-18
-                                                </time>
-                                            </div>
+                                            <span class="memo-tag"># 记忆</span>
+                                        
+                                    </div>
+                                    
+                                    <div class="memo-meta">
+                                        <time>2026-04-18</time>
+                                    </div>
                                 </div>
-                                
+                            
                                 <div class="memo-item "
-                                    data-created="2026-04-18"
-                                    style="position: relative; margin-bottom: 20px; padding: 20px 24px; border-left: 3px solid #28df99; background: linear-gradient(135deg, rgba(40,223,153,0.03) 0%, rgba(255,255,255,0.8) 100%); border-radius: 0 10px 10px 0; transition: all 0.2s ease;">
-                                    <div class="memo-body"
-                                        style="max-height: 160px; overflow: hidden; position: relative; transition: max-height 0.3s ease;">
-                                        <div class="memo-content"
-                                            style="font-size: 14px; line-height: 1.9; color: #333; word-wrap: break-word;">
+                                    data-created="2026-04-18">
+                                    <div class="memo-body">
+                                        <div class="memo-content">
                                             <p>今天什么也没写。但打开了编辑器，看了一会儿光标在那里闪。<br />
 这也算一种开始吧。</p>
 
                                         </div>
                                     </div>
                                     
-                                            <div class="memo-meta"
-                                                style="margin-top: 10px; font-size: 12px; color: #aaa; display: flex; justify-content: space-between; align-items: center;">
-                                                <time>
-                                                    2026-04-18
-                                                </time>
-                                            </div>
+                                    <div class="memo-meta">
+                                        <time>2026-04-18</time>
+                                    </div>
                                 </div>
-                                
+                            
                                 <div class="memo-item "
-                                    data-created="2026-04-18"
-                                    style="position: relative; margin-bottom: 20px; padding: 20px 24px; border-left: 3px solid #28df99; background: linear-gradient(135deg, rgba(40,223,153,0.03) 0%, rgba(255,255,255,0.8) 100%); border-radius: 0 10px 10px 0; transition: all 0.2s ease;">
-                                    <div class="memo-body"
-                                        style="max-height: 160px; overflow: hidden; position: relative; transition: max-height 0.3s ease;">
-                                        <div class="memo-content"
-                                            style="font-size: 14px; line-height: 1.9; color: #333; word-wrap: break-word;">
+                                    data-created="2026-04-18">
+                                    <div class="memo-body">
+                                        <div class="memo-content">
                                             <p>有个事困扰了我好几天，今晚试着写下来，写着写着突然就不纠结了。<br />
 文字虽然没给我答案，但这个事情仿佛已经不重要了。</p>
 <p>#随想</p>
@@ -701,118 +443,20 @@
                                         </div>
                                     </div>
                                     
-                                        <div class="memo-tags"
-                                            style="margin-top: 10px; display: flex; flex-wrap: wrap; gap: 6px;">
-                                            
-                                                <span
-                                                    style="display: inline-block; padding: 1px 10px; font-size: 11px; color: #28df99; background: rgba(40,223,153,0.08); border-radius: 20px; border: 1px solid rgba(40,223,153,0.2);">#
-                                                    随想
-                                                </span>
-                                                
-                                        </div>
+                                    <div class="memo-tags">
                                         
-                                            <div class="memo-meta"
-                                                style="margin-top: 10px; font-size: 12px; color: #aaa; display: flex; justify-content: space-between; align-items: center;">
-                                                <time>
-                                                    2026-04-18
-                                                </time>
-                                            </div>
+                                            <span class="memo-tag"># 随想</span>
+                                        
+                                    </div>
+                                    
+                                    <div class="memo-meta">
+                                        <time>2026-04-18</time>
+                                    </div>
                                 </div>
-                                
+                            
                         </div>
 
                         <!-- 分页控件 -->
-                        <style>
-                            .memo-hide {
-                                display: none;
-                            }
-
-                            .memo-item:hover {
-                                background: linear-gradient(135deg, rgba(40, 223, 153, 0.06) 0%, rgba(255, 255, 255, 0.9) 100%) !important;
-                            }
-
-                            .memo-expand-btn {
-                                display: none;
-                                margin-top: 4px;
-                                font-size: 12px;
-                                color: #28df99;
-                                cursor: pointer;
-                                border: none;
-                                background: none;
-                                padding: 0;
-                            }
-
-                            .memo-expand-btn:hover {
-                                text-decoration: underline;
-                            }
-
-                            .memo-body.collapsed::after {
-                                content: '';
-                                position: absolute;
-                                bottom: 0;
-                                left: 0;
-                                right: 0;
-                                height: 40px;
-                                background: linear-gradient(transparent, rgba(255, 255, 255, 0.95));
-                                pointer-events: none;
-                            }
-
-                            .dark-theme .memo-item {
-                                background: linear-gradient(135deg, rgba(40, 223, 153, 0.06) 0%, rgba(41, 42, 45, 0.8) 100%) !important;
-                            }
-
-                            .dark-theme .memo-item:hover {
-                                background: linear-gradient(135deg, rgba(40, 223, 153, 0.1) 0%, rgba(41, 42, 45, 0.9) 100%) !important;
-                            }
-
-                            .dark-theme .memo-content {
-                                color: #a9a9b3 !important;
-                            }
-
-                            .dark-theme .memo-meta {
-                                color: #666 !important;
-                            }
-
-                            .dark-theme .memo-body.collapsed::after {
-                                background: linear-gradient(transparent, rgba(41, 42, 45, 0.95));
-                            }
-
-                            .memo-pagination {
-                                display: flex;
-                                justify-content: center;
-                                gap: 12px;
-                                margin-top: 24px;
-                            }
-
-                            .memo-pagination a {
-                                padding: 6px 16px;
-                                font-size: 13px;
-                                color: #28df99;
-                                border: 1px solid rgba(40, 223, 153, 0.3);
-                                border-radius: 20px;
-                                cursor: pointer;
-                                transition: all 0.2s;
-                                text-decoration: none;
-                            }
-
-                            .memo-pagination a:hover {
-                                background: rgba(40, 223, 153, 0.1);
-                                color: #1a9f6b;
-                            }
-
-                            .memo-pagination .disabled {
-                                opacity: 0.3;
-                                pointer-events: none;
-                            }
-
-                            .memo-page-info {
-                                font-size: 12px;
-                                color: #999;
-                                display: flex;
-                                align-items: center;
-                            }
-                        </style>
-
                         <div class="memo-pagination" id="memo-pagination">
                             <a href="javascript:void(0);" id="memo-prev-btn" class="disabled" onclick="memoPrevPage()">←
                                 上一页</a>
@@ -1003,40 +647,57 @@
     <nav>
         
             
-            <a class="menu-item" href="/">首页</a>
-        
+                    <a class="menu-item" href="/">
+                        首页
+                    </a>
+                    
              · 
-            <a class="menu-item" href="/post">博客</a>
-        
+                    <a class="menu-item" href="/post">
+                        博客
+                    </a>
+                    
              · 
-            <a class="menu-item" href="/memos">闪念</a>
-        
+                    <a class="menu-item" href="/memos">
+                        闪念
+                    </a>
+                    
              · 
-            <a class="menu-item" href="/archives">归档</a>
-        
+                    <a class="menu-item" href="/archives">
+                        归档
+                    </a>
+                    
              · 
-            <a class="menu-item" href="/tags">标签</a>
-        
+                    <a class="menu-item" href="/tags">
+                        标签
+                    </a>
+                    
              · 
-            <a class="menu-item" href="/links">友链</a>
-        
+                    <a class="menu-item" href="/links">
+                        友链
+                    </a>
+                    
              · 
-            <a class="menu-item" href="/post/about">关于</a>
-        
+                    <a class="menu-item" href="/post/about">
+                        关于
+                    </a>
+                    
     </nav>
 
-    <div class="Copyright">Copyright &copy; 2026 <a href="https://xlmm.github.io">Gridea Pro</a></div>
+    <div class="Copyright">Copyright &copy; 2026 <a href="https://xlmm.github.io">
+                Gridea Pro
+            </a></div>
 
-    <footer id="footer" class="index_footer">
-        Powered by Gridea Pro · 
-        <a class="rss" href="https://xlmm.github.io/atom.xml" target="_blank" rel="noopener noreferrer">
-        <i class="ri-rss-line"></i> 🍀 RSS
-  </a>
-    </footer>
+    <div class="index_footer">
+        Powered by Gridea Pro ·
+            <a class="rss" href="/feed.xml" target="_blank" rel="noopener noreferrer">
+                <i class="ri-rss-line"></i> RSS
+            </a>
+    </div>
 </footer>
 
 
-    <script>console.log("\n%c ✦ Gridea Pro v1.1.1 %c · Theme: amore v1.0.0 · https://gridea.pro %c\n","color:#fadfa3;background:#111111;padding:9px 14px;border-radius:4px 0 0 4px;font-weight:500;font-size:12px","color:#e05c00;background:#fff3ec;padding:9px 14px;border-radius:0 4px 4px 0;font-size:11px","")</script>
+
+    <script>console.log("\n%c ✦ Gridea Pro v1.1.1 %c · Theme: amore v1.1.0 · https://gridea.pro %c\n","color:#fadfa3;background:#111111;padding:9px 14px;border-radius:4px 0 0 4px;font-weight:500;font-size:12px","color:#e05c00;background:#fff3ec;padding:9px 14px;border-radius:0 4px 4px 0;font-size:11px","")</script>
 </body>
 
     </html>
