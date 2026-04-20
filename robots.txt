@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://lucasxlm.gitee.io/sitemap.xml
+Sitemap: https://xlmm.github.io/sitemap.xml
