@@ -9,7 +9,7 @@
     <meta name="format-detection" content="telephone=no, email=no, address=no">
 
     <meta name="generator" content="Gridea Pro 1.1.1">
-    <title>博客 | Lucas</title>
+    <title>需求文档的修炼 | Lucas</title>
 
     
     <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
@@ -249,20 +249,21 @@
     
 
     
-<meta name="description" content="欢迎你的到来">
+<meta name="description" content="lucas 「任何一个系统，在被书写之前，都是不可控的。」—— 连轴写三周设计文档的感受。 需求文档 需求文档不是写给任何人的，而是写给系统本身的。或者这是本质，它不仅仅是一个沟通媒介，或者仅仅是展示方案，更应该是一种语言文字中的系统重建过程。 需求文档，并不是陈述结果，而是构建因果，并不是为了展示出撰稿人已经想好的部分，更是为了暴露那些还没想清楚的部分。在写的过程中，即为&amp;hellip;">
 <meta name="keywords" content="Lucas">
-<link rel="canonical" href="https://xlmm.github.io/post/">
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"Lucas","url":"https://xlmm.github.io","description":"欢迎你的到来","potentialAction":{"@type":"SearchAction","query-input":"required name=search_term_string","target":"https://xlmm.github.io/search?q={search_term_string}"}}</script>
-<meta property="og:title" content="Lucas">
-<meta property="og:description" content="欢迎你的到来">
-<meta property="og:url" content="https://xlmm.github.io/post/">
-<meta property="og:type" content="website">
+<link rel="canonical" href="https://xlmm.github.io/post/refine-requirements-documentation/">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"需求文档的修炼","url":"https://xlmm.github.io/post/refine-requirements-documentation/","description":"lucas 「任何一个系统，在被书写之前，都是不可控的。」—— 连轴写三周设计文档的感受。 需求文档 需求文档不是写给任何人的，而是写给系统本身的。或者这是本质，它不仅仅是一个沟通媒介，或者仅仅是展示方案，更应该是一种语言文字中的系统重建过程。 需求文档，并不是陈述结果，而是构建因果，并不是为了展示出撰稿人已经想好的部分，更是为了暴露那些还没想清楚的部分。在写的过程中，即为\u0026hellip;","datePublished":"2026-04-24T17:38:11+08:00","dateModified":"2026-04-24T17:38:11+08:00","author":{"@type":"Person","name":"Lucas"},"publisher":{"@type":"Organization","logo":{"@type":"ImageObject","url":"/images/avatar.png"},"name":"Lucas"}}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","item":"https://xlmm.github.io","name":"Lucas","position":1},{"@type":"ListItem","item":"https://xlmm.github.io/post/refine-requirements-documentation/","name":"需求文档的修炼","position":2}]}</script>
+<meta property="og:title" content="需求文档的修炼">
+<meta property="og:description" content="lucas 「任何一个系统，在被书写之前，都是不可控的。」—— 连轴写三周设计文档的感受。 需求文档 需求文档不是写给任何人的，而是写给系统本身的。或者这是本质，它不仅仅是一个沟通媒介，或者仅仅是展示方案，更应该是一种语言文字中的系统重建过程。 需求文档，并不是陈述结果，而是构建因果，并不是为了展示出撰稿人已经想好的部分，更是为了暴露那些还没想清楚的部分。在写的过程中，即为&amp;hellip;">
+<meta property="og:url" content="https://xlmm.github.io/post/refine-requirements-documentation/">
+<meta property="og:type" content="article">
 <meta property="og:site_name" content="Lucas">
 <meta property="og:image" content="/images/avatar.png">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:url" content="https://xlmm.github.io/post/">
-<meta name="twitter:title" content="Lucas">
-<meta name="twitter:description" content="欢迎你的到来">
+<meta name="twitter:url" content="https://xlmm.github.io/post/refine-requirements-documentation/">
+<meta name="twitter:title" content="需求文档的修炼">
+<meta name="twitter:description" content="lucas 「任何一个系统，在被书写之前，都是不可控的。」—— 连轴写三周设计文档的感受。 需求文档 需求文档不是写给任何人的，而是写给系统本身的。或者这是本质，它不仅仅是一个沟通媒介，或者仅仅是展示方案，更应该是一种语言文字中的系统重建过程。 需求文档，并不是陈述结果，而是构建因果，并不是为了展示出撰稿人已经想好的部分，更是为了暴露那些还没想清楚的部分。在写的过程中，即为&amp;hellip;">
 <meta name="twitter:image" content="/images/avatar.png">
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#ffffff">
@@ -277,9 +278,9 @@
 <script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js')}</script>
 </head>
 
-<body>
+    <body>
 
-<script>
+        <script>
     (function () {
         const getSystemTheme = () => {
             if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
@@ -339,48 +340,129 @@
 </header>
 <!-- <a href="#" id="back-to-top" style="display: inline;"> ^ </a> -->
 
-<article class="mod-archive">
+            <article class="mod-post mod-post__type-post">
+                <header>
+                    <h1 class="mod-post__title">
+                        需求文档的修炼
+                    </h1>
+                </header>
 
-	<div class="mod-archive__item"><div class="mod-archive__year"></div>
-    
-		<ul class="mod-archive__list">
-            
-            
-            
-			<li class="post-item "><time class="mod-archive__time" datetime="2026-04-20">2026-04-20</time> <span>&nbsp;&nbsp;&nbsp;</span>
-       <a href="/post/judging-power-2026-april-20/">
-        [置顶] 
-        2026 年04月20日：判断力
-       </a>
-      </li>
-            
-			<li class="post-item "><time class="mod-archive__time" datetime="2026-04-24">2026-04-24</time> <span>&nbsp;&nbsp;&nbsp;</span>
-       <a href="/post/refine-requirements-documentation/">
-        
-        需求文档的修炼
-       </a>
-      </li>
-            
-			<li class="post-item "><time class="mod-archive__time" datetime="2026-04-20">2026-04-20</time> <span>&nbsp;&nbsp;&nbsp;</span>
-       <a href="/post/ai-assisted-engineering-methods/">
-        
-        2026年4月20日：AI 辅助工程方式
-       </a>
-      </li>
-            
-				</ul>
+                <div class="mod-post__meta">
+                    <time datetime="2026-04-24">
+                        2026-04-24
+                    </time> • 2 分钟阅读 •
+                        
+                </div>
 
-		<div class="posts-nav">
+
+
+                <div class="mod-post__entry wzulli">
+                    
+                            <h2 id="lucas">lucas</h2>
+<p>「任何一个系统，在被书写之前，都是不可控的。」—— 连轴写三周设计文档的感受。</p>
+<h2 id="heading">需求文档</h2>
+<p>需求文档不是写给任何人的，而是写给系统本身的。或者这是本质，它不仅仅是一个沟通媒介，或者仅仅是展示方案，更应该是一种语言文字中的系统重建过程。</p>
+<p>需求文档，并不是陈述结果，而是构建因果，并不是为了展示出撰稿人已经想好的部分，更是为了暴露那些还没想清楚的部分。在写的过程中，即为一种建模行为。从写下的第一句话开始，就不再是思维的隐喻，而是文字搭建出来的显性结构。</p>
+<h2 id="heading-1">需求本质</h2>
+<p>需求的本质，是在不确定中做出约束；<br />
+撰写的本质，是在混乱中建立出逻辑。</p>
+<p>一个成熟的需求，它不应该只是，这个功能，这个系统，它应该是怎样做的。更应是，在什么约束下，如何做出取舍，为什么要这样做。这不是在描述撰写人的构想，而是在构建对复杂性的压缩，对模糊性的约束。</p>
+<p>所以我认为它必须具备这些属性：</p>
+<p><strong>拓扑性</strong>：每一个逻辑节点都要有明确的连接关系，不能孤立存在。</p>
+<p><strong>封装性</strong>：每一个段落内，只解决一个问题，不要引入其他维度的变量。</p>
+<p><strong>稳定性</strong>：可以容纳新的假设，进行修改，并确保不会在这些局部变动中，失去整体的稳定性。</p>
+<p>需求文档上的内容，不仅是一个个句子，而是具备信息密度，和逻辑闭环的，自洽的空间结构。它，本身就是建造本身的一部分。</p>
+<h2 id="heading-2">信息转移</h2>
+<p>需求文档，最难的一部分，不是逻辑严谨，也不是技术精准，而是让读者从原本不理解到懂了，从不相信走向相信。</p>
+<p>这意味着，撰写人要理解读者所处的认知位置，知道他们在：</p>
+<ul>
+<li>想要什么；</li>
+<li>怀疑什么；</li>
+<li>害怕什么；</li>
+<li>假设了什么，但未曾意识到。</li>
+</ul>
+<p>撰写人无需论证，更该引导。无需辩论，更应构建路径，让读者在潜意识中自己走完全程，并说出，哦，原来这样。</p>
+<ul>
+<li>A→B，是撰稿人熟悉的路径；</li>
+<li>B→C，是撰稿人已接受的推论；</li>
+<li>那么 C→D，就不需要争论，只需要铺陈。</li>
+</ul>
+<p>而这个路径的每一个转折点，都必须有控制地暴露张力、适时地释放能量。这不是什么浮夸的撰写技巧，而是心理建模能力。越了解读者，文档信息转移就越高效。</p>
+<h2 id="heading-3">认知节奏设计</h2>
+<p>很多设计文档看似齐整，却让人看得云里雾里。大多问题都在只满足了文档模板，却没有构建出认知路径图。所以，结构不应该是撰写的容器，而是协助推理的发条。</p>
+<ul>
+<li><strong>需求背景</strong>不只是单去告诉发生了什么，更要确立不可推翻的起点。</li>
+<li><strong>需求目标</strong>也不单指是宣言，而是为整个后文设定一个逻辑的终点坐标。</li>
+<li><strong>备选方案</strong>不是&quot;列出来&quot;，而是让读者理解撰稿人为何不选它们，整个取舍过程。</li>
+<li><strong>决策理由</strong>不是利弊分析，而是对冲未来质疑的预埋结构。</li>
+<li><strong>风险</strong>不是弱点，而是对系统边界的诚实声明；<strong>流程</strong>也不仅仅是下一个步骤，而是对未来延伸的承诺。</li>
+</ul>
+<p>所以，一个真正高级的需求结构，应该让整篇文档读起来像一部在慢慢自我展开的逻辑机器，没有一颗齿轮是多余的，没有一个章节可以调换。</p>
+<hr />
+<p>综上：</p>
+<p>代码让系统运转，文字让人类协作。</p>
+<p>预算可以改变，排期可以延后，但一个糟糕的需求文档会在系统上线后以十倍的代价回来索命。在复杂系统的产品生命周期中，真正能穿越时间、团队变动、架构演进的，不是产品本身，也不是撰写人的记录，而是那份看似无声、却自洽如初的需求文档。</p>
+<p>它是对系统混沌的最早驯服，也是最重要的承诺。产品人以为自己在写一份文档。但其实是在设计一个未来，在用语言驯服混沌，在用结构封印噪声，在用共识替代争论。</p>
+<p>当那一份文档足够清晰、冷静、坚固、优雅，<br />
+它会在无数次会议、交接、重构、灾难与回顾中一次次被打开，仿佛在对后来者说：</p>
+<blockquote>
+<p>&ldquo;看，这就是我们当时是怎么想清楚的。&rdquo;<br />
+&ldquo;这不是我的文字，这是系统自己的语言。&rdquo;<br />
+&ldquo;一切从这里开始。&rdquo;</p>
+</blockquote>
+
+                </div>
+
+            </article>
+
+
             
                 
-                
-                
-            
-		</div>
+	<div class="mod-post__foot">
+	 文章标签: 
+     
+     </br>
 	</div>
-	
-</article>
-<footer id="footer" class="footer">
+
+                    
+
+                        <div class="mod-post__poster">
+                        </div>
+
+                        </div>
+
+                        
+                            
+<br>
+
+<div style="margin-bottom: 10px;">
+    上一篇 : <a href="/post/judging-power-2026-april-20/">2026 年04月20日：判断力</a>
+</div>
+
+
+
+<div style="margin-bottom: 40px;">
+    下一篇 : <a href="/post/ai-assisted-engineering-methods/">2026年4月20日：AI 辅助工程方式</a>
+</div>
+
+
+</div>	
+
+                                
+
+                                    
+                                        <!-- Reading Progress Component -->
+<div class="reading-progress-container">
+  <span class="reading-label">阅读进度</span>
+  <span class="reading-value">0%</span>
+  <svg class="progress-ring" viewBox="0 0 24 24">
+    <!-- Background Circle -->
+    <circle class="progress-ring__circle-bg" stroke-width="3" fill="transparent" r="10" cx="12" cy="12" />
+    <!-- Progress Circle -->
+    <circle class="progress-ring__circle" stroke-width="3" fill="transparent" r="10" cx="12" cy="12" />
+  </svg>
+</div>
+                                            <footer id="footer" class="footer">
     <nav>
         
             
@@ -434,6 +516,8 @@
 
 
 
-<script>console.log("\n%c ✦ Gridea Pro v1.1.1 %c · Theme: amore v1.1.0 · https://gridea.pro %c\n","color:#fadfa3;background:#111111;padding:9px 14px;border-radius:4px 0 0 4px;font-weight:500;font-size:12px","color:#e05c00;background:#fff3ec;padding:9px 14px;border-radius:0 4px 4px 0;font-size:11px","")</script>
+
+    <script>console.log("\n%c ✦ Gridea Pro v1.1.1 %c · Theme: amore v1.1.0 · https://gridea.pro %c\n","color:#fadfa3;background:#111111;padding:9px 14px;border-radius:4px 0 0 4px;font-weight:500;font-size:12px","color:#e05c00;background:#fff3ec;padding:9px 14px;border-radius:0 4px 4px 0;font-size:11px","")</script>
 </body>
-</html>
+
+    </html>
