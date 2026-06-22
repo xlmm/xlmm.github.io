@@ -1,0 +1,507 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport"
+        content="initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=0, width=device-width" />
+    <meta name="renderer" content="webkit">
+    <meta name="format-detection" content="telephone=no, email=no, address=no">
+
+    <meta name="generator" content="Gridea Pro 1.2.2">
+    <title>2026 年04月20日：判断力 | Lucas</title>
+
+    
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#292a2d" media="(prefers-color-scheme: dark)">
+
+    
+    <link rel="shortcut icon" href="/media/images/favicon.ico">
+<link rel="stylesheet" href="/styles/main.min.css">
+
+    
+    <style>:root{--accent-color:#28df99;}</style>
+    
+
+    <script>
+    // 自动为所有 target="_blank" 的链接添加 rel="noopener noreferrer"
+    document.addEventListener('DOMContentLoaded', function() {
+        var links = document.querySelectorAll('a[target="_blank"]');
+        links.forEach(function(link) {
+            var rel = link.getAttribute('rel') || '';
+            if (rel.indexOf('noopener') === -1) {
+                rel += ' noopener';
+            }
+            if (rel.indexOf('noreferrer') === -1) {
+                rel += ' noreferrer';
+            }
+            link.setAttribute('rel', rel.trim());
+        });
+    });
+</script>
+
+
+
+    <script>
+    // declaraction of document.ready() function.
+    (function () {
+        var ie = !!(window.attachEvent && !window.opera);
+        var wk = /webkit\/(\d+)/i.test(navigator.userAgent) && (RegExp.$1 < 525);
+        var fn = [];
+        var run = function () {
+            for (var i = 0; i < fn.length; i++) fn[i]();
+        };
+        var d = document;
+        d.ready = function (f) {
+            if (!ie && !wk && d.addEventListener)
+                return d.addEventListener('DOMContentLoaded', f, false);
+            if (fn.push(f) > 1) return;
+            if (ie)
+                (function () {
+                    try {
+                        d.documentElement.doScroll('left');
+                        run();
+                    } catch (err) {
+                        setTimeout(arguments.callee, 0);
+                    }
+                })();
+            else if (wk)
+                var t = setInterval(function () {
+                    if (/^(loaded|complete)$/.test(d.readyState))
+                        clearInterval(t), run();
+                }, 0);
+        };
+    })();
+
+
+    document.ready(
+        function () {
+            var _Blog = window._Blog || {};
+
+            const getSystemTheme = () => {
+                if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                    return 'dark';
+                }
+                return 'light';
+            };
+
+            const configDefault = 'dark';
+            const currentTheme = window.localStorage && window.localStorage.getItem('theme');
+            const initialTheme = currentTheme || configDefault || getSystemTheme();
+            const isDark = initialTheme === 'dark';
+
+            const updateButtons = (dark) => {
+                const sunBtn = document.getElementById("theme-toggle-sun");
+                const moonBtn = document.getElementById("theme-toggle-moon");
+                const mobileSunBtn = document.getElementById("mobile-theme-toggle-sun");
+                const mobileMoonBtn = document.getElementById("mobile-theme-toggle-moon");
+
+                if (dark) {
+                    if (sunBtn) sunBtn.style.display = 'none';
+                    if (moonBtn) moonBtn.style.display = 'inline-block';
+                    if (mobileSunBtn) mobileSunBtn.style.display = 'none';
+                    if (mobileMoonBtn) mobileMoonBtn.style.display = 'inline-block';
+                } else {
+                    if (sunBtn) sunBtn.style.display = 'inline-block';
+                    if (moonBtn) moonBtn.style.display = 'none';
+                    if (mobileSunBtn) mobileSunBtn.style.display = 'inline-block';
+                    if (mobileMoonBtn) mobileMoonBtn.style.display = 'none';
+                }
+            };
+
+            const updateThemeColor = (dark) => {
+                const themeColor = dark ? '#292a2d' : '#ffffff';
+                const metaTags = document.querySelectorAll('meta[name="theme-color"]');
+                if (metaTags.length > 0) {
+                    // 保留第一个，移除其他的，避免重复
+                    for (let i = 1; i < metaTags.length; i++) {
+                        metaTags[i].remove();
+                    }
+                    metaTags[0].setAttribute('content', themeColor);
+                    metaTags[0].removeAttribute('media');
+                } else {
+                    const meta = document.createElement('meta');
+                    meta.name = 'theme-color';
+                    meta.content = themeColor;
+                    document.head.appendChild(meta);
+                }
+            };
+
+            const applyTheme = (dark) => {
+                const body = document.getElementsByTagName('body')[0];
+                if (dark) {
+                    body.classList.add('dark-theme');
+                } else {
+                    body.classList.remove('dark-theme');
+                }
+                updateButtons(dark);
+                updateThemeColor(dark);
+            };
+
+            // Initial application
+            applyTheme(isDark);
+            if (!currentTheme) {
+                window.localStorage && window.localStorage.setItem('theme', initialTheme);
+            }
+
+            _Blog.toggleTheme = function () {
+                const toggleFunc = (e) => {
+                    // Prevent bubbling if needed, though buttons are distinct now
+                    if (e) e.stopPropagation();
+
+                    const body = document.getElementsByTagName('body')[0];
+                    const isCurrentlyDark = body.classList.contains('dark-theme');
+
+                    if (isCurrentlyDark) {
+                        body.classList.remove('dark-theme');
+                        updateButtons(false);
+                        window.localStorage && window.localStorage.setItem('theme', 'light');
+                    } else {
+                        body.classList.add('dark-theme');
+                        updateButtons(true);
+                        window.localStorage && window.localStorage.setItem('theme', 'dark');
+                    }
+                };
+
+                const sunBtn = document.getElementById("theme-toggle-sun");
+                const moonBtn = document.getElementById("theme-toggle-moon");
+                const mobileSunBtn = document.getElementById("mobile-theme-toggle-sun");
+                const mobileMoonBtn = document.getElementById("mobile-theme-toggle-moon");
+
+                if (sunBtn) sunBtn.addEventListener('click', toggleFunc);
+                if (moonBtn) moonBtn.addEventListener('click', toggleFunc);
+                if (mobileSunBtn) mobileSunBtn.addEventListener('click', toggleFunc);
+                if (mobileMoonBtn) mobileMoonBtn.addEventListener('click', toggleFunc);
+            };
+            _Blog.toggleTheme();
+
+            if (window.matchMedia && !configDefault) {
+                window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+                    const newTheme = e.matches ? 'dark' : 'light';
+                    applyTheme(e.matches);
+                    window.localStorage && window.localStorage.setItem('theme', newTheme);
+                });
+            }
+        }
+    );
+</script>
+
+<script>
+    // Reading Progress Component
+    document.addEventListener('DOMContentLoaded', () => {
+        const progressValue = document.querySelector('.reading-value');
+        const progressCircle = document.querySelector('.progress-ring__circle');
+        const container = document.querySelector('.reading-progress-container');
+
+        // Exit if elements don't exist (e.g., not on a post page)
+        if (!progressValue || !progressCircle || !container) {
+            return;
+        }
+
+        // SVG Circle setup
+        const radius = progressCircle.r.baseVal.value;
+        const circumference = 2 * Math.PI * radius;
+
+        progressCircle.style.strokeDasharray = `${circumference} ${circumference}`;
+        progressCircle.style.strokeDashoffset = circumference;
+
+        function setProgress(percent) {
+            const safePercent = Math.min(100, Math.max(0, percent));
+            progressValue.textContent = `${Math.round(safePercent)}%`;
+            const offset = circumference - (safePercent / 100) * circumference;
+            progressCircle.style.strokeDashoffset = offset;
+        }
+
+        function onScroll() {
+            const scrollTop = window.scrollY || document.documentElement.scrollTop;
+            const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+
+            if (scrollHeight <= 0) {
+                setProgress(0);
+                return;
+            }
+
+            const scrollPercent = (scrollTop / scrollHeight) * 100;
+            setProgress(scrollPercent);
+
+            // Show/Hide logic: Show if scrolled more than 100px
+            if (scrollTop > 100) {
+                container.classList.add('show');
+            } else {
+                container.classList.remove('show');
+            }
+        }
+
+        // Initialize
+        onScroll();
+
+        // Listen for scroll events
+        window.addEventListener('scroll', onScroll, { passive: true });
+
+        // Recalculate on resize
+        window.addEventListener('resize', onScroll);
+    });
+</script>
+
+
+
+
+    
+
+    
+<meta name="description" content="最近一直在想一件事：AI 把代码生产的成本打下来之后，工程师的核心价值到底在哪里。 以前答案很清楚——技术。你能写出别人写不出的代码，你就值钱。系统设计、算法、底层架构，哪一个拿出来都是壁垒。建造本身是瓶颈，所以能建造的人站在价值链顶端。 现在不一样了。代码变得更容易生产，过去需要几天的事，现在可以在几小时内跑出原型。这条壁垒在快速消失。 壁垒消失之后，决定结果的东西就换了一批。建造什么，比怎么建造更重要。 这就是为什么判断力开始变得关键。 判断力要回答的是这类问题： 这个功能到底要不要做？ 这个方案是不是过度设计了？ 这条捷径的长期代价是什么？ 什么时候应该快，什么时候应该稳？ 这些问题没有标准答案，但做对和做错的差距极大。 举一个典型的反面例子：两个工程师，零付费用户，从一开始就上微服务架构。这不是技术能力的问题，是判断力的问题。判断力差的代价，轻则技术债累积，重则公司关门，因为永远等不来第一批付费用户。 判断力是什么？个人喜欢把它拆成两个部分：实用主义和品味。 实用主义是在真实世界的约束下找最优解，在理想世界里找完美解不算。预算、团队能力、时间、硬件限制——这些全都是约束，绕不开。好的判断力是在这些约束里仍然能找到最有价值的路径。 品味更难说清楚。它是一种对「这个方案对不对」的直觉感知。简洁的代码难以定义，但看到就知道。能让系统既简单又容易演进的决策，很多时候你说不出道理，但凭经验知道这是对的。 两者都需要积累。经验越多，对某个领域理解越深，判断力就越好。这也是为什么基础知识和领域经验现在比以前更值钱——没有这些底子，根本谈不上好的判断。 有一点需要说清楚：判断力在不同规模的组织里，重要程度差异很大。 大公司里，角色分工明确，单个工程师的决策空间有限，很多判断早就被流程和上下游锁死了。判断力当然有价值，但施展空间不大。 小公司和中型公司里完全不同。当你从立项、开发到上线都是同一个人，你的每一个判断都直接影响结果。有自主权，有责任，才是判断力真正发挥价值的土壤。 整个行业的趋势，也是往这个方向走——更小的团队，更多的所有权，更少的执行噪音，更有分量的决策。 执行力贬值，判断力升值。这个转变不只发生在工程师身上，在产品、设计、运营里同样在发生。 AI 把建造的门槛打低了，能建造的人变多了，「造什么」就变成了真正的稀缺能力。 这件事想透了，其实和当年古腾堡发明印刷机之后那个转变很像。书便宜了，人人都能读，问题就从「你能不能获取知识」变成了「你能不能判断哪些知识值得你的时间」。代码便宜了之后，问题也从「你能不能写出来」变成了「你能不能判断该写什么」。 门槛降低，反而让真正的能力更稀缺。 顺颂时祺 2026 年 4 月 20 日 Lucas">
+<meta name="keywords" content="游戏设计,概率,产品,Slots,RTP,读书笔记,Lucas">
+<link rel="canonical" href="https://xlmm.github.io/post/judging-power-2026-april-20/">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"2026 年04月20日：判断力","url":"https://xlmm.github.io/post/judging-power-2026-april-20/","description":"最近一直在想一件事：AI 把代码生产的成本打下来之后，工程师的核心价值到底在哪里。 以前答案很清楚——技术。你能写出别人写不出的代码，你就值钱。系统设计、算法、底层架构，哪一个拿出来都是壁垒。建造本身是瓶颈，所以能建造的人站在价值链顶端。 现在不一样了。代码变得更容易生产，过去需要几天的事，现在可以在几小时内跑出原型。这条壁垒在快速消失。 壁垒消失之后，决定结果的东西就换了一批。建造什么，比怎么建造更重要。 这就是为什么判断力开始变得关键。 判断力要回答的是这类问题： 这个功能到底要不要做？ 这个方案是不是过度设计了？ 这条捷径的长期代价是什么？ 什么时候应该快，什么时候应该稳？ 这些问题没有标准答案，但做对和做错的差距极大。 举一个典型的反面例子：两个工程师，零付费用户，从一开始就上微服务架构。这不是技术能力的问题，是判断力的问题。判断力差的代价，轻则技术债累积，重则公司关门，因为永远等不来第一批付费用户。 判断力是什么？个人喜欢把它拆成两个部分：实用主义和品味。 实用主义是在真实世界的约束下找最优解，在理想世界里找完美解不算。预算、团队能力、时间、硬件限制——这些全都是约束，绕不开。好的判断力是在这些约束里仍然能找到最有价值的路径。 品味更难说清楚。它是一种对「这个方案对不对」的直觉感知。简洁的代码难以定义，但看到就知道。能让系统既简单又容易演进的决策，很多时候你说不出道理，但凭经验知道这是对的。 两者都需要积累。经验越多，对某个领域理解越深，判断力就越好。这也是为什么基础知识和领域经验现在比以前更值钱——没有这些底子，根本谈不上好的判断。 有一点需要说清楚：判断力在不同规模的组织里，重要程度差异很大。 大公司里，角色分工明确，单个工程师的决策空间有限，很多判断早就被流程和上下游锁死了。判断力当然有价值，但施展空间不大。 小公司和中型公司里完全不同。当你从立项、开发到上线都是同一个人，你的每一个判断都直接影响结果。有自主权，有责任，才是判断力真正发挥价值的土壤。 整个行业的趋势，也是往这个方向走——更小的团队，更多的所有权，更少的执行噪音，更有分量的决策。 执行力贬值，判断力升值。这个转变不只发生在工程师身上，在产品、设计、运营里同样在发生。 AI 把建造的门槛打低了，能建造的人变多了，「造什么」就变成了真正的稀缺能力。 这件事想透了，其实和当年古腾堡发明印刷机之后那个转变很像。书便宜了，人人都能读，问题就从「你能不能获取知识」变成了「你能不能判断哪些知识值得你的时间」。代码便宜了之后，问题也从「你能不能写出来」变成了「你能不能判断该写什么」。 门槛降低，反而让真正的能力更稀缺。 顺颂时祺 2026 年 4 月 20 日 Lucas","datePublished":"2026-04-20T21:34:27+08:00","dateModified":"2026-04-20T21:34:27+08:00","author":{"@type":"Person","name":"Lucas"},"publisher":{"@type":"Organization","logo":{"@type":"ImageObject","url":"/images/avatar.png"},"name":"Lucas"}}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","item":"https://xlmm.github.io","name":"Lucas","position":1},{"@type":"ListItem","item":"https://xlmm.github.io/post/judging-power-2026-april-20/","name":"2026 年04月20日：判断力","position":2}]}</script>
+<meta property="og:title" content="2026 年04月20日：判断力">
+<meta property="og:description" content="最近一直在想一件事：AI 把代码生产的成本打下来之后，工程师的核心价值到底在哪里。 以前答案很清楚——技术。你能写出别人写不出的代码，你就值钱。系统设计、算法、底层架构，哪一个拿出来都是壁垒。建造本身是瓶颈，所以能建造的人站在价值链顶端。 现在不一样了。代码变得更容易生产，过去需要几天的事，现在可以在几小时内跑出原型。这条壁垒在快速消失。 壁垒消失之后，决定结果的东西就换了一批。建造什么，比怎么建造更重要。 这就是为什么判断力开始变得关键。 判断力要回答的是这类问题： 这个功能到底要不要做？ 这个方案是不是过度设计了？ 这条捷径的长期代价是什么？ 什么时候应该快，什么时候应该稳？ 这些问题没有标准答案，但做对和做错的差距极大。 举一个典型的反面例子：两个工程师，零付费用户，从一开始就上微服务架构。这不是技术能力的问题，是判断力的问题。判断力差的代价，轻则技术债累积，重则公司关门，因为永远等不来第一批付费用户。 判断力是什么？个人喜欢把它拆成两个部分：实用主义和品味。 实用主义是在真实世界的约束下找最优解，在理想世界里找完美解不算。预算、团队能力、时间、硬件限制——这些全都是约束，绕不开。好的判断力是在这些约束里仍然能找到最有价值的路径。 品味更难说清楚。它是一种对「这个方案对不对」的直觉感知。简洁的代码难以定义，但看到就知道。能让系统既简单又容易演进的决策，很多时候你说不出道理，但凭经验知道这是对的。 两者都需要积累。经验越多，对某个领域理解越深，判断力就越好。这也是为什么基础知识和领域经验现在比以前更值钱——没有这些底子，根本谈不上好的判断。 有一点需要说清楚：判断力在不同规模的组织里，重要程度差异很大。 大公司里，角色分工明确，单个工程师的决策空间有限，很多判断早就被流程和上下游锁死了。判断力当然有价值，但施展空间不大。 小公司和中型公司里完全不同。当你从立项、开发到上线都是同一个人，你的每一个判断都直接影响结果。有自主权，有责任，才是判断力真正发挥价值的土壤。 整个行业的趋势，也是往这个方向走——更小的团队，更多的所有权，更少的执行噪音，更有分量的决策。 执行力贬值，判断力升值。这个转变不只发生在工程师身上，在产品、设计、运营里同样在发生。 AI 把建造的门槛打低了，能建造的人变多了，「造什么」就变成了真正的稀缺能力。 这件事想透了，其实和当年古腾堡发明印刷机之后那个转变很像。书便宜了，人人都能读，问题就从「你能不能获取知识」变成了「你能不能判断哪些知识值得你的时间」。代码便宜了之后，问题也从「你能不能写出来」变成了「你能不能判断该写什么」。 门槛降低，反而让真正的能力更稀缺。 顺颂时祺 2026 年 4 月 20 日 Lucas">
+<meta property="og:url" content="https://xlmm.github.io/post/judging-power-2026-april-20/">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Lucas">
+<meta property="og:image" content="https://xlmm.github.io/media/preview.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:url" content="https://xlmm.github.io/post/judging-power-2026-april-20/">
+<meta name="twitter:title" content="2026 年04月20日：判断力">
+<meta name="twitter:description" content="最近一直在想一件事：AI 把代码生产的成本打下来之后，工程师的核心价值到底在哪里。 以前答案很清楚——技术。你能写出别人写不出的代码，你就值钱。系统设计、算法、底层架构，哪一个拿出来都是壁垒。建造本身是瓶颈，所以能建造的人站在价值链顶端。 现在不一样了。代码变得更容易生产，过去需要几天的事，现在可以在几小时内跑出原型。这条壁垒在快速消失。 壁垒消失之后，决定结果的东西就换了一批。建造什么，比怎么建造更重要。 这就是为什么判断力开始变得关键。 判断力要回答的是这类问题： 这个功能到底要不要做？ 这个方案是不是过度设计了？ 这条捷径的长期代价是什么？ 什么时候应该快，什么时候应该稳？ 这些问题没有标准答案，但做对和做错的差距极大。 举一个典型的反面例子：两个工程师，零付费用户，从一开始就上微服务架构。这不是技术能力的问题，是判断力的问题。判断力差的代价，轻则技术债累积，重则公司关门，因为永远等不来第一批付费用户。 判断力是什么？个人喜欢把它拆成两个部分：实用主义和品味。 实用主义是在真实世界的约束下找最优解，在理想世界里找完美解不算。预算、团队能力、时间、硬件限制——这些全都是约束，绕不开。好的判断力是在这些约束里仍然能找到最有价值的路径。 品味更难说清楚。它是一种对「这个方案对不对」的直觉感知。简洁的代码难以定义，但看到就知道。能让系统既简单又容易演进的决策，很多时候你说不出道理，但凭经验知道这是对的。 两者都需要积累。经验越多，对某个领域理解越深，判断力就越好。这也是为什么基础知识和领域经验现在比以前更值钱——没有这些底子，根本谈不上好的判断。 有一点需要说清楚：判断力在不同规模的组织里，重要程度差异很大。 大公司里，角色分工明确，单个工程师的决策空间有限，很多判断早就被流程和上下游锁死了。判断力当然有价值，但施展空间不大。 小公司和中型公司里完全不同。当你从立项、开发到上线都是同一个人，你的每一个判断都直接影响结果。有自主权，有责任，才是判断力真正发挥价值的土壤。 整个行业的趋势，也是往这个方向走——更小的团队，更多的所有权，更少的执行噪音，更有分量的决策。 执行力贬值，判断力升值。这个转变不只发生在工程师身上，在产品、设计、运营里同样在发生。 AI 把建造的门槛打低了，能建造的人变多了，「造什么」就变成了真正的稀缺能力。 这件事想透了，其实和当年古腾堡发明印刷机之后那个转变很像。书便宜了，人人都能读，问题就从「你能不能获取知识」变成了「你能不能判断哪些知识值得你的时间」。代码便宜了之后，问题也从「你能不能写出来」变成了「你能不能判断该写什么」。 门槛降低，反而让真正的能力更稀缺。 顺颂时祺 2026 年 4 月 20 日 Lucas">
+<meta name="twitter:image" content="https://xlmm.github.io/media/preview.png">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#ffffff">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Lucas">
+<link rel="apple-touch-icon" sizes="180x180" href="/images/icons/icon-180x180.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/images/icons/icon-192x192.png">
+<meta name="msapplication-TileColor" content="#ffffff">
+<meta name="msapplication-TileImage" content="/images/icons/icon-192x192.png">
+<script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js')}</script>
+</head>
+
+    <body>
+
+        <script>
+    (function () {
+        const getSystemTheme = () => {
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                return 'dark';
+            }
+            return 'light';
+        };
+
+        const configDefault = 'dark';
+        const savedTheme = localStorage.getItem('theme');
+        const theme = savedTheme || configDefault || getSystemTheme();
+
+        if (theme === 'dark') {
+            document.body.classList.add('dark-theme');
+        }
+
+        if (!savedTheme) {
+            localStorage.setItem('theme', theme);
+        }
+    })();
+</script>
+<header class="mod-head">
+    <div class="mod-head__left">
+        <div class="mod-head__logo">
+            <a href="/">
+                
+                
+                    <img class="avatar" alt="avatar" src="/images/avatar.png">
+                
+            </a>
+        </div>
+    </div>
+
+    <div class="mod-head__right">
+        <span>
+            <button id="theme-toggle-sun" class="tiptap-button theme-toggle-sun" aria-label="Switch to dark mode">
+                <svg width="18" height="18" class="tiptap-button-icon" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 1C12.5523 1 13 1.44772 13 2V4C13 4.55228 12.5523 5 12 5C11.4477 5 11 4.55228 11 4V2C11 1.44772 11.4477 1 12 1Z" fill="currentColor"></path>
+                    <path fill-rule="evenodd" clip-rule="evenodd" d="M7 12C7 9.23858 9.23858 7 12 7C14.7614 7 17 9.23858 17 12C17 14.7614 14.7614 17 12 17C9.23858 17 7 14.7614 7 12ZM12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9Z" fill="currentColor"></path>
+                    <path d="M13 20C13 19.4477 12.5523 19 12 19C11.4477 19 11 19.4477 11 20V22C11 22.5523 11.4477 23 12 23C12.5523 23 13 22.5523 13 22V20Z" fill="currentColor"></path>
+                    <path d="M4.22282 4.22289C4.61335 3.83236 5.24651 3.83236 5.63704 4.22289L7.04704 5.63289C7.43756 6.02341 7.43756 6.65658 7.04704 7.0471C6.65651 7.43762 6.02335 7.43762 5.63283 7.0471L4.22282 5.6371C3.8323 5.24658 3.8323 4.61341 4.22282 4.22289Z" fill="currentColor"></path>
+                    <path d="M18.367 16.9529C17.9765 16.5623 17.3433 16.5623 16.9528 16.9529C16.5623 17.3434 16.5623 17.9766 16.9528 18.3671L18.3628 19.7771C18.7533 20.1676 19.3865 20.1676 19.777 19.7771C20.1675 19.3866 20.1675 18.7534 19.777 18.3629L18.367 16.9529Z" fill="currentColor"></path>
+                    <path d="M1 12C1 11.4477 1.44772 11 2 11H4C4.55228 11 5 11.4477 5 12C5 12.5523 4.55228 13 4 13H2C1.44772 13 1 12.5523 1 12Z" fill="currentColor"></path>
+                    <path d="M20 11C19.4477 11 19 11.4477 19 12C19 12.5523 19.4477 13 20 13H22C22.5523 13 23 12.5523 23 12C23 11.4477 22.5523 11 22 11H20Z" fill="currentColor"></path>
+                    <path d="M7.04704 16.9529C7.43756 17.3434 7.43756 17.9766 7.04704 18.3671L5.63704 19.7771C5.24651 20.1676 4.61335 20.1676 4.22282 19.7771C3.8323 19.3866 3.8323 18.7534 4.22283 18.3629L5.63283 16.9529C6.02335 16.5623 6.65651 16.5623 7.04704 16.9529Z" fill="currentColor"></path>
+                    <path d="M19.777 5.6371C20.1675 5.24657 20.1675 4.61341 19.777 4.22289C19.3865 3.83236 18.7533 3.83236 18.3628 4.22289L16.9528 5.63289C16.5623 6.02341 16.5623 6.65658 16.9528 7.0471C17.3433 7.43762 17.9765 7.43762 18.367 7.0471L19.777 5.6371Z" fill="currentColor"></path>
+                </svg>
+            </button>
+            <button id="theme-toggle-moon" class="tiptap-button theme-toggle-moon" aria-label="Switch to light mode">
+                <svg width="18" height="18" class="tiptap-button-icon" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C10.0222 2 8.08879 2.58649 6.4443 3.6853C4.79981 4.78412 3.51809 6.3459 2.76121 8.17317C2.00433 10.0004 1.8063 12.0111 2.19215 13.9509C2.578 15.8907 3.53041 17.6725 4.92894 19.0711C6.32746 20.4696 8.10929 21.422 10.0491 21.8079C11.9889 22.1937 13.9996 21.9957 15.8268 21.2388C17.6541 20.4819 19.2159 19.2002 20.3147 17.5557C21.4135 15.9112 22 13.9778 22 12C22 11.5955 21.7564 11.2309 21.3827 11.0761C21.009 10.9213 20.5789 11.0069 20.2929 11.2929C19.287 12.2988 17.9226 12.864 16.5 12.864C15.0774 12.864 13.713 12.2988 12.7071 11.2929C11.7012 10.287 11.136 8.92261 11.136 7.5C11.136 6.07739 11.7012 4.71304 12.7071 3.70711C12.9931 3.42111 13.0787 2.99099 12.9239 2.61732C12.7691 2.24364 12.4045 2 12 2ZM7.55544 5.34824C8.27036 4.87055 9.05353 4.51389 9.87357 4.28778C9.39271 5.27979 9.13604 6.37666 9.13604 7.5C9.13604 9.45304 9.91189 11.3261 11.2929 12.7071C12.6739 14.0881 14.547 14.864 16.5 14.864C17.6233 14.864 18.7202 14.6073 19.7122 14.1264C19.4861 14.9465 19.1295 15.7296 18.6518 16.4446C17.7727 17.7602 16.5233 18.7855 15.0615 19.391C13.5997 19.9965 11.9911 20.155 10.4393 19.8463C8.88743 19.5376 7.46197 18.7757 6.34315 17.6569C5.21447 16.538 4.4624 15.1126 4.15372 13.5607C3.84504 12.0089 4.00347 10.4003 4.60897 8.93853C5.21447 7.47672 6.23985 6.22729 7.55544 5.34824Z" fill="currentColor"></path>
+                    <path d="M19 2C19.5523 2 20 2.44772 20 3V4H21C21.5523 4 22 4.44772 22 5C22 5.55228 21.5523 6 21 6H20V7C20 7.55228 19.5523 8 19 8C18.4477 8 18 7.55228 18 7V6H17C16.4477 6 16 5.55228 16 5C16 4.44772 16.4477 4 17 4H18V3C18 2.44772 18.4477 2 19 2Z" fill="currentColor"></path>
+                </svg>
+            </button>
+        </span>
+    </div>
+</header>
+<!-- <a href="#" id="back-to-top" style="display: inline;"> ^ </a> -->
+
+            <article class="mod-post mod-post__type-post">
+                <header>
+                    <h1 class="mod-post__title">
+                        2026 年04月20日：判断力
+                    </h1>
+                </header>
+
+                <div class="mod-post__meta">
+                    <time datetime="2026-04-20">
+                        2026-04-20
+                    </time> • 2 分钟阅读 •
+                        
+                </div>
+
+
+
+                <div class="mod-post__entry wzulli">
+                    
+                            <p>最近一直在想一件事：AI 把代码生产的成本打下来之后，工程师的核心价值到底在哪里。</p>
+<p>以前答案很清楚——技术。你能写出别人写不出的代码，你就值钱。系统设计、算法、底层架构，哪一个拿出来都是壁垒。建造本身是瓶颈，所以能建造的人站在价值链顶端。</p>
+<p>现在不一样了。代码变得更容易生产，过去需要几天的事，现在可以在几小时内跑出原型。这条壁垒在快速消失。</p>
+<p>壁垒消失之后，决定结果的东西就换了一批。<strong>建造什么，比怎么建造更重要。</strong> 这就是为什么判断力开始变得关键。</p>
+<hr />
+<p>判断力要回答的是这类问题：</p>
+<ul>
+<li>这个功能到底要不要做？</li>
+<li>这个方案是不是过度设计了？</li>
+<li>这条捷径的长期代价是什么？</li>
+<li>什么时候应该快，什么时候应该稳？</li>
+</ul>
+<p>这些问题没有标准答案，但做对和做错的差距极大。</p>
+<p>举一个典型的反面例子：两个工程师，零付费用户，从一开始就上微服务架构。这不是技术能力的问题，是判断力的问题。判断力差的代价，轻则技术债累积，重则公司关门，因为永远等不来第一批付费用户。</p>
+<hr />
+<p>判断力是什么？个人喜欢把它拆成两个部分：<strong>实用主义</strong>和<strong>品味</strong>。</p>
+<p>实用主义是在真实世界的约束下找最优解，在理想世界里找完美解不算。预算、团队能力、时间、硬件限制——这些全都是约束，绕不开。好的判断力是在这些约束里仍然能找到最有价值的路径。</p>
+<p>品味更难说清楚。它是一种对「这个方案对不对」的直觉感知。简洁的代码难以定义，但看到就知道。能让系统既简单又容易演进的决策，很多时候你说不出道理，但凭经验知道这是对的。</p>
+<p>两者都需要积累。经验越多，对某个领域理解越深，判断力就越好。这也是为什么基础知识和领域经验现在比以前更值钱——没有这些底子，根本谈不上好的判断。</p>
+<hr />
+<p>有一点需要说清楚：判断力在不同规模的组织里，重要程度差异很大。</p>
+<p>大公司里，角色分工明确，单个工程师的决策空间有限，很多判断早就被流程和上下游锁死了。判断力当然有价值，但施展空间不大。</p>
+<p>小公司和中型公司里完全不同。当你从立项、开发到上线都是同一个人，你的每一个判断都直接影响结果。有自主权，有责任，才是判断力真正发挥价值的土壤。</p>
+<p>整个行业的趋势，也是往这个方向走——更小的团队，更多的所有权，更少的执行噪音，更有分量的决策。</p>
+<hr />
+<p>执行力贬值，判断力升值。这个转变不只发生在工程师身上，在产品、设计、运营里同样在发生。</p>
+<p>AI 把建造的门槛打低了，能建造的人变多了，<strong>「造什么」就变成了真正的稀缺能力。</strong></p>
+<p>这件事想透了，其实和当年古腾堡发明印刷机之后那个转变很像。书便宜了，人人都能读，问题就从「你能不能获取知识」变成了「你能不能判断哪些知识值得你的时间」。代码便宜了之后，问题也从「你能不能写出来」变成了「你能不能判断该写什么」。</p>
+<p>门槛降低，反而让真正的能力更稀缺。</p>
+<p>顺颂时祺<br />
+2026 年 4 月 20 日<br />
+Lucas</p>
+<!-- more -->
+<!-- more -->
+<!-- more -->
+<!-- more -->
+<!-- more -->
+                </div>
+
+            </article>
+
+
+            
+                
+	<div class="mod-post__foot">
+	 文章标签: 
+     
+     </br>
+	</div>
+
+                    
+
+                        <div class="mod-post__poster">
+                        </div>
+
+                        </div>
+
+                        
+                            
+<br>
+
+<div style="margin-bottom: 10px;">
+    上一篇 : 已经是第一篇文章了~
+</div>
+
+
+
+<div style="margin-bottom: 40px;">
+    下一篇 : <a href="/post/hermes-agent-persona-lucas-avatar/">Hermes Agent Persona - Lucas 的分身</a>
+</div>
+
+
+</div>	
+
+                                
+
+                                    
+                                        <!-- Reading Progress Component -->
+<div class="reading-progress-container">
+  <span class="reading-label">阅读进度</span>
+  <span class="reading-value">0%</span>
+  <svg class="progress-ring" viewBox="0 0 24 24">
+    <!-- Background Circle -->
+    <circle class="progress-ring__circle-bg" stroke-width="3" fill="transparent" r="10" cx="12" cy="12" />
+    <!-- Progress Circle -->
+    <circle class="progress-ring__circle" stroke-width="3" fill="transparent" r="10" cx="12" cy="12" />
+  </svg>
+</div>
+                                            <footer id="footer" class="footer">
+    <nav>
+        
+            
+                    <a class="menu-item" href="/">
+                        首页
+                    </a>
+                    
+             · 
+                    <a class="menu-item" href="/post">
+                        博客
+                    </a>
+                    
+             · 
+                    <a class="menu-item" href="/memos">
+                        闪念
+                    </a>
+                    
+             · 
+                    <a class="menu-item" href="/archives">
+                        归档
+                    </a>
+                    
+             · 
+                    <a class="menu-item" href="/tags">
+                        标签
+                    </a>
+                    
+             · 
+                    <a class="menu-item" href="/links">
+                        友链
+                    </a>
+                    
+             · 
+                    <a class="menu-item" href="/post/about">
+                        关于
+                    </a>
+                    
+    </nav>
+
+    <div class="Copyright">Copyright &copy; 2026 <a href="https://xlmm.github.io">
+                Lucas
+            </a></div>
+
+    <div class="index_footer">
+         ·
+            <a class="rss" href="/feed.xml" target="_blank" rel="noopener noreferrer">
+                <i class="ri-rss-line"></i> RSS
+            </a>
+    </div>
+</footer>
+
+
+
+
+    <script>console.log("\n%c ✦ Gridea Pro v1.2.2 %c · Theme: amore v1.1.0 · https://gridea.pro %c\n","color:#fadfa3;background:#111111;padding:9px 14px;border-radius:4px 0 0 4px;font-weight:500;font-size:12px","color:#e05c00;background:#fff3ec;padding:9px 14px;border-radius:0 4px 4px 0;font-size:11px","")</script>
+</body>
+
+    </html>
