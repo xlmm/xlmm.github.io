@@ -7,128 +7,532 @@
         content="initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=0, width=device-width" />
     <meta name="renderer" content="webkit">
     <meta name="format-detection" content="telephone=no, email=no, address=no">
+
     <meta name="generator" content="Gridea Pro 1.2.2">
     <title>设计什么 | Lucas</title>
+
+    
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#292a2d" media="(prefers-color-scheme: dark)">
+
+    
     <link rel="shortcut icon" href="/media/images/favicon.ico">
-    <link rel="stylesheet" href="/styles/main.min.css">
+<link rel="stylesheet" href="/styles/main.min.css">
+
+    
     <style>:root{--accent-color:#28df99;}</style>
+    
+
+    <script>
+    // 自动为所有 target="_blank" 的链接添加 rel="noopener noreferrer"
+    document.addEventListener('DOMContentLoaded', function() {
+        var links = document.querySelectorAll('a[target="_blank"]');
+        links.forEach(function(link) {
+            var rel = link.getAttribute('rel') || '';
+            if (rel.indexOf('noopener') === -1) {
+                rel += ' noopener';
+            }
+            if (rel.indexOf('noreferrer') === -1) {
+                rel += ' noreferrer';
+            }
+            link.setAttribute('rel', rel.trim());
+        });
+    });
+</script>
+
+
+
+    <script>
+    // declaraction of document.ready() function.
+    (function () {
+        var ie = !!(window.attachEvent && !window.opera);
+        var wk = /webkit\/(\d+)/i.test(navigator.userAgent) && (RegExp.$1 < 525);
+        var fn = [];
+        var run = function () {
+            for (var i = 0; i < fn.length; i++) fn[i]();
+        };
+        var d = document;
+        d.ready = function (f) {
+            if (!ie && !wk && d.addEventListener)
+                return d.addEventListener('DOMContentLoaded', f, false);
+            if (fn.push(f) > 1) return;
+            if (ie)
+                (function () {
+                    try {
+                        d.documentElement.doScroll('left');
+                        run();
+                    } catch (err) {
+                        setTimeout(arguments.callee, 0);
+                    }
+                })();
+            else if (wk)
+                var t = setInterval(function () {
+                    if (/^(loaded|complete)$/.test(d.readyState))
+                        clearInterval(t), run();
+                }, 0);
+        };
+    })();
+
+
+    document.ready(
+        function () {
+            var _Blog = window._Blog || {};
+
+            const getSystemTheme = () => {
+                if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                    return 'dark';
+                }
+                return 'light';
+            };
+
+            const configDefault = 'dark';
+            const currentTheme = window.localStorage && window.localStorage.getItem('theme');
+            const initialTheme = currentTheme || configDefault || getSystemTheme();
+            const isDark = initialTheme === 'dark';
+
+            const updateButtons = (dark) => {
+                const sunBtn = document.getElementById("theme-toggle-sun");
+                const moonBtn = document.getElementById("theme-toggle-moon");
+                const mobileSunBtn = document.getElementById("mobile-theme-toggle-sun");
+                const mobileMoonBtn = document.getElementById("mobile-theme-toggle-moon");
+
+                if (dark) {
+                    if (sunBtn) sunBtn.style.display = 'none';
+                    if (moonBtn) moonBtn.style.display = 'inline-block';
+                    if (mobileSunBtn) mobileSunBtn.style.display = 'none';
+                    if (mobileMoonBtn) mobileMoonBtn.style.display = 'inline-block';
+                } else {
+                    if (sunBtn) sunBtn.style.display = 'inline-block';
+                    if (moonBtn) moonBtn.style.display = 'none';
+                    if (mobileSunBtn) mobileSunBtn.style.display = 'inline-block';
+                    if (mobileMoonBtn) mobileMoonBtn.style.display = 'none';
+                }
+            };
+
+            const updateThemeColor = (dark) => {
+                const themeColor = dark ? '#292a2d' : '#ffffff';
+                const metaTags = document.querySelectorAll('meta[name="theme-color"]');
+                if (metaTags.length > 0) {
+                    // 保留第一个，移除其他的，避免重复
+                    for (let i = 1; i < metaTags.length; i++) {
+                        metaTags[i].remove();
+                    }
+                    metaTags[0].setAttribute('content', themeColor);
+                    metaTags[0].removeAttribute('media');
+                } else {
+                    const meta = document.createElement('meta');
+                    meta.name = 'theme-color';
+                    meta.content = themeColor;
+                    document.head.appendChild(meta);
+                }
+            };
+
+            const applyTheme = (dark) => {
+                const body = document.getElementsByTagName('body')[0];
+                if (dark) {
+                    body.classList.add('dark-theme');
+                } else {
+                    body.classList.remove('dark-theme');
+                }
+                updateButtons(dark);
+                updateThemeColor(dark);
+            };
+
+            // Initial application
+            applyTheme(isDark);
+            if (!currentTheme) {
+                window.localStorage && window.localStorage.setItem('theme', initialTheme);
+            }
+
+            _Blog.toggleTheme = function () {
+                const toggleFunc = (e) => {
+                    // Prevent bubbling if needed, though buttons are distinct now
+                    if (e) e.stopPropagation();
+
+                    const body = document.getElementsByTagName('body')[0];
+                    const isCurrentlyDark = body.classList.contains('dark-theme');
+
+                    if (isCurrentlyDark) {
+                        body.classList.remove('dark-theme');
+                        updateButtons(false);
+                        window.localStorage && window.localStorage.setItem('theme', 'light');
+                    } else {
+                        body.classList.add('dark-theme');
+                        updateButtons(true);
+                        window.localStorage && window.localStorage.setItem('theme', 'dark');
+                    }
+                };
+
+                const sunBtn = document.getElementById("theme-toggle-sun");
+                const moonBtn = document.getElementById("theme-toggle-moon");
+                const mobileSunBtn = document.getElementById("mobile-theme-toggle-sun");
+                const mobileMoonBtn = document.getElementById("mobile-theme-toggle-moon");
+
+                if (sunBtn) sunBtn.addEventListener('click', toggleFunc);
+                if (moonBtn) moonBtn.addEventListener('click', toggleFunc);
+                if (mobileSunBtn) mobileSunBtn.addEventListener('click', toggleFunc);
+                if (mobileMoonBtn) mobileMoonBtn.addEventListener('click', toggleFunc);
+            };
+            _Blog.toggleTheme();
+
+            if (window.matchMedia && !configDefault) {
+                window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+                    const newTheme = e.matches ? 'dark' : 'light';
+                    applyTheme(e.matches);
+                    window.localStorage && window.localStorage.setItem('theme', newTheme);
+                });
+            }
+        }
+    );
+</script>
+
+<script>
+    // Reading Progress Component
+    document.addEventListener('DOMContentLoaded', () => {
+        const progressValue = document.querySelector('.reading-value');
+        const progressCircle = document.querySelector('.progress-ring__circle');
+        const container = document.querySelector('.reading-progress-container');
+
+        // Exit if elements don't exist (e.g., not on a post page)
+        if (!progressValue || !progressCircle || !container) {
+            return;
+        }
+
+        // SVG Circle setup
+        const radius = progressCircle.r.baseVal.value;
+        const circumference = 2 * Math.PI * radius;
+
+        progressCircle.style.strokeDasharray = `${circumference} ${circumference}`;
+        progressCircle.style.strokeDashoffset = circumference;
+
+        function setProgress(percent) {
+            const safePercent = Math.min(100, Math.max(0, percent));
+            progressValue.textContent = `${Math.round(safePercent)}%`;
+            const offset = circumference - (safePercent / 100) * circumference;
+            progressCircle.style.strokeDashoffset = offset;
+        }
+
+        function onScroll() {
+            const scrollTop = window.scrollY || document.documentElement.scrollTop;
+            const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+
+            if (scrollHeight <= 0) {
+                setProgress(0);
+                return;
+            }
+
+            const scrollPercent = (scrollTop / scrollHeight) * 100;
+            setProgress(scrollPercent);
+
+            // Show/Hide logic: Show if scrolled more than 100px
+            if (scrollTop > 100) {
+                container.classList.add('show');
+            } else {
+                container.classList.remove('show');
+            }
+        }
+
+        // Initialize
+        onScroll();
+
+        // Listen for scroll events
+        window.addEventListener('scroll', onScroll, { passive: true });
+
+        // Recalculate on resize
+        window.addEventListener('resize', onScroll);
+    });
+</script>
+
+
+
+
+    
+
+    
+<meta name="description" content="两年前写了一篇文章，讲游戏内购怎么通过心理暗示操控玩家——弗洛伊德的潜意识、斯金纳的条件反射、费斯廷格的认知失调，一整套学院派的心理学框架，包裹着一个简单的命题：设计师是施术者，玩家是被操控的对象。 那篇文章的逻辑自洽。视觉暗示制造稀缺感，语言暗示制造紧迫感，社会暗示制造从众压力。三条路径指向同一个目标：诱导消费。设计师的工作，是把玩家行为还原到可操控的心理回路。 一年后又写了一篇，讲随机性的&amp;hellip;">
+<meta name="keywords" content="游戏设计,概率,产品,Slots,RTP,读书笔记,Lucas">
+<link rel="canonical" href="https://xlmm.github.io/post/what-do-designers-design/">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"设计什么","url":"https://xlmm.github.io/post/what-do-designers-design/","description":"两年前写了一篇文章，讲游戏内购怎么通过心理暗示操控玩家——弗洛伊德的潜意识、斯金纳的条件反射、费斯廷格的认知失调，一整套学院派的心理学框架，包裹着一个简单的命题：设计师是施术者，玩家是被操控的对象。 那篇文章的逻辑自洽。视觉暗示制造稀缺感，语言暗示制造紧迫感，社会暗示制造从众压力。三条路径指向同一个目标：诱导消费。设计师的工作，是把玩家行为还原到可操控的心理回路。 一年后又写了一篇，讲随机性的\u0026hellip;","datePublished":"2026-06-28T00:00:00+08:00","dateModified":"2026-06-28T00:00:00+08:00","author":{"@type":"Person","name":"Lucas"},"publisher":{"@type":"Organization","logo":{"@type":"ImageObject","url":"/images/avatar.png"},"name":"Lucas"}}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","item":"https://xlmm.github.io","name":"Lucas","position":1},{"@type":"ListItem","item":"https://xlmm.github.io/post/what-do-designers-design/","name":"设计什么","position":2}]}</script>
+<meta property="og:title" content="设计什么">
+<meta property="og:description" content="两年前写了一篇文章，讲游戏内购怎么通过心理暗示操控玩家——弗洛伊德的潜意识、斯金纳的条件反射、费斯廷格的认知失调，一整套学院派的心理学框架，包裹着一个简单的命题：设计师是施术者，玩家是被操控的对象。 那篇文章的逻辑自洽。视觉暗示制造稀缺感，语言暗示制造紧迫感，社会暗示制造从众压力。三条路径指向同一个目标：诱导消费。设计师的工作，是把玩家行为还原到可操控的心理回路。 一年后又写了一篇，讲随机性的&amp;hellip;">
+<meta property="og:url" content="https://xlmm.github.io/post/what-do-designers-design/">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Lucas">
+<meta property="og:image" content="https://xlmm.github.io/media/preview.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:url" content="https://xlmm.github.io/post/what-do-designers-design/">
+<meta name="twitter:title" content="设计什么">
+<meta name="twitter:description" content="两年前写了一篇文章，讲游戏内购怎么通过心理暗示操控玩家——弗洛伊德的潜意识、斯金纳的条件反射、费斯廷格的认知失调，一整套学院派的心理学框架，包裹着一个简单的命题：设计师是施术者，玩家是被操控的对象。 那篇文章的逻辑自洽。视觉暗示制造稀缺感，语言暗示制造紧迫感，社会暗示制造从众压力。三条路径指向同一个目标：诱导消费。设计师的工作，是把玩家行为还原到可操控的心理回路。 一年后又写了一篇，讲随机性的&amp;hellip;">
+<meta name="twitter:image" content="https://xlmm.github.io/media/preview.png">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#ffffff">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Lucas">
+<link rel="apple-touch-icon" sizes="180x180" href="/images/icons/icon-180x180.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/images/icons/icon-192x192.png">
+<meta name="msapplication-TileColor" content="#ffffff">
+<meta name="msapplication-TileImage" content="/images/icons/icon-192x192.png">
+<script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js')}</script>
 </head>
-<body>
-    <div class="page-wrapper">
-        <nav class="site-nav">
-            <a href="/" class="site-title">Lucas</a>
-            <div class="nav-links">
-                <a href="/">首页</a>
-                <a href="/archives/">归档</a>
-                <a href="/post/about/">关于</a>
-                <a href="/links/">链接</a>
-            </div>
-        </nav>
-        <main class="main-content">
-            <article class="post-content">
-                <header class="post-header">
-    <h1 class="post-title">设计什么</h1>
-    <div class="post-meta">
-        <time datetime="2026-06-28">2026-06-28</time>
-        <span class="post-tags">游戏设计, 概率, 产品哲学</span>
+
+    <body>
+
+        <script>
+    (function () {
+        const getSystemTheme = () => {
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                return 'dark';
+            }
+            return 'light';
+        };
+
+        const configDefault = 'dark';
+        const savedTheme = localStorage.getItem('theme');
+        const theme = savedTheme || configDefault || getSystemTheme();
+
+        if (theme === 'dark') {
+            document.body.classList.add('dark-theme');
+        }
+
+        if (!savedTheme) {
+            localStorage.setItem('theme', theme);
+        }
+    })();
+</script>
+<header class="mod-head">
+    <div class="mod-head__left">
+        <div class="mod-head__logo">
+            <a href="/">
+                
+                
+                    <img class="avatar" alt="avatar" src="/images/avatar.png">
+                
+            </a>
+        </div>
+    </div>
+
+    <div class="mod-head__right">
+        <span>
+            <button id="theme-toggle-sun" class="tiptap-button theme-toggle-sun" aria-label="Switch to dark mode">
+                <svg width="18" height="18" class="tiptap-button-icon" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 1C12.5523 1 13 1.44772 13 2V4C13 4.55228 12.5523 5 12 5C11.4477 5 11 4.55228 11 4V2C11 1.44772 11.4477 1 12 1Z" fill="currentColor"></path>
+                    <path fill-rule="evenodd" clip-rule="evenodd" d="M7 12C7 9.23858 9.23858 7 12 7C14.7614 7 17 9.23858 17 12C17 14.7614 14.7614 17 12 17C9.23858 17 7 14.7614 7 12ZM12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9Z" fill="currentColor"></path>
+                    <path d="M13 20C13 19.4477 12.5523 19 12 19C11.4477 19 11 19.4477 11 20V22C11 22.5523 11.4477 23 12 23C12.5523 23 13 22.5523 13 22V20Z" fill="currentColor"></path>
+                    <path d="M4.22282 4.22289C4.61335 3.83236 5.24651 3.83236 5.63704 4.22289L7.04704 5.63289C7.43756 6.02341 7.43756 6.65658 7.04704 7.0471C6.65651 7.43762 6.02335 7.43762 5.63283 7.0471L4.22282 5.6371C3.8323 5.24658 3.8323 4.61341 4.22282 4.22289Z" fill="currentColor"></path>
+                    <path d="M18.367 16.9529C17.9765 16.5623 17.3433 16.5623 16.9528 16.9529C16.5623 17.3434 16.5623 17.9766 16.9528 18.3671L18.3628 19.7771C18.7533 20.1676 19.3865 20.1676 19.777 19.7771C20.1675 19.3866 20.1675 18.7534 19.777 18.3629L18.367 16.9529Z" fill="currentColor"></path>
+                    <path d="M1 12C1 11.4477 1.44772 11 2 11H4C4.55228 11 5 11.4477 5 12C5 12.5523 4.55228 13 4 13H2C1.44772 13 1 12.5523 1 12Z" fill="currentColor"></path>
+                    <path d="M20 11C19.4477 11 19 11.4477 19 12C19 12.5523 19.4477 13 20 13H22C22.5523 13 23 12.5523 23 12C23 11.4477 22.5523 11 22 11H20Z" fill="currentColor"></path>
+                    <path d="M7.04704 16.9529C7.43756 17.3434 7.43756 17.9766 7.04704 18.3671L5.63704 19.7771C5.24651 20.1676 4.61335 20.1676 4.22282 19.7771C3.8323 19.3866 3.8323 18.7534 4.22283 18.3629L5.63283 16.9529C6.02335 16.5623 6.65651 16.5623 7.04704 16.9529Z" fill="currentColor"></path>
+                    <path d="M19.777 5.6371C20.1675 5.24657 20.1675 4.61341 19.777 4.22289C19.3865 3.83236 18.7533 3.83236 18.3628 4.22289L16.9528 5.63289C16.5623 6.02341 16.5623 6.65658 16.9528 7.0471C17.3433 7.43762 17.9765 7.43762 18.367 7.0471L19.777 5.6371Z" fill="currentColor"></path>
+                </svg>
+            </button>
+            <button id="theme-toggle-moon" class="tiptap-button theme-toggle-moon" aria-label="Switch to light mode">
+                <svg width="18" height="18" class="tiptap-button-icon" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C10.0222 2 8.08879 2.58649 6.4443 3.6853C4.79981 4.78412 3.51809 6.3459 2.76121 8.17317C2.00433 10.0004 1.8063 12.0111 2.19215 13.9509C2.578 15.8907 3.53041 17.6725 4.92894 19.0711C6.32746 20.4696 8.10929 21.422 10.0491 21.8079C11.9889 22.1937 13.9996 21.9957 15.8268 21.2388C17.6541 20.4819 19.2159 19.2002 20.3147 17.5557C21.4135 15.9112 22 13.9778 22 12C22 11.5955 21.7564 11.2309 21.3827 11.0761C21.009 10.9213 20.5789 11.0069 20.2929 11.2929C19.287 12.2988 17.9226 12.864 16.5 12.864C15.0774 12.864 13.713 12.2988 12.7071 11.2929C11.7012 10.287 11.136 8.92261 11.136 7.5C11.136 6.07739 11.7012 4.71304 12.7071 3.70711C12.9931 3.42111 13.0787 2.99099 12.9239 2.61732C12.7691 2.24364 12.4045 2 12 2ZM7.55544 5.34824C8.27036 4.87055 9.05353 4.51389 9.87357 4.28778C9.39271 5.27979 9.13604 6.37666 9.13604 7.5C9.13604 9.45304 9.91189 11.3261 11.2929 12.7071C12.6739 14.0881 14.547 14.864 16.5 14.864C17.6233 14.864 18.7202 14.6073 19.7122 14.1264C19.4861 14.9465 19.1295 15.7296 18.6518 16.4446C17.7727 17.7602 16.5233 18.7855 15.0615 19.391C13.5997 19.9965 11.9911 20.155 10.4393 19.8463C8.88743 19.5376 7.46197 18.7757 6.34315 17.6569C5.21447 16.538 4.4624 15.1126 4.15372 13.5607C3.84504 12.0089 4.00347 10.4003 4.60897 8.93853C5.21447 7.47672 6.23985 6.22729 7.55544 5.34824Z" fill="currentColor"></path>
+                    <path d="M19 2C19.5523 2 20 2.44772 20 3V4H21C21.5523 4 22 4.44772 22 5C22 5.55228 21.5523 6 21 6H20V7C20 7.55228 19.5523 8 19 8C18.4477 8 18 7.55228 18 7V6H17C16.4477 6 16 5.55228 16 5C16 4.44772 16.4477 4 17 4H18V3C18 2.44772 18.4477 2 19 2Z" fill="currentColor"></path>
+                </svg>
+            </button>
+        </span>
     </div>
 </header>
-                <div class="post-body">
-                    <p>两年前写了一篇文章，讲游戏内购怎么通过心理暗示操控玩家——弗洛伊德的潜意识、斯金纳的条件反射、费斯廷格的认知失调，一整套学院派的心理学框架，包裹着一个简单的命题：设计师是施术者，玩家是被操控的对象。</p>
+<!-- <a href="#" id="back-to-top" style="display: inline;"> ^ </a> -->
 
-<p>那篇文章的逻辑自洽。视觉暗示制造稀缺感，语言暗示制造紧迫感，社会暗示制造从众压力。三条路径指向同一个目标：诱导消费。设计师的工作，是把玩家行为还原到可操控的心理回路。</p>
+            <article class="mod-post mod-post__type-post">
+                <header>
+                    <h1 class="mod-post__title">
+                        设计什么
+                    </h1>
+                </header>
 
-<p>一年后又写了一篇，讲随机性的分类——把随机性拆成输入随机性和输出随机性。前者在决策前介入，考验玩家的规划能力；后者在决策后介入，检验决策的鲁棒性。文章的结尾扔了一句话：智慧并非消除所有不确定性，而是在不确定性中保持自主。</p>
-
-<p>回头看，这两篇文章之间发生了什么事？</p>
-
-<hr>
-
-<h2>篇文章之间，隔着一整年的反思</h2>
-
-<p>2024 年，我把设计师当作行为工程师。理解心理机制，设计刺激信号，测量转化率。玩家的行为是产出物——内购次数、留存天数、ARPPU——都可以还原为心理学变量的函数。这个框架不缺解释力，但它的盲点在别处。</p>
-
-<p>把玩家当行为对象来设计，自然会追求「行为可预测」。限时折扣为什么有效？因为稀缺感激活了损失厌恶。near-miss 为什么有效？因为差一点就赢激活了多巴胺回路。这些解释在实验室里是对的，但它们把玩家描述成了一个受刺激-做反应的黑箱。黑箱里面是什么，并不重要。</p>
-
-<p>2025 年，重新回答这个问题的时候，关键词从「行为」变成了「自主」。输入随机性和输出随机性的区分，表面是技术性的，底下藏着一个更根本的追问：在设计师搭建的概率系统里，玩家到底是有能力做选择的人，还是只能被动接受结果的运气接受者？</p>
-
-<p>如果答案是后者，所有设计都是在利用玩家的认知偏差。near-miss 制造继续玩的幻觉，限时折扣制造不买就亏的焦虑，排行榜制造比较的压力。这些手段有效，但它们有一个共同前提：设计师知道玩家的最佳路径，设计师替玩家做判断。</p>
-
-<p>但如果答案是前者——如果你相信玩家能在概率空间里自主决策——那设计的重心就从最大化转化率，移到保留玩家做真实选择的空间。这个转向跟道德无关。我不是在说「操控不好，自主好」，我想落到功能上：一个玩家能在里面做决定的系统，和一个只能做你替他设计好的决定的系统，哪个更有趣？从实践来看，玩家对前者有记忆，对后者只有习惯加逐渐无趣。</p>
-
-<hr>
-
-<h2>「自主」翻译回工程语言</h2>
-
-<p>「在不确定性中保持自主」听起来漂亮。它落到具体的设计决策上是什么意思？</p>
-
-<p><strong>第一层：反馈——是解释概率，还是制造幻觉。</strong></p>
-
-<p>near-miss 是游戏设计里一个经典命题。抽奖转出两排同样的图案，第三排差一格——这个瞬间的设计目标是让你觉得「差一点就赢了」，然后继续玩。它管用的原理恰恰是让玩家错误估计概率：玩家觉得下局大概率会赢，实际上每局是独立事件，上一局的结果和下一局没有关系。</p>
-
-<p>而可读的概率分布做的是相反的事。系统告诉玩家赔率是多少、方差多大、RTP 在什么范围。玩家理解了这个信息之后做的决策——下多少注、什么时候停——是玩家自己的。系统可能损失了一些续玩率，但保留了玩家作为理解者的位置。</p>
-
-<p>前者是刺激反应的对象，后者是能读懂概率的决策者。</p>
-
-<p><strong>第二层：保底机制——是对运气的补偿，还是对投入的尊重。</strong></p>
-
-<p>保底最常见的定义是「截断坏运气的极端」：连续 N 次没中奖，系统保证下一次一定出。这个定义是从系统角度说的。从玩家角度，保底在说另一句话。</p>
-
-<p>没有保底的系统，把所有方差压在玩家一个人身上。玩家可能投入了同样的时间、同样的资源，但运气差的玩家和运气好的玩家之间隔着一道无法跨越的沟。保底是设计者在说：玩家的投入值一个底线。无论运气怎么走，投入回报不会太低。</p>
-
-<p>保底可以用数学精确计算，如马尔可夫链。但它真正在做的事，是承认玩家的投入有意义。承认玩家是主体，不是碰运气的骰子。</p>
-
-<p><strong>第三层：限红——是在保护系统，还是在保护玩家的选择权。</strong></p>
-
-<p>限红的表面理由是风控——防止玩家在情绪驱动下产生不可逆的损失。这个理由对，但只讲了一半。</p>
-
-<p>更深一层：限红是在玩家情绪失控的时候，系统替他保留「停下来」这个选项。一个人在连续挫败的时候，前额叶皮层被杏仁核劫持，做的全是自动反应，谈不上决策。他已经沦为情绪的客体。限红在这个瞬间介入，意思是「请冷静」。</p>
-
-<p>一个没有限红的系统，把玩家的自主权建立在一个不可能的前提上：玩家永远理性。而理性是人类在情绪平稳的时候才有的奢侈品。限红承认这个事实。</p>
-
-<p><strong>第四层：动态难度——是帮你赢，还是让你在边界上成长。</strong></p>
-
-<p>DDA 很容易滑向一个方向：检测到玩家受挫，调低难度；检测到无聊，调高难度。目标是把体验维持在「舒适」区。但舒适和成长是两回事。</p>
-
-<p>真正好的 DDA 不让玩家永远赢——那是剥夺玩家面对失败的能力。它让玩家在能力边界上玩。既不太难让玩家失去自主感，也不太容易让玩家失去意义感。在这个边界上，玩家每过一次关卡，靠的是自己的判断力在变强——系统没替他放水。</p>
-
-<p>斯多葛主义在游戏设计里的精确落点就是这个：在可控范围内挑战，在不可控处接受。系统帮你区分这两者，但不替你选择。</p>
-
-<hr>
-
-<h2>乐的三个条件</h2>
-
-<p>把这些工程细节收起来，剩下一个核心判断：只有在不确定性中保持自主，才能享受随机性带来的快乐。这句话可以拆成三个条件。</p>
-
-<p>第一个条件：我知道这是运气。我对概率分布有基本的理解，不把随机当因果。输了不是我的错，赢了不是我厉害。</p>
-
-<p>第二个条件：我接受这个运气。我不怨天尤人，也不被 near-miss 的幻觉牵着走。该发生的发生了，我接受它作为系统的属性，不是作为对我的惩罚。</p>
-
-<p>第三个条件：我仍然选择继续。在知道、接受之后，我做的选择是我的。限时折扣没逼我，社交比较没推我，near-miss 没骗我——我继续，是因为我自己想继续。</p>
-
-<p>三个条件缺一不可。缺第一个，是盲目。缺第二个，是怨天尤人。缺第三个，是斯金纳箱里的鸽子——你在按按钮，但你不是在选择。</p>
-
-<hr>
-
-<p>所以回到最初的问题：设计师到底在设计什么？</p>
-
-<p>设计一个玩家在里面还能做选择的框架。至于玩家做什么——他自己决定。</p>
-
-<p>好设计的标准不是转化率。转化率可以靠操控堆上去，短期内数字会很好看。但如果把操控都拿掉，玩家还在吗？玩家还愿意做选择吗？他做了选择之后，觉得这个选择是自己的吗？</p>
-
-<p>这三个问题比 ARPPU 更难量化，但它们比 ARPPU 更接近一件事的本质：你在做的到底是一个系统，还是一个陷阱。</p>
-
-<hr>
-
-<p>顺颂时祺</p>
-<p>2026 年 6 月 27 日</p>
-<p>Lucas</p>
+                <div class="mod-post__meta">
+                    <time datetime="2026-06-28">
+                        2026-06-28
+                    </time> • 4 分钟阅读 •
+                        
+                            <a href="/tag/you-xi-she-ji/">
+                                游戏设计
+                            </a>
+                             · 
+                                    
+                            <a href="/tag/gai-lv/">
+                                概率
+                            </a>
+                             · 
+                                    
+                            <a href="/tag/chan-pin-zhe-xue/">
+                                产品哲学
+                            </a>
+                            
+                                    
                 </div>
+
+
+
+                <div class="mod-post__entry wzulli">
+                    
+                            <p>两年前写了一篇文章，讲游戏内购怎么通过心理暗示操控玩家——弗洛伊德的潜意识、斯金纳的条件反射、费斯廷格的认知失调，一整套学院派的心理学框架，包裹着一个简单的命题：设计师是施术者，玩家是被操控的对象。</p>
+<p>那篇文章的逻辑自洽。视觉暗示制造稀缺感，语言暗示制造紧迫感，社会暗示制造从众压力。三条路径指向同一个目标：诱导消费。设计师的工作，是把玩家行为还原到可操控的心理回路。</p>
+<p>一年后又写了一篇，讲随机性的分类——把随机性拆成输入随机性和输出随机性。前者在决策前介入，考验玩家的规划能力；后者在决策后介入，检验决策的鲁棒性。文章的结尾扔了一句话：智慧并非消除所有不确定性，而是在不确定性中保持自主。</p>
+<p>回头看，这两篇文章之间发生了什么事？</p>
+<hr />
+<h2 id="heading">两篇文章之间，隔着一整年的反思</h2>
+<p>2024 年，我把设计师当作行为工程师。理解心理机制，设计刺激信号，测量转化率。玩家的行为是产出物——内购次数、留存天数、ARPPU——都可以还原为心理学变量的函数。这个框架不缺解释力，但它的盲点在别处。</p>
+<p>把玩家当行为对象来设计，自然会追求「行为可预测」。限时折扣为什么有效？因为稀缺感激活了损失厌恶。near-miss 为什么有效？因为差一点就赢激活了多巴胺回路。这些解释在实验室里是对的，但它们把玩家描述成了一个受刺激-做反应的黑箱。黑箱里面是什么，并不重要。</p>
+<p>2025 年，重新回答这个问题的时候，关键词从「行为」变成了「自主」。输入随机性和输出随机性的区分，表面是技术性的，底下藏着一个更根本的追问：在设计师搭建的概率系统里，玩家到底是有能力做选择的人，还是只能被动接受结果的运气接受者？</p>
+<p>如果答案是后者，所有设计都是在利用玩家的认知偏差。near-miss 制造继续玩的幻觉，限时折扣制造不买就亏的焦虑，排行榜制造比较的压力。这些手段有效，但它们有一个共同前提：设计师知道玩家的最佳路径，设计师替玩家做判断。</p>
+<p>但如果答案是前者——如果你相信玩家能在概率空间里自主决策——那设计的重心就从最大化转化率，移到保留玩家做真实选择的空间。这个转向跟道德无关。我不是在说「操控不好，自主好」，我想落到功能上：一个玩家能在里面做决定的系统，和一个只能做你替他设计好的决定的系统，哪个更有趣？从实践来看，玩家对前者有记忆，对后者只有习惯加逐渐无趣。</p>
+<hr />
+<h2 id="heading-1">把「自主」翻译回工程语言</h2>
+<p>「在不确定性中保持自主」听起来漂亮。它落到具体的设计决策上是什么意思？</p>
+<p><strong>第一层：反馈——是解释概率，还是制造幻觉。</strong></p>
+<p>near-miss 是游戏设计里一个经典命题。抽奖转出两排同样的图案，第三排差一格——这个瞬间的设计目标是让你觉得「差一点就赢了」，然后继续玩。它管用的原理恰恰是让玩家错误估计概率：玩家觉得下局大概率会赢，实际上每局是独立事件，上一局的结果和下一局没有关系。</p>
+<p>而可读的概率分布做的是相反的事。系统告诉玩家赔率是多少、方差多大、RTP 在什么范围。玩家理解了这个信息之后做的决策——下多少注、什么时候停——是玩家自己的。系统可能损失了一些续玩率，但保留了玩家作为理解者的位置。</p>
+<p>前者是刺激反应的对象，后者是能读懂概率的决策者。</p>
+<p><strong>第二层：保底机制——是对运气的补偿，还是对投入的尊重。</strong></p>
+<p>保底最常见的定义是「截断坏运气的极端」：连续 N 次没中奖，系统保证下一次一定出。这个定义是从系统角度说的。从玩家角度，保底在说另一句话。</p>
+<p>没有保底的系统，把所有方差压在玩家一个人身上。玩家可能投入了同样的时间、同样的资源，但运气差的玩家和运气好的玩家之间隔着一道无法跨越的沟。保底是设计者在说：玩家的投入值一个底线。无论运气怎么走，投入回报不会太低。</p>
+<p>保底可以用数学精确计算，如马尔可夫链。但它真正在做的事，是承认玩家的投入有意义。承认玩家是主体，不是碰运气的骰子。</p>
+<p><strong>第三层：限红——是在保护系统，还是在保护玩家的选择权。</strong></p>
+<p>限红的表面理由是风控——防止玩家在情绪驱动下产生不可逆的损失。这个理由对，但只讲了一半。</p>
+<p>更深一层：限红是在玩家情绪失控的时候，系统替他保留「停下来」这个选项。一个人在连续挫败的时候，前额叶皮层被杏仁核劫持，做的全是自动反应，谈不上决策。他已经沦为情绪的客体。限红在这个瞬间介入，意思是「请冷静」。</p>
+<p>一个没有限红的系统，把玩家的自主权建立在一个不可能的前提上：玩家永远理性。而理性是人类在情绪平稳的时候才有的奢侈品。限红承认这个事实。</p>
+<p><strong>第四层：动态难度——是帮你赢，还是让你在边界上成长。</strong></p>
+<p>DDA 很容易滑向一个方向：检测到玩家受挫，调低难度；检测到无聊，调高难度。目标是把体验维持在「舒适」区。但舒适和成长是两回事。</p>
+<p>真正好的 DDA 不让玩家永远赢——那是剥夺玩家面对失败的能力。它让玩家在能力边界上玩。既不太难让玩家失去自主感，也不太容易让玩家失去意义感。在这个边界上，玩家每过一次关卡，靠的是自己的判断力在变强——系统没替他放水。</p>
+<p>斯多葛主义在游戏设计里的精确落点就是这个：在可控范围内挑战，在不可控处接受。系统帮你区分这两者，但不替你选择。</p>
+<hr />
+<h2 id="heading-2">快乐的三个条件</h2>
+<p>把这些工程细节收起来，剩下一个核心判断：只有在不确定性中保持自主，才能享受随机性带来的快乐。这句话可以拆成三个条件。</p>
+<p>第一个条件：我知道这是运气。我对概率分布有基本的理解，不把随机当因果。输了不是我的错，赢了不是我厉害。</p>
+<p>第二个条件：我接受这个运气。我不怨天尤人，也不被 near-miss 的幻觉牵着走。该发生的发生了，我接受它作为系统的属性，不是作为对我的惩罚。</p>
+<p>第三个条件：我仍然选择继续。在知道、接受之后，我做的选择是我的。限时折扣没逼我，社交比较没推我，near-miss 没骗我——我继续，是因为我自己想继续。</p>
+<p>三个条件缺一不可。缺第一个，是盲目。缺第二个，是怨天尤人。缺第三个，是斯金纳箱里的鸽子——你在按按钮，但你不是在选择。</p>
+<hr />
+<p>所以回到最初的问题：设计师到底在设计什么？</p>
+<p>设计一个玩家在里面还能做选择的框架。至于玩家做什么——他自己决定。</p>
+<p>好设计的标准不是转化率。转化率可以靠操控堆上去，短期内数字会很好看。但如果把操控都拿掉，玩家还在吗？玩家还愿意做选择吗？他做了选择之后，觉得这个选择是自己的吗？</p>
+<p>这三个问题比 ARPPU 更难量化，但它们比 ARPPU 更接近一件事的本质：你在做的到底是一个系统，还是一个陷阱。</p>
+<hr />
+<p>顺颂时祺<br />
+2026 年 6 月 27 日<br />
+Lucas</p>
+
+                </div>
+
             </article>
-        </main>
-        <footer class="site-footer">
-            <p>Powered by Gridea Pro</p>
-        </footer>
+
+
+            
+                
+	<div class="mod-post__foot">
+	 文章标签: 
+     
+        <a href="/tag/you-xi-she-ji/">游戏设计</a>, 
+     
+        <a href="/tag/gai-lv/">概率</a>, 
+     
+        <a href="/tag/chan-pin-zhe-xue/">产品哲学</a>
+     
+     </br>
+	</div>
+
+                    
+
+                        <div class="mod-post__poster">
+                        </div>
+
+                        </div>
+
+                        
+                            
+<br>
+
+<div style="margin-bottom: 10px;">
+    上一篇 : <a href="/post/ji-lu/">记录</a>
+</div>
+
+
+
+<div style="margin-bottom: 40px;">
+    下一篇 : <a href="/post/hermes-agent-persona-lucas-avatar/">分身</a>
+</div>
+
+
+</div>	
+
+                                
+
+                                    
+                                        <!-- Reading Progress Component -->
+<div class="reading-progress-container">
+  <span class="reading-label">阅读进度</span>
+  <span class="reading-value">0%</span>
+  <svg class="progress-ring" viewBox="0 0 24 24">
+    <!-- Background Circle -->
+    <circle class="progress-ring__circle-bg" stroke-width="3" fill="transparent" r="10" cx="12" cy="12" />
+    <!-- Progress Circle -->
+    <circle class="progress-ring__circle" stroke-width="3" fill="transparent" r="10" cx="12" cy="12" />
+  </svg>
+</div>
+                                            <footer id="footer" class="footer">
+    <nav>
+        
+            
+                    <a class="menu-item" href="/">
+                        首页
+                    </a>
+                    
+             · 
+                    <a class="menu-item" href="/post">
+                        博客
+                    </a>
+                    
+             · 
+                    <a class="menu-item" href="/memos">
+                        闪念
+                    </a>
+                    
+             · 
+                    <a class="menu-item" href="/archives">
+                        归档
+                    </a>
+                    
+             · 
+                    <a class="menu-item" href="/tags">
+                        标签
+                    </a>
+                    
+             · 
+                    <a class="menu-item" href="/links">
+                        友链
+                    </a>
+                    
+             · 
+                    <a class="menu-item" href="/post/about">
+                        关于
+                    </a>
+                    
+    </nav>
+
+    <div class="Copyright">Copyright &copy; 2026 <a href="https://xlmm.github.io">
+                Lucas
+            </a></div>
+
+    <div class="index_footer">
+         ·
+            <a class="rss" href="/feed.xml" target="_blank" rel="noopener noreferrer">
+                <i class="ri-rss-line"></i> RSS
+            </a>
     </div>
+</footer>
+
+
+
+
+    <script>console.log("\n%c ✦ Gridea Pro v1.2.2 %c · Theme: amore v1.1.0 · https://gridea.pro %c\n","color:#fadfa3;background:#111111;padding:9px 14px;border-radius:4px 0 0 4px;font-weight:500;font-size:12px","color:#e05c00;background:#fff3ec;padding:9px 14px;border-radius:0 4px 4px 0;font-size:11px","")</script>
 </body>
-</html>
+
+    </html>

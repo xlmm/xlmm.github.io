@@ -7,96 +7,518 @@
         content="initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=0, width=device-width" />
     <meta name="renderer" content="webkit">
     <meta name="format-detection" content="telephone=no, email=no, address=no">
+
     <meta name="generator" content="Gridea Pro 1.2.2">
     <title>虚假的进步 | Lucas</title>
+
+    
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#292a2d" media="(prefers-color-scheme: dark)">
+
+    
     <link rel="shortcut icon" href="/media/images/favicon.ico">
-    <link rel="stylesheet" href="/styles/main.min.css">
+<link rel="stylesheet" href="/styles/main.min.css">
+
+    
     <style>:root{--accent-color:#28df99;}</style>
+    
+
+    <script>
+    // 自动为所有 target="_blank" 的链接添加 rel="noopener noreferrer"
+    document.addEventListener('DOMContentLoaded', function() {
+        var links = document.querySelectorAll('a[target="_blank"]');
+        links.forEach(function(link) {
+            var rel = link.getAttribute('rel') || '';
+            if (rel.indexOf('noopener') === -1) {
+                rel += ' noopener';
+            }
+            if (rel.indexOf('noreferrer') === -1) {
+                rel += ' noreferrer';
+            }
+            link.setAttribute('rel', rel.trim());
+        });
+    });
+</script>
+
+
+
+    <script>
+    // declaraction of document.ready() function.
+    (function () {
+        var ie = !!(window.attachEvent && !window.opera);
+        var wk = /webkit\/(\d+)/i.test(navigator.userAgent) && (RegExp.$1 < 525);
+        var fn = [];
+        var run = function () {
+            for (var i = 0; i < fn.length; i++) fn[i]();
+        };
+        var d = document;
+        d.ready = function (f) {
+            if (!ie && !wk && d.addEventListener)
+                return d.addEventListener('DOMContentLoaded', f, false);
+            if (fn.push(f) > 1) return;
+            if (ie)
+                (function () {
+                    try {
+                        d.documentElement.doScroll('left');
+                        run();
+                    } catch (err) {
+                        setTimeout(arguments.callee, 0);
+                    }
+                })();
+            else if (wk)
+                var t = setInterval(function () {
+                    if (/^(loaded|complete)$/.test(d.readyState))
+                        clearInterval(t), run();
+                }, 0);
+        };
+    })();
+
+
+    document.ready(
+        function () {
+            var _Blog = window._Blog || {};
+
+            const getSystemTheme = () => {
+                if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                    return 'dark';
+                }
+                return 'light';
+            };
+
+            const configDefault = 'dark';
+            const currentTheme = window.localStorage && window.localStorage.getItem('theme');
+            const initialTheme = currentTheme || configDefault || getSystemTheme();
+            const isDark = initialTheme === 'dark';
+
+            const updateButtons = (dark) => {
+                const sunBtn = document.getElementById("theme-toggle-sun");
+                const moonBtn = document.getElementById("theme-toggle-moon");
+                const mobileSunBtn = document.getElementById("mobile-theme-toggle-sun");
+                const mobileMoonBtn = document.getElementById("mobile-theme-toggle-moon");
+
+                if (dark) {
+                    if (sunBtn) sunBtn.style.display = 'none';
+                    if (moonBtn) moonBtn.style.display = 'inline-block';
+                    if (mobileSunBtn) mobileSunBtn.style.display = 'none';
+                    if (mobileMoonBtn) mobileMoonBtn.style.display = 'inline-block';
+                } else {
+                    if (sunBtn) sunBtn.style.display = 'inline-block';
+                    if (moonBtn) moonBtn.style.display = 'none';
+                    if (mobileSunBtn) mobileSunBtn.style.display = 'inline-block';
+                    if (mobileMoonBtn) mobileMoonBtn.style.display = 'none';
+                }
+            };
+
+            const updateThemeColor = (dark) => {
+                const themeColor = dark ? '#292a2d' : '#ffffff';
+                const metaTags = document.querySelectorAll('meta[name="theme-color"]');
+                if (metaTags.length > 0) {
+                    // 保留第一个，移除其他的，避免重复
+                    for (let i = 1; i < metaTags.length; i++) {
+                        metaTags[i].remove();
+                    }
+                    metaTags[0].setAttribute('content', themeColor);
+                    metaTags[0].removeAttribute('media');
+                } else {
+                    const meta = document.createElement('meta');
+                    meta.name = 'theme-color';
+                    meta.content = themeColor;
+                    document.head.appendChild(meta);
+                }
+            };
+
+            const applyTheme = (dark) => {
+                const body = document.getElementsByTagName('body')[0];
+                if (dark) {
+                    body.classList.add('dark-theme');
+                } else {
+                    body.classList.remove('dark-theme');
+                }
+                updateButtons(dark);
+                updateThemeColor(dark);
+            };
+
+            // Initial application
+            applyTheme(isDark);
+            if (!currentTheme) {
+                window.localStorage && window.localStorage.setItem('theme', initialTheme);
+            }
+
+            _Blog.toggleTheme = function () {
+                const toggleFunc = (e) => {
+                    // Prevent bubbling if needed, though buttons are distinct now
+                    if (e) e.stopPropagation();
+
+                    const body = document.getElementsByTagName('body')[0];
+                    const isCurrentlyDark = body.classList.contains('dark-theme');
+
+                    if (isCurrentlyDark) {
+                        body.classList.remove('dark-theme');
+                        updateButtons(false);
+                        window.localStorage && window.localStorage.setItem('theme', 'light');
+                    } else {
+                        body.classList.add('dark-theme');
+                        updateButtons(true);
+                        window.localStorage && window.localStorage.setItem('theme', 'dark');
+                    }
+                };
+
+                const sunBtn = document.getElementById("theme-toggle-sun");
+                const moonBtn = document.getElementById("theme-toggle-moon");
+                const mobileSunBtn = document.getElementById("mobile-theme-toggle-sun");
+                const mobileMoonBtn = document.getElementById("mobile-theme-toggle-moon");
+
+                if (sunBtn) sunBtn.addEventListener('click', toggleFunc);
+                if (moonBtn) moonBtn.addEventListener('click', toggleFunc);
+                if (mobileSunBtn) mobileSunBtn.addEventListener('click', toggleFunc);
+                if (mobileMoonBtn) mobileMoonBtn.addEventListener('click', toggleFunc);
+            };
+            _Blog.toggleTheme();
+
+            if (window.matchMedia && !configDefault) {
+                window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+                    const newTheme = e.matches ? 'dark' : 'light';
+                    applyTheme(e.matches);
+                    window.localStorage && window.localStorage.setItem('theme', newTheme);
+                });
+            }
+        }
+    );
+</script>
+
+<script>
+    // Reading Progress Component
+    document.addEventListener('DOMContentLoaded', () => {
+        const progressValue = document.querySelector('.reading-value');
+        const progressCircle = document.querySelector('.progress-ring__circle');
+        const container = document.querySelector('.reading-progress-container');
+
+        // Exit if elements don't exist (e.g., not on a post page)
+        if (!progressValue || !progressCircle || !container) {
+            return;
+        }
+
+        // SVG Circle setup
+        const radius = progressCircle.r.baseVal.value;
+        const circumference = 2 * Math.PI * radius;
+
+        progressCircle.style.strokeDasharray = `${circumference} ${circumference}`;
+        progressCircle.style.strokeDashoffset = circumference;
+
+        function setProgress(percent) {
+            const safePercent = Math.min(100, Math.max(0, percent));
+            progressValue.textContent = `${Math.round(safePercent)}%`;
+            const offset = circumference - (safePercent / 100) * circumference;
+            progressCircle.style.strokeDashoffset = offset;
+        }
+
+        function onScroll() {
+            const scrollTop = window.scrollY || document.documentElement.scrollTop;
+            const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+
+            if (scrollHeight <= 0) {
+                setProgress(0);
+                return;
+            }
+
+            const scrollPercent = (scrollTop / scrollHeight) * 100;
+            setProgress(scrollPercent);
+
+            // Show/Hide logic: Show if scrolled more than 100px
+            if (scrollTop > 100) {
+                container.classList.add('show');
+            } else {
+                container.classList.remove('show');
+            }
+        }
+
+        // Initialize
+        onScroll();
+
+        // Listen for scroll events
+        window.addEventListener('scroll', onScroll, { passive: true });
+
+        // Recalculate on resize
+        window.addEventListener('resize', onScroll);
+    });
+</script>
+
+
+
+
+    
+
+    
+<meta name="description" content="过去这些年，各种 app 都在做游戏化——累计签到、积分排行榜、任务进度条。似乎有了这些，参数调得够精巧，用户就能更投入、更持久。但从近两年的数据和自身体验来看，这些设计不单没效果，甚至产生了反效果。 最近三年，我是 Duolingo 的重度用户，累计签到超过 1000 天。但投入了这么多时间，学到的东西真的很少。于是在去年下半年，我放弃了续费，卸载了。 从统计意义上说，我的行为让多&amp;hellip;">
+<meta name="keywords" content="游戏设计,概率,产品,Slots,RTP,读书笔记,Lucas">
+<link rel="canonical" href="https://xlmm.github.io/post/gamification-false-progress/">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"虚假的进步","url":"https://xlmm.github.io/post/gamification-false-progress/","description":"过去这些年，各种 app 都在做游戏化——累计签到、积分排行榜、任务进度条。似乎有了这些，参数调得够精巧，用户就能更投入、更持久。但从近两年的数据和自身体验来看，这些设计不单没效果，甚至产生了反效果。 最近三年，我是 Duolingo 的重度用户，累计签到超过 1000 天。但投入了这么多时间，学到的东西真的很少。于是在去年下半年，我放弃了续费，卸载了。 从统计意义上说，我的行为让多\u0026hellip;","datePublished":"2026-01-18T00:00:00+08:00","dateModified":"2026-01-18T00:00:00+08:00","author":{"@type":"Person","name":"Lucas"},"publisher":{"@type":"Organization","logo":{"@type":"ImageObject","url":"/images/avatar.png"},"name":"Lucas"}}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","item":"https://xlmm.github.io","name":"Lucas","position":1},{"@type":"ListItem","item":"https://xlmm.github.io/post/gamification-false-progress/","name":"虚假的进步","position":2}]}</script>
+<meta property="og:title" content="虚假的进步">
+<meta property="og:description" content="过去这些年，各种 app 都在做游戏化——累计签到、积分排行榜、任务进度条。似乎有了这些，参数调得够精巧，用户就能更投入、更持久。但从近两年的数据和自身体验来看，这些设计不单没效果，甚至产生了反效果。 最近三年，我是 Duolingo 的重度用户，累计签到超过 1000 天。但投入了这么多时间，学到的东西真的很少。于是在去年下半年，我放弃了续费，卸载了。 从统计意义上说，我的行为让多&amp;hellip;">
+<meta property="og:url" content="https://xlmm.github.io/post/gamification-false-progress/">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Lucas">
+<meta property="og:image" content="https://xlmm.github.io/media/preview.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:url" content="https://xlmm.github.io/post/gamification-false-progress/">
+<meta name="twitter:title" content="虚假的进步">
+<meta name="twitter:description" content="过去这些年，各种 app 都在做游戏化——累计签到、积分排行榜、任务进度条。似乎有了这些，参数调得够精巧，用户就能更投入、更持久。但从近两年的数据和自身体验来看，这些设计不单没效果，甚至产生了反效果。 最近三年，我是 Duolingo 的重度用户，累计签到超过 1000 天。但投入了这么多时间，学到的东西真的很少。于是在去年下半年，我放弃了续费，卸载了。 从统计意义上说，我的行为让多&amp;hellip;">
+<meta name="twitter:image" content="https://xlmm.github.io/media/preview.png">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#ffffff">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Lucas">
+<link rel="apple-touch-icon" sizes="180x180" href="/images/icons/icon-180x180.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/images/icons/icon-192x192.png">
+<meta name="msapplication-TileColor" content="#ffffff">
+<meta name="msapplication-TileImage" content="/images/icons/icon-192x192.png">
+<script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js')}</script>
 </head>
-<body>
-    <div class="page-wrapper">
-        <nav class="site-nav">
-            <a href="/" class="site-title">Lucas</a>
-            <div class="nav-links">
-                <a href="/">首页</a>
-                <a href="/archives/">归档</a>
-                <a href="/post/about/">关于</a>
-                <a href="/links/">链接</a>
-            </div>
-        </nav>
-        <main class="main-content">
-            <article class="post-content">
-                <header class="post-header">
-    <h1 class="post-title">虚假的进步</h1>
-    <div class="post-meta">
-        <time datetime="2026-01-18">2026-01-18</time>
-        <span class="post-tags">游戏设计, 产品哲学, 反游戏化</span>
+
+    <body>
+
+        <script>
+    (function () {
+        const getSystemTheme = () => {
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                return 'dark';
+            }
+            return 'light';
+        };
+
+        const configDefault = 'dark';
+        const savedTheme = localStorage.getItem('theme');
+        const theme = savedTheme || configDefault || getSystemTheme();
+
+        if (theme === 'dark') {
+            document.body.classList.add('dark-theme');
+        }
+
+        if (!savedTheme) {
+            localStorage.setItem('theme', theme);
+        }
+    })();
+</script>
+<header class="mod-head">
+    <div class="mod-head__left">
+        <div class="mod-head__logo">
+            <a href="/">
+                
+                
+                    <img class="avatar" alt="avatar" src="/images/avatar.png">
+                
+            </a>
+        </div>
+    </div>
+
+    <div class="mod-head__right">
+        <span>
+            <button id="theme-toggle-sun" class="tiptap-button theme-toggle-sun" aria-label="Switch to dark mode">
+                <svg width="18" height="18" class="tiptap-button-icon" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 1C12.5523 1 13 1.44772 13 2V4C13 4.55228 12.5523 5 12 5C11.4477 5 11 4.55228 11 4V2C11 1.44772 11.4477 1 12 1Z" fill="currentColor"></path>
+                    <path fill-rule="evenodd" clip-rule="evenodd" d="M7 12C7 9.23858 9.23858 7 12 7C14.7614 7 17 9.23858 17 12C17 14.7614 14.7614 17 12 17C9.23858 17 7 14.7614 7 12ZM12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9Z" fill="currentColor"></path>
+                    <path d="M13 20C13 19.4477 12.5523 19 12 19C11.4477 19 11 19.4477 11 20V22C11 22.5523 11.4477 23 12 23C12.5523 23 13 22.5523 13 22V20Z" fill="currentColor"></path>
+                    <path d="M4.22282 4.22289C4.61335 3.83236 5.24651 3.83236 5.63704 4.22289L7.04704 5.63289C7.43756 6.02341 7.43756 6.65658 7.04704 7.0471C6.65651 7.43762 6.02335 7.43762 5.63283 7.0471L4.22282 5.6371C3.8323 5.24658 3.8323 4.61341 4.22282 4.22289Z" fill="currentColor"></path>
+                    <path d="M18.367 16.9529C17.9765 16.5623 17.3433 16.5623 16.9528 16.9529C16.5623 17.3434 16.5623 17.9766 16.9528 18.3671L18.3628 19.7771C18.7533 20.1676 19.3865 20.1676 19.777 19.7771C20.1675 19.3866 20.1675 18.7534 19.777 18.3629L18.367 16.9529Z" fill="currentColor"></path>
+                    <path d="M1 12C1 11.4477 1.44772 11 2 11H4C4.55228 11 5 11.4477 5 12C5 12.5523 4.55228 13 4 13H2C1.44772 13 1 12.5523 1 12Z" fill="currentColor"></path>
+                    <path d="M20 11C19.4477 11 19 11.4477 19 12C19 12.5523 19.4477 13 20 13H22C22.5523 13 23 12.5523 23 12C23 11.4477 22.5523 11 22 11H20Z" fill="currentColor"></path>
+                    <path d="M7.04704 16.9529C7.43756 17.3434 7.43756 17.9766 7.04704 18.3671L5.63704 19.7771C5.24651 20.1676 4.61335 20.1676 4.22282 19.7771C3.8323 19.3866 3.8323 18.7534 4.22283 18.3629L5.63283 16.9529C6.02335 16.5623 6.65651 16.5623 7.04704 16.9529Z" fill="currentColor"></path>
+                    <path d="M19.777 5.6371C20.1675 5.24657 20.1675 4.61341 19.777 4.22289C19.3865 3.83236 18.7533 3.83236 18.3628 4.22289L16.9528 5.63289C16.5623 6.02341 16.5623 6.65658 16.9528 7.0471C17.3433 7.43762 17.9765 7.43762 18.367 7.0471L19.777 5.6371Z" fill="currentColor"></path>
+                </svg>
+            </button>
+            <button id="theme-toggle-moon" class="tiptap-button theme-toggle-moon" aria-label="Switch to light mode">
+                <svg width="18" height="18" class="tiptap-button-icon" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C10.0222 2 8.08879 2.58649 6.4443 3.6853C4.79981 4.78412 3.51809 6.3459 2.76121 8.17317C2.00433 10.0004 1.8063 12.0111 2.19215 13.9509C2.578 15.8907 3.53041 17.6725 4.92894 19.0711C6.32746 20.4696 8.10929 21.422 10.0491 21.8079C11.9889 22.1937 13.9996 21.9957 15.8268 21.2388C17.6541 20.4819 19.2159 19.2002 20.3147 17.5557C21.4135 15.9112 22 13.9778 22 12C22 11.5955 21.7564 11.2309 21.3827 11.0761C21.009 10.9213 20.5789 11.0069 20.2929 11.2929C19.287 12.2988 17.9226 12.864 16.5 12.864C15.0774 12.864 13.713 12.2988 12.7071 11.2929C11.7012 10.287 11.136 8.92261 11.136 7.5C11.136 6.07739 11.7012 4.71304 12.7071 3.70711C12.9931 3.42111 13.0787 2.99099 12.9239 2.61732C12.7691 2.24364 12.4045 2 12 2ZM7.55544 5.34824C8.27036 4.87055 9.05353 4.51389 9.87357 4.28778C9.39271 5.27979 9.13604 6.37666 9.13604 7.5C9.13604 9.45304 9.91189 11.3261 11.2929 12.7071C12.6739 14.0881 14.547 14.864 16.5 14.864C17.6233 14.864 18.7202 14.6073 19.7122 14.1264C19.4861 14.9465 19.1295 15.7296 18.6518 16.4446C17.7727 17.7602 16.5233 18.7855 15.0615 19.391C13.5997 19.9965 11.9911 20.155 10.4393 19.8463C8.88743 19.5376 7.46197 18.7757 6.34315 17.6569C5.21447 16.538 4.4624 15.1126 4.15372 13.5607C3.84504 12.0089 4.00347 10.4003 4.60897 8.93853C5.21447 7.47672 6.23985 6.22729 7.55544 5.34824Z" fill="currentColor"></path>
+                    <path d="M19 2C19.5523 2 20 2.44772 20 3V4H21C21.5523 4 22 4.44772 22 5C22 5.55228 21.5523 6 21 6H20V7C20 7.55228 19.5523 8 19 8C18.4477 8 18 7.55228 18 7V6H17C16.4477 6 16 5.55228 16 5C16 4.44772 16.4477 4 17 4H18V3C18 2.44772 18.4477 2 19 2Z" fill="currentColor"></path>
+                </svg>
+            </button>
+        </span>
     </div>
 </header>
-                <div class="post-body">
-                    <p>过去这些年，各种 app 都在做游戏化——累计签到、积分排行榜、任务进度条。似乎有了这些，参数调得够精巧，用户就能更投入、更持久。但从近两年的数据和自身体验来看，这些设计不单没效果，甚至产生了反效果。</p>
+<!-- <a href="#" id="back-to-top" style="display: inline;"> ^ </a> -->
 
-<hr>
+            <article class="mod-post mod-post__type-post">
+                <header>
+                    <h1 class="mod-post__title">
+                        虚假的进步
+                    </h1>
+                </header>
 
+                <div class="mod-post__meta">
+                    <time datetime="2026-01-18">
+                        2026-01-18
+                    </time> • 2 分钟阅读 •
+                        
+                            <a href="/tag/you-xi-she-ji/">
+                                游戏设计
+                            </a>
+                             · 
+                                    
+                            <a href="/tag/chan-pin-zhe-xue/">
+                                产品哲学
+                            </a>
+                             · 
+                                    
+                            <a href="/tag/fan-you-xi-hua/">
+                                反游戏化
+                            </a>
+                            
+                                    
+                </div>
+
+
+
+                <div class="mod-post__entry wzulli">
+                    
+                            <p>过去这些年，各种 app 都在做游戏化——累计签到、积分排行榜、任务进度条。似乎有了这些，参数调得够精巧，用户就能更投入、更持久。但从近两年的数据和自身体验来看，这些设计不单没效果，甚至产生了反效果。</p>
+<hr />
 <p>最近三年，我是 Duolingo 的重度用户，累计签到超过 1000 天。但投入了这么多时间，学到的东西真的很少。于是在去年下半年，我放弃了续费，卸载了。</p>
-
 <p>从统计意义上说，我的行为让多邻国的留存上升、活跃增加、登录频率提高——类似我这样的数据总和，看起来产品设计得越来越好。但回头看，正是这些我曾经喜欢的功能，导致了真实学习行为的坍塌。产品趋势是把完成率做上去、把单次学习时间做短、让用户追求最低行动成本来完成功能目标。这一切都与学习的初衷背离：用户不是被鼓励去真正学语言，而是被规训去避免损失连续数字——打卡天数、榜单排名。</p>
-
 <p>这些数字变成心理负债，用户的行为目的变成了让焦虑最小化。满足了这些，最初的学习动机已经忘了。</p>
-
 <blockquote>
 <p>在 Reddit 上看到一个维持 3000 多天连续签到的用户，他说他现在也无法完成一段对话。近十年的坚持，换不来一段真实的对话。</p>
 </blockquote>
-
-<hr>
-
+<hr />
 <p>连胜、排行榜、积分——这些极其廉价，极其短时，但又极其有效。</p>
-
 <p>有效，是数据上会出现的微笑曲线。廉价和短视，是因为它们只优化了行为频率，没有优化行为质量，更没有关注行为之后产生的价值。扪心自问：我们会因为有了这个设计，自己的体验就变好吗？大多数时候，我们只是在展示一个可度量、可反馈、可展示的「假价值参数」。</p>
-
 <p>风险在于：时间一长，高质量用户会因为满足不到自身目标而迅速坍塌——醒悟了，彻底流失。多邻国于我如此，各种电商应用的天天打卡瓜分现金、白条分期满减也是如此。</p>
-
 <blockquote>
 <p>就像把员工框在工位上，接入工作时长排行榜加需求完成数量积分——人的注意力从长期福祉转移到即时排名上，真正的有效产出却被逐渐剥离。短期数值好看，长期价值毫无波澜。参与度不等于价值。</p>
 </blockquote>
-
-<hr>
-
+<hr />
 <p>我们习惯性地问「如何让人更有参与感」，却很少停下来想「用户参与的到底是什么」。</p>
-
 <p>当用户的行为需要被优化，当心理学变成压榨用户行为的工具，当参与不代表活跃，当活跃也不必然产生意义——系统早已在初衷与设计中走偏。一个每天打开应用做 60 秒打卡的用户，和一个真正沉浸其中、承受挫折、跨越能力阈值的学习者，在数据面前是一致的，在现实中却完全生活在两个世界。</p>
-
 <p>在此致敬那些克制的产品：遇到数据困难时，也没有制造恐惧，没有引入额外心理债务。</p>
-
-<hr>
-
+<hr />
 <p>作为设计者，需要区分「体验」与「游戏化」。</p>
-
 <p>体验是内在动机的涌现，是用户自然的行为——登录游戏是为了对局一局，获得一局游戏的体验。游戏化是外在激励的结构设计，是用户为避免损失或获得奖励而行动——登录签到奖励、累计打卡天数，这些不属于涌现。</p>
-
 <p>前者扩展行为的意义，后者往往为了利益设计而压缩意义，逐渐让意义坍塌。</p>
-
 <p>从这角度看，很多游戏的游戏化失败，不是因为设计能力不足，而是设计野心太大——超过了用户本身动机的涌现。试图用外在机制弥补系统的空洞，用多巴胺触发掩盖体验的贫乏，用竞争结构替代真实的用户行为路径，最终加速坍塌。</p>
-
 <p>游戏化会让对齐动机的系统更锋利，也会让空洞、剥削、短视的系统更快崩塌。当一个产品或制度必须依赖游戏化才能运转时，是否意味着它在更根本的层面上就不值得被维持下去？</p>
-
-<hr>
-
+<hr />
 <p>真正的问题不是「我们还能加什么机制」，而是：如果移除所有外在奖励和游戏化功能，这个核心体验还能成立吗？用户的体验还能涌现吗？</p>
-
 <p>并非所有东西都值得被留存。有些体验如果需要被操纵才能持续，那它们本就不该存在于现在的形态中。</p>
+<hr />
+<p>顺颂时祺<br />
+2026 年 1 月 17 日<br />
+Lucas</p>
 
-<hr>
-
-<p>顺颂时祺</p>
-<p>2026 年 1 月 17 日</p>
-<p>Lucas</p>
                 </div>
+
             </article>
-        </main>
-        <footer class="site-footer">
-            <p>Powered by Gridea Pro</p>
-        </footer>
+
+
+            
+                
+	<div class="mod-post__foot">
+	 文章标签: 
+     
+        <a href="/tag/you-xi-she-ji/">游戏设计</a>, 
+     
+        <a href="/tag/chan-pin-zhe-xue/">产品哲学</a>, 
+     
+        <a href="/tag/fan-you-xi-hua/">反游戏化</a>
+     
+     </br>
+	</div>
+
+                    
+
+                        <div class="mod-post__poster">
+                        </div>
+
+                        </div>
+
+                        
+                            
+<br>
+
+<div style="margin-bottom: 10px;">
+    上一篇 : <a href="/post/retention-is-not-a-module/">留存不是模块</a>
+</div>
+
+
+
+<div>
+    下一篇 : 没有下一篇文章了~
+</div>
+
+
+</div>	
+
+                                
+
+                                    
+                                        <!-- Reading Progress Component -->
+<div class="reading-progress-container">
+  <span class="reading-label">阅读进度</span>
+  <span class="reading-value">0%</span>
+  <svg class="progress-ring" viewBox="0 0 24 24">
+    <!-- Background Circle -->
+    <circle class="progress-ring__circle-bg" stroke-width="3" fill="transparent" r="10" cx="12" cy="12" />
+    <!-- Progress Circle -->
+    <circle class="progress-ring__circle" stroke-width="3" fill="transparent" r="10" cx="12" cy="12" />
+  </svg>
+</div>
+                                            <footer id="footer" class="footer">
+    <nav>
+        
+            
+                    <a class="menu-item" href="/">
+                        首页
+                    </a>
+                    
+             · 
+                    <a class="menu-item" href="/post">
+                        博客
+                    </a>
+                    
+             · 
+                    <a class="menu-item" href="/memos">
+                        闪念
+                    </a>
+                    
+             · 
+                    <a class="menu-item" href="/archives">
+                        归档
+                    </a>
+                    
+             · 
+                    <a class="menu-item" href="/tags">
+                        标签
+                    </a>
+                    
+             · 
+                    <a class="menu-item" href="/links">
+                        友链
+                    </a>
+                    
+             · 
+                    <a class="menu-item" href="/post/about">
+                        关于
+                    </a>
+                    
+    </nav>
+
+    <div class="Copyright">Copyright &copy; 2026 <a href="https://xlmm.github.io">
+                Lucas
+            </a></div>
+
+    <div class="index_footer">
+         ·
+            <a class="rss" href="/feed.xml" target="_blank" rel="noopener noreferrer">
+                <i class="ri-rss-line"></i> RSS
+            </a>
     </div>
+</footer>
+
+
+
+
+    <script>console.log("\n%c ✦ Gridea Pro v1.2.2 %c · Theme: amore v1.1.0 · https://gridea.pro %c\n","color:#fadfa3;background:#111111;padding:9px 14px;border-radius:4px 0 0 4px;font-weight:500;font-size:12px","color:#e05c00;background:#fff3ec;padding:9px 14px;border-radius:0 4px 4px 0;font-size:11px","")</script>
 </body>
-</html>
+
+    </html>
