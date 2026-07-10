@@ -8,16 +8,16 @@
 :root {
   --primary-color: #28df99;
   --accent-color: var(--primary-color);
-  --text-color: #161209;
-  --text-muted: #777;
+  --text-color: #2c2c2c;
+  --text-muted: #999;
   --bg-color: #fff;
-  --border-color: #eee;
-  --link-hover: #ef3982;
+  --border-color: #e8e8e8;
+  --link-hover: #6b7b8d;
 
-  --dark-bg: #292a2d;
-  --dark-text: #a9a9b3;
-  --dark-muted: #87878d;
-  --dark-border: #444;
+  --dark-bg: #1e1f22;
+  --dark-text: #c4c4cc;
+  --dark-muted: #787880;
+  --dark-border: #3a3a40;
 }
 
 /* ==========================================================================
@@ -34,8 +34,11 @@
 html {
   line-height: 1.15;
   -webkit-text-size-adjust: 100%;
-  font-family: "Microsoft Jhenghei", Lantinghei SC, "lanting", PingFang SC, Seguo UI, "Microsoft Yahei", Arial;
+  font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif;
   min-height: 100%;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 html::-webkit-scrollbar { width: 8px; height: 8px; }
@@ -51,7 +54,7 @@ body {
   margin: 0 auto;
   max-width: 860px;
   padding: 0 20px;
-  font: 400 16px/1.7 PingFang SC, sans-serif;
+  font: 15px/1.7 "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
   color: var(--text-color);
   background-color: var(--bg-color);
   overflow-x: hidden;
@@ -75,13 +78,14 @@ a:hover {
   background-color: var(--accent-color);
   color: #f9f9f9;
 }
-::marker { color: #66DE93; }
+::marker { color: var(--accent-color); }
 
 em {
-  font-style: normal;
-  font-weight: 600;
-  padding: 5px 10px;
-  background-color: #FFE61B;
+  font-style: italic;
+  font-weight: 500;
+  padding: 0;
+  background: none;
+  color: var(--text-color);
 }
 
 blockquote {
@@ -340,8 +344,14 @@ figure { margin: 1.5em 0; }
 }
 body.dark-theme .mod-post__entry hr { background: var(--dark-border); }
 .mod-post__entry a {
-  color: #EC5858;
+  color: var(--accent-color);
   font-weight: 500;
+  text-decoration: underline;
+  text-decoration-color: rgba(107,123,141,0.3);
+  text-underline-offset: 3px;
+}
+.mod-post__entry a:hover {
+  text-decoration-color: var(--accent-color);
 }
 .mod-post__entry blockquote a {
   color: #707070;
@@ -918,12 +928,12 @@ body.dark-theme {
 
 .dark-theme .mod-post__entry p { color: var(--dark-text); }
 .dark-theme .mod-post__entry img { opacity: 0.7; }
-.dark-theme .mod-post__entry a { color: #EC5858; }
+.dark-theme .mod-post__entry a { color: var(--accent-color); }
 
 .dark-theme pre { background: #393e46; }
-.dark-theme em { color: #333; }
+.dark-theme em { color: var(--dark-text); font-style: italic; }
 .dark-theme ol li,
-.dark-theme ul li { color: #808080; }
+.dark-theme ul li { color: #909090; }
 
 body.dark-theme .theme-toggle-sun  { display: none !important; }
 body.dark-theme .theme-toggle-moon { display: inline-block !important; color: #FFD700; }
