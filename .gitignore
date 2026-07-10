@@ -1,7 +1,3 @@
 .DS_Store
 thumbnails/
 .gitignore
-lib/Valine.min.js
-styles/icons.css
-styles/main.css
-images/theme/
