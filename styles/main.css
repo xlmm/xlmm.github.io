@@ -1004,11 +1004,11 @@ body.dark-theme .theme-toggle-moon { display: inline-block !important; color: #F
    ========================================================================== */
 
 :root {
-  --accent-color: #6b7b8d;
+  --accent-color: #6b7b8d !important;
 }
 
 .dark-theme {
-  --accent-color: #8b9aab;
+  --accent-color: #8b9aab !important;
 }
 
 /* Subtle footer: show something when footerInfo is empty */
