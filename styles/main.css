@@ -998,3 +998,21 @@ body.dark-theme .theme-toggle-moon { display: inline-block !important; color: #F
     line-height: 2.4em;
   }
 }
+
+/* ==========================================================================
+   Site customizations
+   ========================================================================== */
+
+:root {
+  --accent-color: #6b7b8d;
+}
+
+.dark-theme {
+  --accent-color: #8b9aab;
+}
+
+/* Subtle footer: show something when footerInfo is empty */
+.index_footer {
+  color: var(--text-muted);
+  font-style: italic;
+}
