@@ -1,0 +1,1055 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport"
+        content="initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=0, width=device-width" />
+    <meta name="renderer" content="webkit">
+    <meta name="format-detection" content="telephone=no, email=no, address=no">
+
+    <meta name="generator" content="Gridea Pro 1.2.2">
+    <title>Lucas AI 技能与 Agent 完全操作手册 | Lucas</title>
+
+    
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#292a2d" media="(prefers-color-scheme: dark)">
+
+    
+    <link rel="shortcut icon" href="/media/images/favicon.ico">
+<link rel="stylesheet" href="/styles/main.min.css">
+
+    
+    <style>:root{--accent-color:#28df99;}</style>
+    
+
+    <script>
+    // 自动为所有 target="_blank" 的链接添加 rel="noopener noreferrer"
+    document.addEventListener('DOMContentLoaded', function() {
+        var links = document.querySelectorAll('a[target="_blank"]');
+        links.forEach(function(link) {
+            var rel = link.getAttribute('rel') || '';
+            if (rel.indexOf('noopener') === -1) {
+                rel += ' noopener';
+            }
+            if (rel.indexOf('noreferrer') === -1) {
+                rel += ' noreferrer';
+            }
+            link.setAttribute('rel', rel.trim());
+        });
+    });
+</script>
+
+
+
+    <script>
+    // declaraction of document.ready() function.
+    (function () {
+        var ie = !!(window.attachEvent && !window.opera);
+        var wk = /webkit\/(\d+)/i.test(navigator.userAgent) && (RegExp.$1 < 525);
+        var fn = [];
+        var run = function () {
+            for (var i = 0; i < fn.length; i++) fn[i]();
+        };
+        var d = document;
+        d.ready = function (f) {
+            if (!ie && !wk && d.addEventListener)
+                return d.addEventListener('DOMContentLoaded', f, false);
+            if (fn.push(f) > 1) return;
+            if (ie)
+                (function () {
+                    try {
+                        d.documentElement.doScroll('left');
+                        run();
+                    } catch (err) {
+                        setTimeout(arguments.callee, 0);
+                    }
+                })();
+            else if (wk)
+                var t = setInterval(function () {
+                    if (/^(loaded|complete)$/.test(d.readyState))
+                        clearInterval(t), run();
+                }, 0);
+        };
+    })();
+
+
+    document.ready(
+        function () {
+            var _Blog = window._Blog || {};
+
+            const getSystemTheme = () => {
+                if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                    return 'dark';
+                }
+                return 'light';
+            };
+
+            const configDefault = 'dark';
+            const currentTheme = window.localStorage && window.localStorage.getItem('theme');
+            const initialTheme = currentTheme || configDefault || getSystemTheme();
+            const isDark = initialTheme === 'dark';
+
+            const updateButtons = (dark) => {
+                const sunBtn = document.getElementById("theme-toggle-sun");
+                const moonBtn = document.getElementById("theme-toggle-moon");
+                const mobileSunBtn = document.getElementById("mobile-theme-toggle-sun");
+                const mobileMoonBtn = document.getElementById("mobile-theme-toggle-moon");
+
+                if (dark) {
+                    if (sunBtn) sunBtn.style.display = 'none';
+                    if (moonBtn) moonBtn.style.display = 'inline-block';
+                    if (mobileSunBtn) mobileSunBtn.style.display = 'none';
+                    if (mobileMoonBtn) mobileMoonBtn.style.display = 'inline-block';
+                } else {
+                    if (sunBtn) sunBtn.style.display = 'inline-block';
+                    if (moonBtn) moonBtn.style.display = 'none';
+                    if (mobileSunBtn) mobileSunBtn.style.display = 'inline-block';
+                    if (mobileMoonBtn) mobileMoonBtn.style.display = 'none';
+                }
+            };
+
+            const updateThemeColor = (dark) => {
+                const themeColor = dark ? '#292a2d' : '#ffffff';
+                const metaTags = document.querySelectorAll('meta[name="theme-color"]');
+                if (metaTags.length > 0) {
+                    // 保留第一个，移除其他的，避免重复
+                    for (let i = 1; i < metaTags.length; i++) {
+                        metaTags[i].remove();
+                    }
+                    metaTags[0].setAttribute('content', themeColor);
+                    metaTags[0].removeAttribute('media');
+                } else {
+                    const meta = document.createElement('meta');
+                    meta.name = 'theme-color';
+                    meta.content = themeColor;
+                    document.head.appendChild(meta);
+                }
+            };
+
+            const applyTheme = (dark) => {
+                const body = document.getElementsByTagName('body')[0];
+                if (dark) {
+                    body.classList.add('dark-theme');
+                } else {
+                    body.classList.remove('dark-theme');
+                }
+                updateButtons(dark);
+                updateThemeColor(dark);
+            };
+
+            // Initial application
+            applyTheme(isDark);
+            if (!currentTheme) {
+                window.localStorage && window.localStorage.setItem('theme', initialTheme);
+            }
+
+            _Blog.toggleTheme = function () {
+                const toggleFunc = (e) => {
+                    // Prevent bubbling if needed, though buttons are distinct now
+                    if (e) e.stopPropagation();
+
+                    const body = document.getElementsByTagName('body')[0];
+                    const isCurrentlyDark = body.classList.contains('dark-theme');
+
+                    if (isCurrentlyDark) {
+                        body.classList.remove('dark-theme');
+                        updateButtons(false);
+                        window.localStorage && window.localStorage.setItem('theme', 'light');
+                    } else {
+                        body.classList.add('dark-theme');
+                        updateButtons(true);
+                        window.localStorage && window.localStorage.setItem('theme', 'dark');
+                    }
+                };
+
+                const sunBtn = document.getElementById("theme-toggle-sun");
+                const moonBtn = document.getElementById("theme-toggle-moon");
+                const mobileSunBtn = document.getElementById("mobile-theme-toggle-sun");
+                const mobileMoonBtn = document.getElementById("mobile-theme-toggle-moon");
+
+                if (sunBtn) sunBtn.addEventListener('click', toggleFunc);
+                if (moonBtn) moonBtn.addEventListener('click', toggleFunc);
+                if (mobileSunBtn) mobileSunBtn.addEventListener('click', toggleFunc);
+                if (mobileMoonBtn) mobileMoonBtn.addEventListener('click', toggleFunc);
+            };
+            _Blog.toggleTheme();
+
+            if (window.matchMedia && !configDefault) {
+                window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+                    const newTheme = e.matches ? 'dark' : 'light';
+                    applyTheme(e.matches);
+                    window.localStorage && window.localStorage.setItem('theme', newTheme);
+                });
+            }
+        }
+    );
+</script>
+
+<script>
+    // Reading Progress Component
+    document.addEventListener('DOMContentLoaded', () => {
+        const progressValue = document.querySelector('.reading-value');
+        const progressCircle = document.querySelector('.progress-ring__circle');
+        const container = document.querySelector('.reading-progress-container');
+
+        // Exit if elements don't exist (e.g., not on a post page)
+        if (!progressValue || !progressCircle || !container) {
+            return;
+        }
+
+        // SVG Circle setup
+        const radius = progressCircle.r.baseVal.value;
+        const circumference = 2 * Math.PI * radius;
+
+        progressCircle.style.strokeDasharray = `${circumference} ${circumference}`;
+        progressCircle.style.strokeDashoffset = circumference;
+
+        function setProgress(percent) {
+            const safePercent = Math.min(100, Math.max(0, percent));
+            progressValue.textContent = `${Math.round(safePercent)}%`;
+            const offset = circumference - (safePercent / 100) * circumference;
+            progressCircle.style.strokeDashoffset = offset;
+        }
+
+        function onScroll() {
+            const scrollTop = window.scrollY || document.documentElement.scrollTop;
+            const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+
+            if (scrollHeight <= 0) {
+                setProgress(0);
+                return;
+            }
+
+            const scrollPercent = (scrollTop / scrollHeight) * 100;
+            setProgress(scrollPercent);
+
+            // Show/Hide logic: Show if scrolled more than 100px
+            if (scrollTop > 100) {
+                container.classList.add('show');
+            } else {
+                container.classList.remove('show');
+            }
+        }
+
+        // Initialize
+        onScroll();
+
+        // Listen for scroll events
+        window.addEventListener('scroll', onScroll, { passive: true });
+
+        // Recalculate on resize
+        window.addEventListener('resize', onScroll);
+    });
+</script>
+
+
+
+
+    
+
+    
+<meta name="description" content="Lucas AI 技能与 Agent 完全操作手册 覆盖 67 个 Skills（54 全局 + 13 本地）和 10 种 Agent 类型的完整使用指南。 基于 2026-05-17 实际安装状态编写，每项均标注触发方式、适用场景和你的使用频率。 一、总览 分类 数量 说明 PAI 思维技能 &amp;hellip;">
+<meta name="keywords" content="游戏设计,概率,产品,读书笔记,Lucas">
+<link rel="canonical" href="https://xlmm.github.io/post/lucas-ai-skill-agent-handbook/">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"Lucas AI 技能与 Agent 完全操作手册","url":"https://xlmm.github.io/post/lucas-ai-skill-agent-handbook/","description":"Lucas AI 技能与 Agent 完全操作手册 覆盖 67 个 Skills（54 全局 + 13 本地）和 10 种 Agent 类型的完整使用指南。 基于 2026-05-17 实际安装状态编写，每项均标注触发方式、适用场景和你的使用频率。 一、总览 分类 数量 说明 PAI 思维技能 \u0026hellip;","datePublished":"2026-05-22T17:39:43+08:00","dateModified":"2026-08-04T11:19:38+08:00","author":{"@type":"Person","name":"Lucas"},"publisher":{"@type":"Organization","logo":{"@type":"ImageObject","url":"/images/avatar.png"},"name":"Lucas"}}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","item":"https://xlmm.github.io","name":"Lucas","position":1},{"@type":"ListItem","item":"https://xlmm.github.io/post/lucas-ai-skill-agent-handbook/","name":"Lucas AI 技能与 Agent 完全操作手册","position":2}]}</script>
+<meta property="og:title" content="Lucas AI 技能与 Agent 完全操作手册">
+<meta property="og:description" content="Lucas AI 技能与 Agent 完全操作手册 覆盖 67 个 Skills（54 全局 + 13 本地）和 10 种 Agent 类型的完整使用指南。 基于 2026-05-17 实际安装状态编写，每项均标注触发方式、适用场景和你的使用频率。 一、总览 分类 数量 说明 PAI 思维技能 &amp;hellip;">
+<meta property="og:url" content="https://xlmm.github.io/post/lucas-ai-skill-agent-handbook/">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Lucas">
+<meta property="og:image" content="https://xlmm.github.io/media/preview.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:url" content="https://xlmm.github.io/post/lucas-ai-skill-agent-handbook/">
+<meta name="twitter:title" content="Lucas AI 技能与 Agent 完全操作手册">
+<meta name="twitter:description" content="Lucas AI 技能与 Agent 完全操作手册 覆盖 67 个 Skills（54 全局 + 13 本地）和 10 种 Agent 类型的完整使用指南。 基于 2026-05-17 实际安装状态编写，每项均标注触发方式、适用场景和你的使用频率。 一、总览 分类 数量 说明 PAI 思维技能 &amp;hellip;">
+<meta name="twitter:image" content="https://xlmm.github.io/media/preview.png">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#ffffff">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Lucas">
+<link rel="apple-touch-icon" sizes="180x180" href="/images/icons/icon-180x180.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/images/icons/icon-192x192.png">
+<meta name="msapplication-TileColor" content="#ffffff">
+<meta name="msapplication-TileImage" content="/images/icons/icon-192x192.png">
+<script>if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js')}</script>
+</head>
+
+    <body>
+
+        <script>
+    (function () {
+        const getSystemTheme = () => {
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                return 'dark';
+            }
+            return 'light';
+        };
+
+        const configDefault = 'dark';
+        const savedTheme = localStorage.getItem('theme');
+        const theme = savedTheme || configDefault || getSystemTheme();
+
+        if (theme === 'dark') {
+            document.body.classList.add('dark-theme');
+        }
+
+        if (!savedTheme) {
+            localStorage.setItem('theme', theme);
+        }
+    })();
+</script>
+<header class="mod-head">
+    <div class="mod-head__left">
+        <div class="mod-head__logo">
+            <a href="/">
+                
+                
+                    <img class="avatar" alt="avatar" src="/images/avatar.png">
+                
+            </a>
+        </div>
+    </div>
+
+    <div class="mod-head__right">
+        <span>
+            <button id="theme-toggle-sun" class="tiptap-button theme-toggle-sun" aria-label="Switch to dark mode">
+                <svg width="18" height="18" class="tiptap-button-icon" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 1C12.5523 1 13 1.44772 13 2V4C13 4.55228 12.5523 5 12 5C11.4477 5 11 4.55228 11 4V2C11 1.44772 11.4477 1 12 1Z" fill="currentColor"></path>
+                    <path fill-rule="evenodd" clip-rule="evenodd" d="M7 12C7 9.23858 9.23858 7 12 7C14.7614 7 17 9.23858 17 12C17 14.7614 14.7614 17 12 17C9.23858 17 7 14.7614 7 12ZM12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9Z" fill="currentColor"></path>
+                    <path d="M13 20C13 19.4477 12.5523 19 12 19C11.4477 19 11 19.4477 11 20V22C11 22.5523 11.4477 23 12 23C12.5523 23 13 22.5523 13 22V20Z" fill="currentColor"></path>
+                    <path d="M4.22282 4.22289C4.61335 3.83236 5.24651 3.83236 5.63704 4.22289L7.04704 5.63289C7.43756 6.02341 7.43756 6.65658 7.04704 7.0471C6.65651 7.43762 6.02335 7.43762 5.63283 7.0471L4.22282 5.6371C3.8323 5.24658 3.8323 4.61341 4.22282 4.22289Z" fill="currentColor"></path>
+                    <path d="M18.367 16.9529C17.9765 16.5623 17.3433 16.5623 16.9528 16.9529C16.5623 17.3434 16.5623 17.9766 16.9528 18.3671L18.3628 19.7771C18.7533 20.1676 19.3865 20.1676 19.777 19.7771C20.1675 19.3866 20.1675 18.7534 19.777 18.3629L18.367 16.9529Z" fill="currentColor"></path>
+                    <path d="M1 12C1 11.4477 1.44772 11 2 11H4C4.55228 11 5 11.4477 5 12C5 12.5523 4.55228 13 4 13H2C1.44772 13 1 12.5523 1 12Z" fill="currentColor"></path>
+                    <path d="M20 11C19.4477 11 19 11.4477 19 12C19 12.5523 19.4477 13 20 13H22C22.5523 13 23 12.5523 23 12C23 11.4477 22.5523 11 22 11H20Z" fill="currentColor"></path>
+                    <path d="M7.04704 16.9529C7.43756 17.3434 7.43756 17.9766 7.04704 18.3671L5.63704 19.7771C5.24651 20.1676 4.61335 20.1676 4.22282 19.7771C3.8323 19.3866 3.8323 18.7534 4.22283 18.3629L5.63283 16.9529C6.02335 16.5623 6.65651 16.5623 7.04704 16.9529Z" fill="currentColor"></path>
+                    <path d="M19.777 5.6371C20.1675 5.24657 20.1675 4.61341 19.777 4.22289C19.3865 3.83236 18.7533 3.83236 18.3628 4.22289L16.9528 5.63289C16.5623 6.02341 16.5623 6.65658 16.9528 7.0471C17.3433 7.43762 17.9765 7.43762 18.367 7.0471L19.777 5.6371Z" fill="currentColor"></path>
+                </svg>
+            </button>
+            <button id="theme-toggle-moon" class="tiptap-button theme-toggle-moon" aria-label="Switch to light mode">
+                <svg width="18" height="18" class="tiptap-button-icon" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C10.0222 2 8.08879 2.58649 6.4443 3.6853C4.79981 4.78412 3.51809 6.3459 2.76121 8.17317C2.00433 10.0004 1.8063 12.0111 2.19215 13.9509C2.578 15.8907 3.53041 17.6725 4.92894 19.0711C6.32746 20.4696 8.10929 21.422 10.0491 21.8079C11.9889 22.1937 13.9996 21.9957 15.8268 21.2388C17.6541 20.4819 19.2159 19.2002 20.3147 17.5557C21.4135 15.9112 22 13.9778 22 12C22 11.5955 21.7564 11.2309 21.3827 11.0761C21.009 10.9213 20.5789 11.0069 20.2929 11.2929C19.287 12.2988 17.9226 12.864 16.5 12.864C15.0774 12.864 13.713 12.2988 12.7071 11.2929C11.7012 10.287 11.136 8.92261 11.136 7.5C11.136 6.07739 11.7012 4.71304 12.7071 3.70711C12.9931 3.42111 13.0787 2.99099 12.9239 2.61732C12.7691 2.24364 12.4045 2 12 2ZM7.55544 5.34824C8.27036 4.87055 9.05353 4.51389 9.87357 4.28778C9.39271 5.27979 9.13604 6.37666 9.13604 7.5C9.13604 9.45304 9.91189 11.3261 11.2929 12.7071C12.6739 14.0881 14.547 14.864 16.5 14.864C17.6233 14.864 18.7202 14.6073 19.7122 14.1264C19.4861 14.9465 19.1295 15.7296 18.6518 16.4446C17.7727 17.7602 16.5233 18.7855 15.0615 19.391C13.5997 19.9965 11.9911 20.155 10.4393 19.8463C8.88743 19.5376 7.46197 18.7757 6.34315 17.6569C5.21447 16.538 4.4624 15.1126 4.15372 13.5607C3.84504 12.0089 4.00347 10.4003 4.60897 8.93853C5.21447 7.47672 6.23985 6.22729 7.55544 5.34824Z" fill="currentColor"></path>
+                    <path d="M19 2C19.5523 2 20 2.44772 20 3V4H21C21.5523 4 22 4.44772 22 5C22 5.55228 21.5523 6 21 6H20V7C20 7.55228 19.5523 8 19 8C18.4477 8 18 7.55228 18 7V6H17C16.4477 6 16 5.55228 16 5C16 4.44772 16.4477 4 17 4H18V3C18 2.44772 18.4477 2 19 2Z" fill="currentColor"></path>
+                </svg>
+            </button>
+        </span>
+    </div>
+</header>
+<!-- <a href="#" id="back-to-top" style="display: inline;"> ^ </a> -->
+
+            <article class="mod-post mod-post__type-post">
+                <header>
+                    <h1 class="mod-post__title">
+                        Lucas AI 技能与 Agent 完全操作手册
+                    </h1>
+                </header>
+
+                <div class="mod-post__meta">
+                    <time datetime="2026-05-22">
+                        2026-05-22
+                    </time> • 20 分钟阅读 •
+                        
+                </div>
+
+
+
+                <div class="mod-post__entry wzulli">
+                    
+                            <h1 id="lucas-ai--agent-">Lucas AI 技能与 Agent 完全操作手册</h1>
+<blockquote>
+<p>覆盖 67 个 Skills（54 全局 + 13 本地）和 10 种 Agent 类型的完整使用指南。<br />
+基于 2026-05-17 实际安装状态编写，每项均标注触发方式、适用场景和你的使用频率。</p>
+</blockquote>
+<hr />
+<h2 id="heading">一、总览</h2>
+<table>
+<thead>
+<tr>
+<th>分类</th>
+<th>数量</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PAI 思维技能</td>
+<td>16</td>
+<td>Algorithm 闭合枚举的思考能力</td>
+</tr>
+<tr>
+<td>PAI 系统技能</td>
+<td>15</td>
+<td>PAI 基础设施和维护</td>
+</tr>
+<tr>
+<td>Lucas 自定义技能</td>
+<td>14</td>
+<td>个人化工具和思维框架</td>
+</tr>
+<tr>
+<td>生产力/开发</td>
+<td>10</td>
+<td>日常开发和质量工具</td>
+</tr>
+<tr>
+<td>飞书/协作</td>
+<td>7</td>
+<td>Lark CLI 集成</td>
+</tr>
+<tr>
+<td>数据/研究</td>
+<td>5</td>
+<td>信息获取和分析</td>
+</tr>
+<tr>
+<td>Agent 类型</td>
+<td>10</td>
+<td>可派发的专业代理</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="pai-16-">二、PAI 思维技能（16 项）</h2>
+<p>Algorithm v6.3.0 闭合枚举，Algorithm 根据任务需要自动选用。</p>
+<h3 id="21-">2.1 深度分析类</h3>
+<p><strong>IterativeDepth</strong> — 对同一问题进行 2-8 轮不同科学视角的结构化多角度分析。4 轮通常能发现比直接分析多 30-50% 的需求。</p>
+<ul>
+<li>触发：<code>iterative depth</code>, <code>multi-angle</code>, <code>deep dive</code>, <code>what am I missing</code></li>
+<li>适用：有预算的重要任务、从未做过的任务</li>
+</ul>
+<p><strong>ApertureOscillation</strong> — 3 轮范围振荡（窄/战术 → 宽/战略 → 综合），暴露单一缩放级别不可见的设计张力。</p>
+<ul>
+<li>触发：<code>aperture oscillation</code>, <code>zoom in/out</code>, <code>tactical vs strategic</code>, <code>scope negotiation</code></li>
+<li>适用：架构决策、功能需对齐系统愿景时</li>
+</ul>
+<p><strong>SystemsThinking</strong> — 冰山模型、因果循环图、Meadows 12 杠杆点分析复杂系统结构。</p>
+<ul>
+<li>触发：<code>systems thinking</code>, <code>causal loop</code>, <code>leverage points</code>, <code>why does this keep happening</code></li>
+<li>适用：反复出现的问题、&ldquo;修复&quot;产生新问题、大规模干预前</li>
+</ul>
+<p><strong>RootCauseAnalysis</strong> — Five Whys / 鱼骨图 / 故障树 / IS-IS NOT 结构化事故调查。核心公理：人不是根因，系统允许错误发生。</p>
+<ul>
+<li>触发：<code>root cause</code>, <code>RCA</code>, <code>5 whys</code>, <code>fishbone</code>, <code>postmortem</code>, <code>incident analysis</code></li>
+<li>适用：事故调查、反复缺陷、事后复盘</li>
+</ul>
+<h3 id="22-">2.2 创意生成类</h3>
+<p><strong>BeCreative</strong> — 通过 Verbalized Sampling 发散生成，单次产出 5 个多样候选，选最强。7 种工作流（标准/最大/树状/领域/技术/SyntheticData）。</p>
+<ul>
+<li>触发：<code>be creative</code>, <code>brainstorm</code>, <code>divergent ideas</code>, <code>tree of thoughts</code>, <code>unconventional approach</code></li>
+<li>适用：需要创意脑暴、非传统方案、扩展数据集</li>
+</ul>
+<p><strong>Ideate</strong> — 进化式 9 阶段多周期创意引擎（消费/做梦/白日梦/沉思/偷窃/交配/测试/进化/元学习），产出真正新颖的想法。</p>
+<ul>
+<li>触发：<code>ideate</code>, <code>novel ideas</code>, <code>evolve ideas</code>, <code>innovate</code>, <code>breakthrough ideas</code></li>
+<li>适用：需要突破性想法、有充足预算、BeCreative 不够时</li>
+</ul>
+<h3 id="23-">2.3 推理框架类</h3>
+<p><strong>FirstPrinciples</strong> — 马斯克式物理学推理：拆解到基本真理 → 挑战每个假设 → 从零重建。三步：DECONSTRUCT / CHALLENGE / RECONSTRUCT。</p>
+<ul>
+<li>触发：<code>first principles</code>, <code>fundamental truths</code>, <code>challenge assumptions</code>, <code>rebuild from scratch</code></li>
+<li>适用：挑战&quot;这真是约束还是习惯&rdquo;、从零重建设计</li>
+</ul>
+<p><strong>Science</strong> — 科学方法作为通用算法：定目标 → 生成至少 3 个假设 → 设计可证伪实验 → 诚实测量 → 迭代。</p>
+<ul>
+<li>触发：<code>experiment</code>, <code>hypothesis</code>, <code>science</code>, <code>how do we test</code></li>
+<li>适用：需要严格验证、快速诊断、设计实验</li>
+</ul>
+<h3 id="24-">2.4 对抗与辩论类</h3>
+<p><strong>Council</strong> — 多智能体辩论，为每个话题临时组建定制领域专家团，多轮可见对话产生智力摩擦。</p>
+<ul>
+<li>触发：<code>council</code>, <code>debate</code>, <code>multiple perspectives</code>, <code>weigh options</code>, <code>what would experts say</code></li>
+<li>适用：复杂决策需多领域视角、重要策略审议</li>
+</ul>
+<p><strong>RedTeam</strong> — 32 并行专家对抗分析，攻击想法弱点，产出钢人论证 + 反论证。找弱点，非找人错。</p>
+<ul>
+<li>触发：<code>red team</code>, <code>attack idea</code>, <code>counterarguments</code>, <code>stress test</code>, <code>devil's advocate</code></li>
+<li>适用：压力测试策略、投入前&quot;打孔找问题&quot;</li>
+</ul>
+<h3 id="25-">2.5 质量与评估类</h3>
+<p><strong>Evals</strong> — AI Agent 评测框架，三种评分器（代码/模型/人类）+ pass@k 评分。</p>
+<ul>
+<li>触发：<code>eval</code>, <code>benchmark</code>, <code>regression test</code>, <code>compare models</code>, <code>pass@k</code></li>
+<li>适用：运行评测、对比模型/prompt、回归测试</li>
+</ul>
+<p><strong>BitterPillEngineering</strong> — 审计 AI 指令集过度提示，五问每条规则，分类为 CUT/RESOLVE/MERGE/KEEP 等。核心原则：越少脚手架 = 越好输出。</p>
+<ul>
+<li>触发：<code>BPE</code>, <code>bitter pill</code>, <code>audit setup</code>, <code>over-prompting</code>, <code>trim instructions</code></li>
+<li>适用：清理 CLAUDE.md、检查冗余规则、token 浪费统计</li>
+</ul>
+<h3 id="26-">2.6 全局视角类</h3>
+<p><strong>WorldThreatModel</strong> — 对抗 11 个时间跨度（6 月到 50 年）的世界模型，含地缘政治/技术/经济/社会/环境/安全/野卡。</p>
+<ul>
+<li>触发：<code>world model</code>, <code>test idea</code>, <code>future analysis</code>, <code>time horizon</code>, <code>long-term risk</code></li>
+<li>适用：评估长期策略韧性、高风险战略决策</li>
+</ul>
+<p><strong>ContextSearch</strong> — 两阶段上下文搜索（会话注册表 → git 历史），冷启动恢复。</p>
+<ul>
+<li>触发：<code>context search</code>, <code>prior work</code>, <code>previous sessions</code>, <code>cold start</code>, <code>resume</code></li>
+<li>适用：恢复中断工作、查找之前 session</li>
+</ul>
+<h3 id="27-">2.7 核心原语</h3>
+<p><strong>ISA</strong> — 理想状态工件，将&quot;完成&quot;表达为可测试标准（ISC）。Algorithm 在 OBSERVE 阶段自动调用。</p>
+<ul>
+<li>触发：<code>ideal state</code>, <code>ISA</code>, <code>ISC</code>, <code>project spec</code>, <code>articulating done</code></li>
+<li>适用：明确&quot;什么算做完&quot;、搭建项目规格</li>
+</ul>
+<p><strong>Fabric</strong> — 240+ 专门化 prompt 模式库（提取/总结/分析/创作/改进/安全/评分）。</p>
+<ul>
+<li>触发：<code>fabric</code>, <code>extract_wisdom</code>, <code>summarize</code>, <code>analyze claims</code>, <code>improve writing</code>, <code>create mermaid diagram</code></li>
+<li>适用：从内容提取智慧、威胁建模、改进写作、代码审查、创建图表</li>
+</ul>
+<hr />
+<h2 id="pai-15-">三、PAI 系统/基础设施技能（15 项）</h2>
+<p>PAI Life OS 的运维和管理工具。</p>
+<p><strong>ISA</strong> — Algorithm 核心，每次任务自动调用。12 节锁定结构，ISC 作为可测试标准。</p>
+<p><strong>PAIUpgrade</strong> — PAI 自升级机制。4 并行线程（历史审计 + 用户上下文 + 来源收集 + 内部反思）生成优先级排序的升级建议。定期跑。</p>
+<ul>
+<li>触发：<code>upgrade</code>, <code>PAI upgrade</code>, <code>check Anthropic</code>, <code>algorithm upgrade</code></li>
+</ul>
+<p><strong>Agents</strong> — 自定义代理组合系统。通过基础特质 + 语音 + 专长组合定制代理。</p>
+<ul>
+<li>触发：<code>custom agents</code>, <code>compose agent</code>, <code>agent voices</code></li>
+<li>注意：代理团队/群集用 Delegation</li>
+</ul>
+<p><strong>Delegation</strong> — 6 种并行模式：内置代理、工作树隔离、后台、自定义、团队、并行分发。3+ 独立工作流时 Algorithm 自动调用。</p>
+<ul>
+<li>触发：<code>parallel execution</code>, <code>agent team</code>, <code>spawn agents</code>, <code>fan out</code>, <code>divide and conquer</code></li>
+</ul>
+<p><strong>Knowledge</strong> — PAI 知识档案管理，4 域（人物/公司/想法/研究），支持搜索/添加/收割/开发/导入/矛盾检测/图谱导航。</p>
+<ul>
+<li>触发：<code>knowledge</code>, <code>knowledge base</code>, <code>search knowledge</code>, <code>add to knowledge</code></li>
+</ul>
+<p><strong>CreateSkill</strong> — PAI 技能开发生命周期：结构轨道（scaffold/validate/canonicalize）+ 效果轨道（test/improve/optimize）。</p>
+<ul>
+<li>触发：<code>create skill</code>, <code>new skill</code>, <code>validate skill</code>, <code>improve skill</code></li>
+</ul>
+<p><strong>Prompting</strong> — 元提示词标准库。Handlebars 模板系统 + RenderTemplate.ts。产出 prompt，非最终内容。</p>
+<ul>
+<li>触发：<code>meta-prompting</code>, <code>template generation</code>, <code>prompt engineering</code>, <code>write a prompt for</code></li>
+</ul>
+<p><strong>Interview</strong> — 分阶段对话式访谈遍历所有 PAI 上下文文件（TELOS → IDEAL_STATE → 偏好 → 身份）。</p>
+<ul>
+<li>触发：<code>/interview</code>, <code>start interview</code>, <code>review TELOS</code>, <code>quarterly context refresh</code></li>
+</ul>
+<p><strong>Telos</strong> — 人生操作系统与项目分析：管理目标/信仰/智慧/书籍/电影，McKinsey 式报告和仪表盘。</p>
+<ul>
+<li>触发：<code>Telos</code>, <code>life goals</code>, <code>projects</code>, <code>books</code>, <code>beliefs</code>, <code>wisdom</code></li>
+</ul>
+<p><strong>Migrate</strong> — 从外部来源导入内容，按 PAI 分类自动路由（≥70% 自动，40-70% 确认，&lt;40% 引导）。</p>
+<ul>
+<li>触发：<code>/migrate</code>, <code>migrate content</code>, <code>import</code>, <code>bulk import</code></li>
+</ul>
+<p><strong>Loop</strong> — 迭代改进循环，多轮 Algorithm 周期，每轮间人工审核。</p>
+<ul>
+<li>触发：<code>loop</code>, <code>iterate</code>, <code>refine</code>, <code>multiple passes</code>, <code>keep improving</code></li>
+</ul>
+<p><strong>Optimize</strong> — 自主优化循环，代码用指标驱动，技能/prompt 用 LLM-as-judge 评估。</p>
+<ul>
+<li>触发：<code>optimize</code>, <code>hill climb</code>, <code>improve performance</code>, <code>benchmark</code></li>
+</ul>
+<p><strong>Daemon</strong> — 管理公共数字形象，自动聚合 PAI 内容，安全过滤后发布。</p>
+<ul>
+<li>触发：<code>daemon</code>, <code>update daemon</code>, <code>daemon profile</code>, <code>deploy daemon</code></li>
+</ul>
+<p><strong>Security</strong> — 安全评估：网络侦察、Web 应用测试、提示注入测试、安全新闻监控。</p>
+<ul>
+<li>触发：<code>recon</code>, <code>port scan</code>, <code>pentest</code>, <code>OWASP</code>, <code>prompt injection</code>, <code>security news</code></li>
+</ul>
+<p><strong>Thinking</strong> — 多模式思维路由枢纽，将请求分发到 FirstPrinciples / IterativeDepth / BeCreative / Council / RedTeam / WorldThreatModel / Science。</p>
+<ul>
+<li>触发：任何上述子技能的关键词均可触发</li>
+</ul>
+<hr />
+<h2 id="lucas-14-">四、Lucas 自定义技能（14 项）</h2>
+<p>你的个人化工具和思维框架，安装在 vault 本地。</p>
+<h3 id="41-">4.1 核心思维</h3>
+<p><strong>lucas-perspective</strong> ⭐ 高频（9次/月）</p>
+<ul>
+<li>你的思维操作系统。基于日志、文章、工作文档提炼的 5 个心智模型 + 8 条决策启发式。</li>
+<li>触发：<code>用 Lucas 的视角</code>, <code>Lucas 会怎么看</code>, <code>lucas perspective</code></li>
+<li>流程：问题分类 → Lucas 式研究（留存结构/经济闭环/竞品分析/溯源/可证伪性）→ Lucas 式回答（拆问题/找同构/给判断/留局限）</li>
+<li>适用：游戏数值/商业化审视、需求定义前置检查、长期 vs 短期权衡</li>
+</ul>
+<p><strong>council-of-minds</strong> ⭐ 偶尔用</p>
+<ul>
+<li>五位思想家联合智库：费曼、乔布斯、芒格、马斯克、张一鸣。从各自视角分析，允许互相反驳。</li>
+<li>触发：<code>五位视角</code>, <code>智库分析</code>, <code>council</code>, <code>多角度分析</code></li>
+<li>输出：判决台 → 五人陈词 → 断层线 → 悬而未决</li>
+</ul>
+<p><strong>clarify</strong></p>
+<ul>
+<li>维特根斯坦 + 苏格拉底 + 波兰尼哲学融合的命题分解系统。Prompt 模式把模糊想法变精准指令；Decision 模式帮你理清纠结。</li>
+<li>触发：<code>/clarify</code>，或指令表述不清晰、面临纠结决策时</li>
+</ul>
+<h3 id="42-">4.2 内容创作</h3>
+<p><strong>humanizer-zh</strong> ⭐ 高频（12次/月）</p>
+<ul>
+<li>去除中文文本 AI 痕迹。识别 24 种 AI 模式 → 重写 → 保留含义 → 维持语调 → 注入灵魂。</li>
+<li>触发：<code>编辑文本</code>, <code>去除AI痕迹</code>, <code>人性化</code>, <code>改写得更自然</code></li>
+</ul>
+<p><strong>content-research-writer</strong></p>
+<ul>
+<li>深度研究式长文写作搭档。理解 → 评估 → 研究 → 大纲 → 逐节丰富 → 审查 → 交付。</li>
+<li>触发：<code>help me write</code>, <code>polish this article</code>, <code>add depth</code>, <code>refine this essay</code></li>
+</ul>
+<p><strong>ljg-card</strong> — 内容铸成 PNG 视觉卡片。六种模具：长图(-l)/信息图(-i)/多卡(-m)/视觉笔记(-v)/漫画(-c)/白板(-w)。</p>
+<ul>
+<li>触发：<code>铸</code>, <code>cast</code>, <code>做成图</code>, <code>做成卡片</code>, <code>视觉笔记</code>, <code>漫画</code></li>
+</ul>
+<p><strong>ljg-paper</strong> — 为非学术读者读论文。费曼式翻译 → 核心概念拆解 → 提炼洞见 → 博导审稿。</p>
+<ul>
+<li>触发：<code>读论文</code>, <code>分析论文</code>, <code>paper</code>, arxiv 链接</li>
+</ul>
+<p><strong>ljg-xray-book</strong> — 深度拆书机。三轮认知压缩（骨架扫描/血肉解剖/灵魂提取）→ 餐巾纸压缩（公式/图/一句话）。</p>
+<ul>
+<li>触发：<code>/ljg-xray-book 《书名》</code></li>
+</ul>
+<h3 id="43-">4.3 平台工具</h3>
+<p><strong>weread-skills</strong> — 微信读书助手。搜书/书架/笔记划线/书评/阅读统计/推荐好书。</p>
+<ul>
+<li>触发：<code>搜书</code>, <code>看看书架</code>, <code>导出笔记</code>, <code>阅读统计</code></li>
+</ul>
+<p><strong>obsidian-cli</strong> ⭐ 偶尔用（2次/月）</p>
+<ul>
+<li>通过 CLI 操作 Obsidian：读/写/搜索/属性管理/插件开发调试。</li>
+<li>触发：<code>操作 Obsidian</code>, <code>管理笔记</code>, <code>搜索笔记</code>, <code>Obsidian 插件开发</code></li>
+</ul>
+<p><strong>nuwa</strong>（女娲）</p>
+<ul>
+<li>输入人名或模糊需求 → 自动深度调研 → 生成可运行的人物思维 Skill。9 阶段流程。</li>
+<li>触发：<code>造skill</code>, <code>蒸馏XX</code>, <code>女娲</code>, <code>XX的思维方式</code>, <code>做个XX视角</code></li>
+</ul>
+<p><strong>bazi-skill</strong>（八字）⭐ 偶尔用（1次/月）</p>
+<ul>
+<li>四柱八字命理分析。交互式收集出生信息 → 排盘 → 综合解读（日主/十神/五行/格局/大运/流年）。</li>
+<li>触发：<code>算八字</code>, <code>看八字</code>, <code>排盘</code>, <code>算命</code>, <code>bazi</code>, <code>看运势</code></li>
+</ul>
+<p><strong>alphaear-news</strong> — 实时财经新闻、多源趋势汇总、Polymarket 预测市场数据。</p>
+<ul>
+<li>触发：<code>实时财经新闻</code>, <code>热点</code>, <code>趋势</code>, <code>Polymarket</code></li>
+</ul>
+<p><strong>autoresearch</strong> — Karpathy 方法论自主优化 Skill。生成 → 评分 → 变异 → 择优循环。</p>
+<ul>
+<li>触发：<code>优化这个 skill</code>, <code>improve this skill</code>, <code>run autoresearch</code></li>
+</ul>
+<p><strong>Investigation</strong>（本地）— OSINT 和人员调查统一入口，路由到 OSINT 或 PrivateInvestigator。</p>
+<ul>
+<li>触发：<code>OSINT</code>, <code>due diligence</code>, <code>background check</code>, <code>find person</code></li>
+</ul>
+<hr />
+<h2 id="10-">五、生产力/开发工具（10 项）</h2>
+<p>日常开发和质量保障。</p>
+<p><strong>check</strong> — 代码审查与发布闭环。审查 diff → 自动修复安全项 → 驱动 ship/release/issue。</p>
+<ul>
+<li>触发：<code>review</code>, <code>检查一下</code>, <code>代码 review</code>, <code>release</code>, <code>publish</code></li>
+</ul>
+<p><strong>hunt</strong> — 找根因而非修症状。提假设 → 验证 → 定根因。支持 git bisect 二分、截图回归对照、举一反三。</p>
+<ul>
+<li>触发：<code>排查</code>, <code>报错</code>, <code>崩溃</code>, <code>不工作</code>, <code>regression</code>, <code>debug</code></li>
+</ul>
+<p><strong>design</strong> — 产出有观点的生产级 UI，截图迭代打磨。五问方向锁定 + 品牌预设。</p>
+<ul>
+<li>触发：<code>设计</code>, <code>做页面</code>, <code>不好看</code>, <code>UI</code>, <code>screenshot</code>, <code>make it look good</code></li>
+</ul>
+<p><strong>kami</strong>（纸）— 专业文档排版。简历/一页纸/白皮书/信件/作品集/PPT/落地页。羊皮纸底 + 靛蓝强调 + 衬线层级。</p>
+<ul>
+<li>触发：<code>做 PDF</code>, <code>排版</code>, <code>简历</code>, <code>一页纸</code>, <code>白皮书</code>, <code>PPT</code>, <code>landing page</code></li>
+</ul>
+<p><strong>read</strong> ⭐ 高频（10次/月）</p>
+<ul>
+<li>任意 URL/PDF 转干净 Markdown。支持付费墙/JS 重页面/国内平台。只提取不做分析。</li>
+<li>触发：<code>看这个链接</code>, <code>读一下</code>, <code>抓取网页</code>, <code>read this</code>, <code>fetch this page</code></li>
+</ul>
+<p><strong>agent-reach</strong> ⭐ 偶尔用（3次/月）</p>
+<ul>
+<li>一站式 13+ 平台搜索工具：Twitter/X、小红书、B站、YouTube、GitHub、Reddit、微信公众号、LinkedIn、Boss直聘、RSS、Exa。</li>
+<li>触发：<code>搜推特</code>, <code>搜小红书</code>, <code>上网搜</code>, <code>帮我查</code>, <code>web search</code></li>
+</ul>
+<p><strong>health</strong> — Agent 健康度审计。检查指令/MCP/验证/AI 代码可维护性，按严重等级标记。</p>
+<ul>
+<li>触发：<code>检查 claude</code>, <code>配置检查</code>, <code>健康度</code>, <code>audit config</code></li>
+</ul>
+<p><strong>ContentAnalysis</strong> — 从视频/播客/文章/YouTube 中提取智慧和洞察。</p>
+<ul>
+<li>触发：<code>extract wisdom</code>, <code>content analysis</code>, <code>analyze video</code>, <code>insight report</code></li>
+</ul>
+<p><strong>Aphorisms</strong> — 精选格言 CRUD 系统。按内容/主题/思想家匹配，12+ 主题分类。</p>
+<ul>
+<li>触发：<code>aphorism</code>, <code>找格言</code>, <code>find a quote</code>, <code>research thinker</code></li>
+</ul>
+<p><strong>Media</strong> — 视觉内容创作：插画/图表/Mermaid 流程图/信息图/头图/漫画 + Remotion 程序化视频。</p>
+<ul>
+<li>触发：<code>art</code>, <code>header images</code>, <code>diagrams</code>, <code>mermaid</code>, <code>flowcharts</code>, <code>video</code>, <code>Remotion</code></li>
+</ul>
+<hr />
+<h2 id="7-">六、飞书/协作（7 项）</h2>
+<p>Lark CLI 集成，你在工作中高频使用。</p>
+<p><strong>lark-base</strong> — 飞书多维表格全操作：建表/字段管理/记录读写/视图配置/公式字段/跨表计算/工作流/仪表盘/权限。</p>
+<ul>
+<li>触发：<code>多维表格</code>, <code>Base</code>, <code>bitable</code>, <code>字段管理</code></li>
+</ul>
+<p><strong>lark-doc</strong> ⭐⭐ 超高频（24次/月）</p>
+<ul>
+<li>飞书云文档 v2：创建/读取/编辑。DocxXML/Markdown，三种导出详细度，五种读取模式，八种更新指令。</li>
+<li>触发：<code>创建文档</code>, <code>编辑文档</code>, <code>飞书文档</code>, <code>搜索文档</code></li>
+</ul>
+<p><strong>lark-shared</strong> — lark-cli 基础：配置初始化、认证登录、身份切换、权限 scope 管理。所有 lark-* 的前置依赖。</p>
+<ul>
+<li>触发：<code>配置初始化</code>, <code>认证登录</code>, <code>权限不足</code>, <code>auth login</code></li>
+</ul>
+<p><strong>lark-wiki</strong> ⭐ 偶尔用（3次/月）</p>
+<ul>
+<li>知识空间管理：创建/查询/删除、成员管理（用户/群/部门三种类型）、节点层级管理。</li>
+<li>触发：<code>知识库</code>, <code>知识空间</code>, <code>Wiki</code>, <code>空间成员</code></li>
+</ul>
+<p><strong>lark-whiteboard</strong> — 飞书画板：导出预览/原始节点、DSL/PlantUML/Mermaid 更新内容。</p>
+<ul>
+<li>触发：<code>画板</code>, <code>whiteboard</code>, <code>可视化</code>, <code>流程图</code>, <code>架构图</code>, <code>Mermaid</code></li>
+</ul>
+<p><strong>lark-whiteboard-cli</strong> — 已被 lark-whiteboard 合并取代。建议删除：<code>npx skills remove lark-whiteboard-cli -g</code></p>
+<p><strong>lark-skill-maker</strong> — 把飞书 API 封装成可复用 Skill。调研 API → 确定参数 → 按模板编写。</p>
+<ul>
+<li>触发：<code>创建 Skill</code>, <code>封装 API</code>, <code>自定义 Skill</code></li>
+</ul>
+<hr />
+<h2 id="5-">七、数据/研究（5 项）</h2>
+<p><strong>Research</strong> ⭐ 偶尔用（3次/月）</p>
+<ul>
+<li>综合研究系统：Quick(1 agent) / Standard(3,默认) / Extensive(12) / Deep(迭代) 四种模式。</li>
+<li>触发：<code>research</code>, <code>do research</code>, <code>quick research</code>, <code>deep investigation</code></li>
+</ul>
+<p><strong>Scraping</strong> — 四层渐进式爬取（Bright Data）+ 社交媒体抓取（Apify：Twitter/Instagram/LinkedIn/TikTok 等）。</p>
+<ul>
+<li>触发：<code>scraping</code>, <code>Bright Data</code>, <code>crawl</code>, <code>scrape</code>, <code>Apify</code></li>
+</ul>
+<p><strong>Investigation</strong>（全局）— OSINT/尽职调查/公司情报/人员搜索。</p>
+<ul>
+<li>触发：<code>OSINT</code>, <code>due diligence</code>, <code>company intel</code>, <code>find person</code></li>
+</ul>
+<p><strong>USMetrics</strong> — 68 项美国经济指标（FRED/EIA/Treasury/BLS/Census），趋势分析和跨指标关联。</p>
+<ul>
+<li>触发：<code>GDP</code>, <code>inflation</code>, <code>unemployment</code>, <code>economic metrics</code>, <code>FRED</code></li>
+</ul>
+<hr />
+<h2 id="agent-10-">八、Agent 类型（10 种）</h2>
+<p>可派发的专业代理，通过 Agent 工具或 Algorithm 自动调用。</p>
+<h3 id="81-">8.1 工作角色代理</h3>
+<table>
+<thead>
+<tr>
+<th>Agent</th>
+<th>角色</th>
+<th>何时使用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Architect</strong></td>
+<td>软件架构专家</td>
+<td>设计架构、技术决策、需满足 ISC 标准</td>
+</tr>
+<tr>
+<td><strong>Engineer</strong></td>
+<td>高级工程负责人</td>
+<td>编码实现、TDD 方法论、质量门禁</td>
+</tr>
+<tr>
+<td><strong>Designer</strong></td>
+<td>精英 UX/UI 设计师</td>
+<td>界面设计、高保真原型、像素级精度</td>
+</tr>
+<tr>
+<td><strong>Artist</strong></td>
+<td>视觉内容创作者</td>
+<td>配图、图表、出版级设计素材</td>
+</tr>
+<tr>
+<td><strong>QA Tester</strong></td>
+<td>质量验证代理</td>
+<td>最终功能验证，唯一工具是浏览器自动化，实现第五关</td>
+</tr>
+</tbody>
+</table>
+<h3 id="82-">8.2 研究员代理</h3>
+<table>
+<thead>
+<tr>
+<th>Agent</th>
+<th>别名</th>
+<th>特点</th>
+<th>何时使用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>ClaudeResearcher</strong></td>
+<td>Ava Sterling</td>
+<td>学术研究，多查询分解综合</td>
+<td>结构化学术研究、文献综合</td>
+</tr>
+<tr>
+<td><strong>CodexResearcher</strong></td>
+<td>Remy</td>
+<td>技术考古，多模型咨询</td>
+<td>深度技术调研、代码库分析</td>
+</tr>
+<tr>
+<td><strong>GeminiResearcher</strong></td>
+<td>Alex Rivera</td>
+<td>多角度并行（3-10 变体）</td>
+<td>全面主题覆盖、多观点</td>
+</tr>
+<tr>
+<td><strong>PerplexityResearcher</strong></td>
+<td>Ava Chen</td>
+<td>三级交叉验证，新闻严谨度</td>
+<td>事实核查、调查类研究</td>
+</tr>
+<tr>
+<td><strong>GrokResearcher</strong></td>
+<td>Johannes</td>
+<td>逆反求真，无偏见分析</td>
+<td>逆反性观点、破除偏见</td>
+</tr>
+</tbody>
+</table>
+<h3 id="83-">8.3 代理类型对比</h3>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>持久性</th>
+<th>适合</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>内置代理</strong>（Architect/Engineer/&hellip;）</td>
+<td>无状态</td>
+<td>单次专业任务</td>
+</tr>
+<tr>
+<td><strong>命名代理</strong>（Named Agents）</td>
+<td>持久化身份</td>
+<td>重复性研究、语音输出</td>
+</tr>
+<tr>
+<td><strong>动态代理</strong>（Dynamic Agents）</td>
+<td>即用即弃</td>
+<td>一次性新组合、大量并行</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="heading-1">九、快速场景索引</h2>
+<h3 id="heading-2">日常写作</h3>
+<p>humanizer-zh → content-research-writer → read → kami</p>
+<h3 id="heading-3">游戏设计决策</h3>
+<p>lucas-perspective → council-of-minds → SystemsThinking → ApertureOscillation</p>
+<h3 id="heading-4">问题排查</h3>
+<p>hunt → RootCauseAnalysis → Science</p>
+<h3 id="heading-5">深度研究</h3>
+<p>Research → agent-reach → ContentAnalysis → ljg-paper</p>
+<h3 id="heading-6">飞书工作</h3>
+<p>lark-doc → lark-base → lark-wiki → lark-whiteboard</p>
+<h3 id="pai-">PAI 系统维护</h3>
+<p>PAIUpgrade → BitterPillEngineering → health → autoresearch</p>
+<h3 id="heading-7">创意突破</h3>
+<p>BeCreative → Ideate → Council → RedTeam</p>
+<h3 id="heading-8">重大决策</h3>
+<p>FirstPrinciples → WorldThreatModel → Council → lucas-perspective</p>
+<h3 id="heading-9">代码质量</h3>
+<p>check → hunt → Evals → Optimize</p>
+<h3 id="heading-10">知识管理</h3>
+<p>Knowledge → obsidian-cli → Migrate → weread-skills → ContextSearch</p>
+<hr />
+<h2 id="-top-10-">十、你的 Top 10 高频技能</h2>
+<p>基于过去 30 天实际调用数据：</p>
+<table>
+<thead>
+<tr>
+<th>排名</th>
+<th>技能</th>
+<th>调用次数</th>
+<th>分类</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>lark-doc</td>
+<td>24</td>
+<td>飞书</td>
+</tr>
+<tr>
+<td>2</td>
+<td>humanizer-zh</td>
+<td>12</td>
+<td>自定义</td>
+</tr>
+<tr>
+<td>3</td>
+<td>read</td>
+<td>10</td>
+<td>工具</td>
+</tr>
+<tr>
+<td>4</td>
+<td>ISA</td>
+<td>9</td>
+<td>PAI 核心</td>
+</tr>
+<tr>
+<td>5</td>
+<td>lucas-perspective</td>
+<td>9</td>
+<td>自定义</td>
+</tr>
+<tr>
+<td>6</td>
+<td>kami</td>
+<td>4</td>
+<td>工具</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Research</td>
+<td>3</td>
+<td>研究</td>
+</tr>
+<tr>
+<td>8</td>
+<td>agent-reach</td>
+<td>3</td>
+<td>工具</td>
+</tr>
+<tr>
+<td>9</td>
+<td>lark-wiki</td>
+<td>3</td>
+<td>飞书</td>
+</tr>
+<tr>
+<td>10</td>
+<td>update-config</td>
+<td>3</td>
+<td>系统</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p><em>本手册基于 2026-05-17 实际安装状态。技能描述来源于各 SKILL.md frontmatter 和工作流文件。共覆盖 54 全局 skill + 13 本地 skill + 10 agent 类型。</em></p>
+
+                </div>
+
+            </article>
+
+
+            
+                
+	<div class="mod-post__foot">
+	 文章标签: 
+     
+     </br>
+	</div>
+
+                    
+
+                        <div class="mod-post__poster">
+                        </div>
+
+                        </div>
+
+                        
+                            
+<br>
+
+<div style="margin-bottom: 10px;">
+    上一篇 : <a href="/post/what-do-designers-design/">设计什么</a>
+</div>
+
+
+
+<div style="margin-bottom: 40px;">
+    下一篇 : <a href="/post/需要的是提问/">需要的是提问</a>
+</div>
+
+
+</div>	
+
+                                
+
+                                    
+                                        <!-- Reading Progress Component -->
+<div class="reading-progress-container">
+  <span class="reading-label">阅读进度</span>
+  <span class="reading-value">0%</span>
+  <svg class="progress-ring" viewBox="0 0 24 24">
+    <!-- Background Circle -->
+    <circle class="progress-ring__circle-bg" stroke-width="3" fill="transparent" r="10" cx="12" cy="12" />
+    <!-- Progress Circle -->
+    <circle class="progress-ring__circle" stroke-width="3" fill="transparent" r="10" cx="12" cy="12" />
+  </svg>
+</div>
+                                            <footer id="footer" class="footer">
+    <nav>
+        
+            
+                    <a class="menu-item" href="/">
+                        首页
+                    </a>
+                    
+             · 
+                    <a class="menu-item" href="/post">
+                        博客
+                    </a>
+                    
+             · 
+                    <a class="menu-item" href="/memos">
+                        闪念
+                    </a>
+                    
+             · 
+                    <a class="menu-item" href="/archives">
+                        归档
+                    </a>
+                    
+             · 
+                    <a class="menu-item" href="/tags">
+                        标签
+                    </a>
+                    
+             · 
+                    <a class="menu-item" href="/links">
+                        友链
+                    </a>
+                    
+             · 
+                    <a class="menu-item" href="/post/about">
+                        关于
+                    </a>
+                    
+    </nav>
+
+    <div class="Copyright">Copyright &copy; 2026 <a href="https://xlmm.github.io">
+                Lucas
+            </a></div>
+
+    <div class="index_footer">
+        写给自己看的笔记。 ·
+            <a class="rss" href="/feed.xml" target="_blank" rel="noopener noreferrer">
+                <i class="ri-rss-line"></i> RSS
+            </a>
+    </div>
+</footer>
+
+
+
+
+    <script>console.log("\n%c ✦ Gridea Pro v1.2.2 %c · Theme: amore v1.1.0 · https://gridea.pro %c\n","color:#fadfa3;background:#111111;padding:9px 14px;border-radius:4px 0 0 4px;font-weight:500;font-size:12px","color:#e05c00;background:#fff3ec;padding:9px 14px;border-radius:0 4px 4px 0;font-size:11px","")</script>
+</body>
+
+    </html>
