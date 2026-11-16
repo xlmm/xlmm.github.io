@@ -390,6 +390,39 @@
 
 
 
+<script>
+(function () {
+    var map = {
+        "为什么 Grow a Garden 如此受欢迎": "/post/why-grow-a-garden-is-popular/",
+        "什么 AI 学不会": "/post/what-ai-cannot-learn/",
+        "以写推动思考": "/post/writing-to-think/",
+        "价值与影响": "/post/value-and-impact/",
+        "优先级哲学": "/post/philosophy-of-priority/",
+        "信念先于行动": "/post/belief-before-action/",
+        "信息荒原上的桥梁": "/post/bridge-over-info-wasteland/",
+        "傻逼模式验收": "/post/fool-mode-acceptance/",
+        "在知道名字与理解行为之间": "/post/between-name-and-behavior/",
+        "对抗熵增：长期主义与克制之道": "/post/against-entropy/",
+        "想象力": "/post/imagination/",
+        "所遇皆自渡": "/post/self-rescue/",
+        "手艺人": "/post/craftsman/",
+        "执行力贬值之后": "/post/when-execution-devalues/",
+        "用创造突围浅薄": "/post/create-your-way-out/",
+        "精进不怠：慢即是快": "/post/slow-is-fast/",
+        "认知空洞化": "/post/hollow-cognition/",
+        "记录即修行": "/post/recording-as-practice/",
+        "论矛盾": "/post/on-contradiction/",
+        "需要的是提问": "/post/ask-more-questions/",
+        "高信噪比筛选": "/post/high-signal-filtering/",
+        "ji-lu": "/post/investment-notes/"
+    };
+    try {
+        var name = decodeURIComponent(location.pathname.replace(/^\/post\//, "").replace(/\/$/, ""));
+        if (map[name]) location.replace(map[name]);
+    } catch (e) {}
+})();
+</script>
+
 <script>console.log("\n%c ✦ Gridea Pro v0.0.0-dev %c · Theme: amore v1.1.0 · https://gridea.pro %c\n","color:#fadfa3;background:#111111;padding:9px 14px;border-radius:4px 0 0 4px;font-weight:500;font-size:12px","color:#e05c00;background:#fff3ec;padding:9px 14px;border-radius:0 4px 4px 0;font-size:11px","")</script>
 </body>
 </html>

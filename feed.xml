@@ -10,8 +10,8 @@
     <atom:link href="https://xlmm.github.io/feed.xml" rel="self" type="application/rss+xml"></atom:link>
     <item>
       <title>傻逼模式验收</title>
-      <link>https://xlmm.github.io/post/%E5%82%BB%E9%80%BC%E6%A8%A1%E5%BC%8F%E9%AA%8C%E6%94%B6/</link>
-      <guid isPermaLink="true">https://xlmm.github.io/post/%E5%82%BB%E9%80%BC%E6%A8%A1%E5%BC%8F%E9%AA%8C%E6%94%B6/</guid>
+      <link>https://xlmm.github.io/post/fool-mode-acceptance/</link>
+      <guid isPermaLink="true">https://xlmm.github.io/post/fool-mode-acceptance/</guid>
       <pubDate>Wed, 11 Nov 2026 00:00:00 +0800</pubDate>
       <description><![CDATA[<p>先说结论：验收需求的唯一合格标准，是一个什么都不知道的人，能不能顺着屏幕玩下去，并且在最重要的那个时刻爽到。带着设计者身份去验收，永远达不到这个标准。因为你脑里装着需求文档、数值表和开发排期，用户手里只有一块屏幕。</p>
 <h2 id="heading">引发</h2>
@@ -44,8 +44,8 @@
     </item>
     <item>
       <title>什么 AI 学不会</title>
-      <link>https://xlmm.github.io/post/%E4%BB%80%E4%B9%88%20AI%20%E5%AD%A6%E4%B8%8D%E4%BC%9A/</link>
-      <guid isPermaLink="true">https://xlmm.github.io/post/%E4%BB%80%E4%B9%88%20AI%20%E5%AD%A6%E4%B8%8D%E4%BC%9A/</guid>
+      <link>https://xlmm.github.io/post/what-ai-cannot-learn/</link>
+      <guid isPermaLink="true">https://xlmm.github.io/post/what-ai-cannot-learn/</guid>
       <pubDate>Sun, 12 Jul 2026 00:00:00 +0800</pubDate>
       <description><![CDATA[<p>前阵子在学习模型构建，当时记录了一句话：<strong>师傅的内功传不了，能传的只是行为。</strong> 当时研究的动作已经学到像素级了，但最终出来的东西总是和别人的输出差一些火候。</p>
 <p>2006 年，上证指数 1250 点，市场刚从熊市缓过来。有人注意到了一个反常：货币信贷在加速扩张，但实体经济里产能过剩。钱在变多，好项目在变少。钱不可能凭空消失，它一定会找出口。判断这些钱会涌入资产市场，推动股票和房地产经历一轮系统性重估。一年半后，上证指数 6124 点。</p>
@@ -62,8 +62,8 @@
     </item>
     <item>
       <title>投资思考记录</title>
-      <link>https://xlmm.github.io/post/ji-lu/</link>
-      <guid isPermaLink="true">https://xlmm.github.io/post/ji-lu/</guid>
+      <link>https://xlmm.github.io/post/investment-notes/</link>
+      <guid isPermaLink="true">https://xlmm.github.io/post/investment-notes/</guid>
       <pubDate>Fri, 10 Jul 2026 16:30:01 +0800</pubDate>
       <description><![CDATA[<h2 id="heading">投资与市场</h2>
 <h3 id="-ai-">物理 AI 四大赛道</h3>
@@ -768,8 +768,8 @@ Lucas</p>
     </item>
     <item>
       <title>需要的是提问</title>
-      <link>https://xlmm.github.io/post/%E9%9C%80%E8%A6%81%E7%9A%84%E6%98%AF%E6%8F%90%E9%97%AE/</link>
-      <guid isPermaLink="true">https://xlmm.github.io/post/%E9%9C%80%E8%A6%81%E7%9A%84%E6%98%AF%E6%8F%90%E9%97%AE/</guid>
+      <link>https://xlmm.github.io/post/ask-more-questions/</link>
+      <guid isPermaLink="true">https://xlmm.github.io/post/ask-more-questions/</guid>
       <pubDate>Mon, 11 May 2026 00:00:00 +0800</pubDate>
       <description><![CDATA[<h2 id="ai-">AI 放大了什么</h2>
 <p>有人观察到一个有意思的现象：AI 放大的是组织现状，不是组织潜力。</p>
