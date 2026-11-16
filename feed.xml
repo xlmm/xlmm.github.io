@@ -6,7 +6,7 @@
     <description>Lucas 的博客——游戏设计与产品思考、概率思维、读书笔记</description>
     <language>zh-CN</language>
     <generator>Gridea Pro</generator>
-    <lastBuildDate>Fri, 13 Nov 2026 17:21:00 +0800</lastBuildDate>
+    <lastBuildDate>Fri, 13 Nov 2026 17:25:56 +0800</lastBuildDate>
     <atom:link href="https://xlmm.github.io/feed.xml" rel="self" type="application/rss+xml"></atom:link>
     <item>
       <title>傻逼模式验收</title>
@@ -58,12 +58,10 @@
 <p>AI 可以越来越对。但越来越对这件事本身正在贬值。当对的答案变得廉价，愿意错，愿意在不确定中做出一个明确的方向选择——反而成了最稀缺的东西。</p>
 <p><strong>放弃什么比做什么更难。</strong> 在一百种可能里选择相信两种，放弃另外九十八种，这种减法，真难。</p>
 ]]></description>
-      <category>AI</category>
-      <category>判断力</category>
       <category>游戏设计</category>
     </item>
     <item>
-      <title>记录</title>
+      <title>投资思考记录</title>
       <link>https://xlmm.github.io/post/ji-lu/</link>
       <guid isPermaLink="true">https://xlmm.github.io/post/ji-lu/</guid>
       <pubDate>Fri, 10 Jul 2026 16:30:01 +0800</pubDate>
@@ -75,7 +73,7 @@
 <p><strong>空间计算。</strong> 最容易被人忽略的一个。AI 要感知三维世界，需要 3D 视觉传感器和激光雷达。听着不性感，可能是确定性最高的一个。</p>
 <p><strong>太空探索。</strong> 他自己上去过。未来 AI 竞争会延伸到太空维度。方向已经定了。</p>
 <blockquote>
-<p>他做投资有个习惯：找方向，在产业链两端同时下注，不赌单一公司。不追整机，只盯核心零部件。回头看，他 2016 年说买英伟达和比特币，2025 年说「短期缺芯片，长期缺能源，永远缺存储」——事后都兑现了。</p>
+<p>他做投资有个习惯：找方向，在产业链两端同时布局，不重仓单一公司。不追整机，只盯核心零部件。回头看，他 2016 年说买英伟达和比特币，2025 年说「短期缺芯片，长期缺能源，永远缺存储」——事后都兑现了。</p>
 </blockquote>
 <hr />
 <h3 id="heading-1">希捷：从日常消费到六倍回报</h3>
@@ -94,7 +92,7 @@
 <p>裸定投 TQQQ 最大回撤 <strong>−84%</strong>，2022 年加息实盘干到 −81%。账户跌成这样，还得咬着牙每个月往里打钱。</p>
 <p>回测里 TQQQ 跑出了 <strong>58 倍</strong>，数字漂亮得吓人。前提是你从头拿到尾一步没动。现实里，多数人在跌到 −70% 的夜里清仓离场。亲手把一条能翻 58 倍的曲线走成一地鸡毛。</p>
 <blockquote>
-<p>亏掉 80%，得涨 400% 才回本。百分比不对称，越跌越难爬。数学扛得过，人扛不过。</p>
+<p>亏掉 80%，得涨 400% 才翻正。百分比不对称，越跌越难爬。数学扛得过，人扛不过。</p>
 </blockquote>
 <p>定投 QQQ，才是普通人拿得住、睡得着觉的做法。</p>
 <hr />
@@ -144,7 +142,7 @@ Lucas</p>
 <p>「在不确定性中保持自主」听起来漂亮。它落到具体的设计决策上是什么意思？</p>
 <p><strong>第一层：反馈——是解释概率，还是制造幻觉。</strong></p>
 <p>near-miss 是游戏设计里一个经典命题。抽奖转出两排同样的图案，第三排差一格——这个瞬间的设计目标是让你觉得「差一点就赢了」，然后继续玩。它管用的原理恰恰是让玩家错误估计概率：玩家觉得下局大概率会赢，实际上每局是独立事件，上一局的结果和下一局没有关系。</p>
-<p>而可读的概率分布做的是相反的事。系统告诉玩家赔率是多少、方差多大、RTP 在什么范围。玩家理解了这个信息之后做的决策——下多少注、什么时候停——是玩家自己的。系统可能损失了一些续玩率，但保留了玩家作为理解者的位置。</p>
+<p>而可读的概率分布做的是相反的事。系统告诉玩家赔率是多少、方差多大、长期回报率在什么范围。玩家理解了这个信息之后做的决策——投入多少、什么时候停——是玩家自己的。系统可能损失了一些续玩率，但保留了玩家作为理解者的位置。</p>
 <p>前者是刺激反应的对象，后者是能读懂概率的决策者。</p>
 <p><strong>第二层：保底机制——是对运气的补偿，还是对投入的尊重。</strong></p>
 <p>保底最常见的定义是「截断坏运气的极端」：连续 N 次没中奖，系统保证下一次一定出。这个定义是从系统角度说的。从玩家角度，保底在说另一句话。</p>
@@ -176,8 +174,6 @@ Lucas</p>
 Lucas</p>
 ]]></description>
       <category>游戏设计</category>
-      <category>概率</category>
-      <category>产品哲学</category>
     </item>
     <item>
       <title>Lucas AI 技能与 Agent 完全操作手册</title>
@@ -896,8 +892,6 @@ Lucas</p>
 Lucas</p>
 ]]></description>
       <category>思维</category>
-      <category>判断力</category>
-      <category>AI</category>
     </item>
     <item>
       <title>AI 辅助工程</title>
@@ -1014,8 +1008,6 @@ Lucas</p>
 Lucas</p>
 ]]></description>
       <category>游戏设计</category>
-      <category>留存</category>
-      <category>产品运营</category>
     </item>
   </channel>
 </rss>
