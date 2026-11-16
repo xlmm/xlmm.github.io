@@ -1,0 +1,44 @@
+name: pwa-guard
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  guard:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Checkout PWA backup
+        uses: actions/checkout@v4
+        with:
+          ref: pwa-assets
+          path: pwa-src
+
+      - name: Restore PWA files if missing
+        run: |
+          restored=0
+          for f in sw.js manifest.json offline.html; do
+            if [ ! -s "$f" ]; then
+              cp "pwa-src/$f" "$f"
+              restored=1
+              echo "restored: $f"
+            fi
+          done
+          if [ "$restored" = "1" ]; then
+            git config user.name "pwa-guard"
+            git config user.email "actions@users.noreply.github.com"
+            git add sw.js manifest.json offline.html
+            git commit -m "[pwa-guard] restore PWA trio [skip ci]"
+            git push
+          else
+            echo "PWA files intact, nothing to do"
+          fi
