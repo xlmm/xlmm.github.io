@@ -6,8 +6,51 @@
     <description>Lucas 的博客——游戏设计与产品思考、概率思维、读书笔记</description>
     <language>zh-CN</language>
     <generator>Gridea Pro</generator>
-    <lastBuildDate>Fri, 13 Nov 2026 17:25:56 +0800</lastBuildDate>
+    <lastBuildDate>Wed, 18 Nov 2026 00:00:00 +0800</lastBuildDate>
     <atom:link href="https://xlmm.github.io/feed.xml" rel="self" type="application/rss+xml"></atom:link>
+    <item>
+      <title>做游戏的成本归零之后</title>
+      <link>https://xlmm.github.io/post/when-making-games-costs-zero/</link>
+      <guid isPermaLink="true">https://xlmm.github.io/post/when-making-games-costs-zero/</guid>
+      <pubDate>Wed, 18 Nov 2026 00:00:00 +0800</pubDate>
+      <description><![CDATA[<h1 id="heading">做游戏的成本归零之后</h1>
+<p><img src="https://lucasmac-1317635493.cos.ap-guangzhou.myqcloud.com/lucasobsidian/20261118211440123.png?imageSlim" alt="" /></p>
+<p>前几天，Anthropic 工程师 Felix Rieseberg 给新模型一条宽泛的提示词：做一个第一人称射击游戏。8 小时跑完，成本约 550 美元，全程零人工反馈，游戏叫 Saltline。网上还有更极端的记录：41 分钟，128KB，一个可玩的三维射击游戏。惊叹之余，值得反过来想一个问题：接下来什么更值钱——方向把控的能力，真实玩家的数据，还是别的什么？</p>
+<h2 id="heading-1">供给</h2>
+<p>再看 Steam 的 AI 披露数据。从 2024 年 1 月起，平台要求开发者披露 AI 内容，当时带 AI 披露的新游戏只占 1.4%；到今年 10 月，单月新品里超过一半带 AI 披露。仅仅两年，从零头到半壁江山。有人对这两年半发布的全部 53,597 款新游戏做了普查（Sulka Haro《Three Years of AI on Steam》）：月发布量的增长，六到九成来自 AI 游戏；但 AI 游戏的销售份额（10%~27%）始终低于发布份额（33%）；头部 1% 的游戏拿走约 94% 的收入，有评论的游戏收入中位数约 300 美元。<strong>数量涨了四十倍，生产力爆发，消费没有跟上。</strong> AI 把「做出一个游戏」的成本打到接近零，但玩家的注意力和钱包没跟上，多出来的供给几乎不产生销量，只是把中腰部的曝光稀释掉。</p>
+<p>AI 解决了「做得像游戏」，没解决「做得好玩」。那位做 3D 类魂 Boss 战的设计师把开发过程全部公开：每一处改动都做盲测对比，新版本不行就回滚，一段走路动画被拒了四次，整个流程值得细看。这就是「工作流跑模拟，体验靠感知」，只不过执行者由人换成了机器。HN 社区晒出几十个 AI 单文件游戏，评论区的共识：<strong>「这些游戏没有创意方向，大多数不好玩。有趣需要时间、测试、迭代和品味。」</strong></p>
+<h2 id="heading-2">剪刀差</h2>
+<p>买量更反直觉。Adjust 数据：全球手游买量成本 2025 年上涨 30%；Newzoo 预测：同期每付费玩家收入只增长 1.4%。<strong>「成本涨三十，收入涨一点四。」</strong> 最先撑不住的是没有生态、没有社区、没有留存功底的游戏。买量越来越贵，最后付得起这笔钱的，恰恰是留存和变现功底扎实的团队。</p>
+<p>对当下的启示反而明确：买量越来越贵，硬拼投放没有出路。先稳住现有用户，把 LTV 做厚——要么提高新进转化，要么提高流失成本。这是从结果倒推出的第一个动作。更慢的威胁有两个。一个是注意力：Sensor Tower 数据显示，休闲游戏总时长较 2021 年峰值累计下滑约三成；2025 年 TikTok 第一次同时拿下下载量、内购收入、总时长三个榜首，非游戏应用收入第一次超过游戏。玩家口袋里的时间在流向别处，大多是短视频和短剧。另一个是测试迭代流程：DeepMind 的 SIMA 2 已经能在没见过的三维游戏里执行指令并自我改进，「AI 能玩懂游戏」在快速逼近。游戏逻辑会被破解，服务器的数据会被抓包反推，玩法方向的保密周期，会越来越短。</p>
+<h2 id="heading-3">升值</h2>
+<p>生产成本归零之后，价值链上稀缺的只剩三样：判断方向、玩家信任、真实玩家数据。对照当下的我们：会写代码，贬值了——一条提示词 8 小时出一个射击游戏；会堆内容产能，也在快速贬值——AI 能把单个项目的制作成本砍掉三分之二以上；判断「这个体验对不对」并借工作流快速验证，升值了——没有复利的工作交给 AI，人守审美和方向。真实玩家的行为数据和调优闭环，AI 短期内还学不会。个人观点：agent 可以学会玩游戏，但模拟不出付费那个瞬间的心态，也模拟不出心甘情愿留下来的理由。</p>
+<p>AI 是个平等器：抹平的是生产，胜负已经不在生产这一端。所以要提前想清楚：哪些东西增值、有复利。品味？生态？IP？这些都会随时间变厚，又恰好是 AI 复制不了的部分。项目组的成本里，执行、维护、协作占大头。功能、逻辑、玩法、活动，每一样都要人长期维护——能简洁就简洁，少一个系统就少一份债。AI 能接手的环节，值得逐个过一遍：广告素材、客服、活动策划、本地化运营、美术素材、测试、验收、迭代、商业化、技术架构优化。行业把「做出一个游戏」的价格打到零；把自己的维护成本也往零上压，是同一件事。</p>
+<p>以上，是本次要分享的。<br />
+顺颂时祺<br />
+2026 年 11 月 18 日<br />
+Lucas</p>
+<hr />
+<p><strong>参考</strong></p>
+<ul>
+<li>Saltline——Anthropic 工程师 Felix Rieseberg，8 小时 / 约 $550：https://fable52.games/play/saltline-fable-5-2-fps</li>
+<li>SUBLEVEL 07——41 分钟 / 128KB：https://fable52.games/play/sublevel-07-fps-repro</li>
+<li>mobilegamer.biz 独立开发者回访（「平等器」两笔账出处）：https://mobilegamer.biz/are-the-new-wave-of-solo-ai-game-makers-making-any-money-no-not-really/</li>
+<li>Sulka Haro《Three Years of AI on Steam》全量普查：https://fragwyz.substack.com/p/three-years-of-ai-on-steam</li>
+<li>Steam AI 披露统计（Totally Human）：https://www.totallyhuman.io/blog/the-surprising-new-number-of-genai-games-on-steam</li>
+<li>Evensong（盲测回滚流程）及制作细节：https://evensong-phi.vercel.app · <a href="https://digg.com/tech/iqilwx45">https://digg.com/tech/iqilwx45</a></li>
+<li>Simon Willison《The October inflection point for vibe game development》（Emberwick 11 次迭代）：https://simonwillison.net/2026/Oct/28/vibe-game-development</li>
+<li>STEELDAWN（八人 RTS，生成方式未经证实）：https://steeldawn.fyi</li>
+<li>2023 年 ChatGPT 合并类游戏复盘（$25K / 六千万玩家）：https://gameplaydev.substack.com/p/my-ai-generated-game-earned-25000</li>
+<li>Adjust《Mobile App Trends 2026》（CPI +30%）：https://gamedevreports.substack.com/p/adjust-gaming-app-insights-report</li>
+<li>Sensor Tower《State of Mobile 2026》（TikTok 三冠）：https://sensortower.com/blog/state-of-mobile-2026</li>
+<li>DeepMind SIMA 2：https://deepmind.google/blog/sima-2-an-agent-that-plays-reasons-and-learns-with-you-in-virtual-3d-worlds</li>
+<li>Newzoo 全球手游收入预测（2026，ARPPU +1.4%）</li>
+</ul>
+]]></description>
+      <category>AI</category>
+      <category>游戏设计</category>
+      <category>判断力</category>
+    </item>
     <item>
       <title>傻逼模式验收</title>
       <link>https://xlmm.github.io/post/fool-mode-acceptance/</link>
@@ -970,44 +1013,6 @@ Lucas</p>
       <category>AI</category>
       <category>工程</category>
       <category>工作流</category>
-    </item>
-    <item>
-      <title>留存不是模块</title>
-      <link>https://xlmm.github.io/post/retention-is-not-a-module/</link>
-      <guid isPermaLink="true">https://xlmm.github.io/post/retention-is-not-a-module/</guid>
-      <pubDate>Fri, 27 Mar 2026 00:00:00 +0800</pubDate>
-      <description><![CDATA[<p>以前认为留存是一个个功能模块，装进游戏就能用。</p>
-<p>新知是：留存是设计本身的结果，不是装上去的东西。有留存的游戏，是真正进入了玩家生活节奏的东西。</p>
-<hr />
-<p>GaaS 和 F2P 不是一回事。GaaS 是经营策略——选择持续陪伴玩家，走长路。F2P 是收入模型——免费进入、付费增值。两者可以独立。</p>
-<p>做留存是为了让玩家持续感受到价值，不只是防止他们走了之后少挣一笔。前者是设计问题，后者是数学问题。用数学解设计，这就是大量留存手段充满套路却终究没有长效的原因。</p>
-<p>维特根斯坦有个概念叫「生活形式」——一种实践只有真正嵌入日常生活，才有意义。游戏的留存也一样：本质上是嵌入玩家的生活节奏，成为日常，不是某次消费。</p>
-<p>判断留存能力看两件事：玩家愿不愿意跨 session 持续玩，有没有形成每周至少一次的游玩习惯。围棋、象棋、经典桌游，全都满足。所以能存续几百年。</p>
-<p>大多数游戏做不到，是因为被设计成体验品：消费一次，完成，离开。和看电影没区别。</p>
-<hr />
-<p>十个核心驱动力。</p>
-<p>内容滴灌。极度烧钱。内容不能是唯一锚点。</p>
-<p>档案积累。沉没成本。但老玩家成就感贬值，新玩家望差距却步。</p>
-<p>世界的建造。场所感是最硬的留存锚。</p>
-<p>社交连接。松散的社区往往比紧密小圈子留存更好。</p>
-<p>经济与套利。逐利超越「好不好玩」。崩盘一次信任不可逆。</p>
-<p>极致深度。玩家自发建攻略，就还有深度。</p>
-<p>PvP。零和游戏。更成熟的做法是叠加在成长系统上。</p>
-<p>用户创意。创作必须有观众。</p>
-<p>故事与叙事。弧线讲完要有新情感锚。</p>
-<p>涌现玩法。多个中等深度系统交叉，产生预料不到的玩法。</p>
-<hr />
-<p>单一机制脆弱。真正稳健是多个机制彼此咬合。</p>
-<p>「社交 × 积累」最常见。账号积累成个人成就，社交对外展示成社会认同。</p>
-<p>「内容滴灌 × 赛季」把生产压力转为有节奏的更新周期。</p>
-<p>「涌现 × 经济 × 创造」门槛最高，天花板也最高。</p>
-<hr />
-<p>休闲游戏消耗性强。值得投入的方向：轻社交层、档案展示面、赛季化节奏、异步 PvP。</p>
-<p>最大陷阱是把损失厌恶设计得精巧，让玩家走不掉。这只是延迟了流失，没解决流失。玩家真正愿意留下的，是觉得留着有收获的游戏。</p>
-<p>顺颂时祺<br />
-Lucas</p>
-]]></description>
-      <category>游戏设计</category>
     </item>
   </channel>
 </rss>
