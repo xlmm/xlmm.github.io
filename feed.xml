@@ -100,6 +100,8 @@ Lucas</p>
 <p>AI 可以越来越对。但越来越对这件事本身正在贬值。当对的答案变得廉价，愿意错，愿意在不确定中做出一个明确的方向选择——反而成了最稀缺的东西。</p>
 <p><strong>放弃什么比做什么更难。</strong> 在一百种可能里选择相信两种，放弃另外九十八种，这种减法，真难。</p>
 ]]></description>
+      <category>AI</category>
+      <category>判断力</category>
       <category>游戏设计</category>
     </item>
     <item>
@@ -839,8 +841,6 @@ Lucas</p>
 <p>AI 时代，产品经理最核心的能力不是写文档，不是画原型，不是协调资源——是<strong>提出正确的问题，然后判断哪个答案值得相信</strong>。</p>
 ]]></description>
       <category>AI</category>
-      <category>产品经理</category>
-      <category>组织协作</category>
     </item>
     <item>
       <title>需求文档</title>
@@ -934,6 +934,8 @@ Lucas</p>
 Lucas</p>
 ]]></description>
       <category>思维</category>
+      <category>判断力</category>
+      <category>AI</category>
     </item>
     <item>
       <title>AI 辅助工程</title>
@@ -1010,8 +1012,6 @@ Lucas</p>
 </blockquote>
 ]]></description>
       <category>AI</category>
-      <category>工程</category>
-      <category>工作流</category>
     </item>
   </channel>
 </rss>
