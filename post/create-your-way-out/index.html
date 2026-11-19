@@ -199,16 +199,15 @@
         };
 
         const configDefault = 'dark';
-        const savedTheme = localStorage.getItem('theme');
+        let savedTheme = null;
+        try { savedTheme = localStorage.getItem('theme'); } catch (err) {}
         const theme = savedTheme || configDefault || getSystemTheme();
 
         if (theme === 'dark') {
             document.body.classList.add('dark-theme');
         }
-
-        if (!savedTheme) {
-            localStorage.setItem('theme', theme);
-        }
+        // No write on first visit: an explicit toggle stores the choice;
+        // until then scripts.ejs keeps following the OS preference.
     })();
 </script>
 <header class="mod-head">
