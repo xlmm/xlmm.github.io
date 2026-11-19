@@ -3,8 +3,7 @@
 
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport"
-        content="initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=0, width=device-width" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="renderer" content="webkit">
     <meta name="format-detection" content="telephone=no, email=no, address=no">
 
@@ -13,7 +12,7 @@
 
     
     <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
-    <meta name="theme-color" content="#292a2d" media="(prefers-color-scheme: dark)">
+    <meta name="theme-color" content="#1e1f22" media="(prefers-color-scheme: dark)">
 
     
     <link rel="shortcut icon" href="/media/images/favicon.ico">
@@ -43,147 +42,68 @@
 
 
     <script>
-    // declaraction of document.ready() function.
+    // Theme behavior: toggle binding + browser-chrome color sync + system following.
+    // Initial theme class is applied by the inline script at the top of <body>
+    // (header.ejs / index.ejs), before first paint — no flash.
     (function () {
-        var ie = !!(window.attachEvent && !window.opera);
-        var wk = /webkit\/(\d+)/i.test(navigator.userAgent) && (RegExp.$1 < 525);
-        var fn = [];
-        var run = function () {
-            for (var i = 0; i < fn.length; i++) fn[i]();
-        };
-        var d = document;
-        d.ready = function (f) {
-            if (!ie && !wk && d.addEventListener)
-                return d.addEventListener('DOMContentLoaded', f, false);
-            if (fn.push(f) > 1) return;
-            if (ie)
-                (function () {
-                    try {
-                        d.documentElement.doScroll('left');
-                        run();
-                    } catch (err) {
-                        setTimeout(arguments.callee, 0);
-                    }
-                })();
-            else if (wk)
-                var t = setInterval(function () {
-                    if (/^(loaded|complete)$/.test(d.readyState))
-                        clearInterval(t), run();
-                }, 0);
-        };
-    })();
+        var configDefault = 'dark';
 
-
-    document.ready(
-        function () {
-            var _Blog = window._Blog || {};
-
-            const getSystemTheme = () => {
-                if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                    return 'dark';
-                }
-                return 'light';
-            };
-
-            const configDefault = 'dark';
-            const currentTheme = window.localStorage && window.localStorage.getItem('theme');
-            const initialTheme = currentTheme || configDefault || getSystemTheme();
-            const isDark = initialTheme === 'dark';
-
-            const updateButtons = (dark) => {
-                const sunBtn = document.getElementById("theme-toggle-sun");
-                const moonBtn = document.getElementById("theme-toggle-moon");
-                const mobileSunBtn = document.getElementById("mobile-theme-toggle-sun");
-                const mobileMoonBtn = document.getElementById("mobile-theme-toggle-moon");
-
-                if (dark) {
-                    if (sunBtn) sunBtn.style.display = 'none';
-                    if (moonBtn) moonBtn.style.display = 'inline-block';
-                    if (mobileSunBtn) mobileSunBtn.style.display = 'none';
-                    if (mobileMoonBtn) mobileMoonBtn.style.display = 'inline-block';
-                } else {
-                    if (sunBtn) sunBtn.style.display = 'inline-block';
-                    if (moonBtn) moonBtn.style.display = 'none';
-                    if (mobileSunBtn) mobileSunBtn.style.display = 'inline-block';
-                    if (mobileMoonBtn) mobileMoonBtn.style.display = 'none';
-                }
-            };
-
-            const updateThemeColor = (dark) => {
-                const themeColor = dark ? '#292a2d' : '#ffffff';
-                const metaTags = document.querySelectorAll('meta[name="theme-color"]');
-                if (metaTags.length > 0) {
-                    // 保留第一个，移除其他的，避免重复
-                    for (let i = 1; i < metaTags.length; i++) {
-                        metaTags[i].remove();
-                    }
-                    metaTags[0].setAttribute('content', themeColor);
-                    metaTags[0].removeAttribute('media');
-                } else {
-                    const meta = document.createElement('meta');
-                    meta.name = 'theme-color';
-                    meta.content = themeColor;
-                    document.head.appendChild(meta);
-                }
-            };
-
-            const applyTheme = (dark) => {
-                const body = document.getElementsByTagName('body')[0];
-                if (dark) {
-                    body.classList.add('dark-theme');
-                } else {
-                    body.classList.remove('dark-theme');
-                }
-                updateButtons(dark);
-                updateThemeColor(dark);
-            };
-
-            // Initial application
-            applyTheme(isDark);
-            if (!currentTheme) {
-                window.localStorage && window.localStorage.setItem('theme', initialTheme);
+        var syncThemeColor = function (dark) {
+            var metas = document.querySelectorAll('meta[name="theme-color"]');
+            if (metas.length > 0) {
+                // Keep the first, drop the media-qualified duplicates
+                for (var i = 1; i < metas.length; i++) metas[i].remove();
+                metas[0].setAttribute('content', dark ? '#1e1f22' : '#ffffff');
+                metas[0].removeAttribute('media');
             }
+        };
 
-            _Blog.toggleTheme = function () {
-                const toggleFunc = (e) => {
-                    // Prevent bubbling if needed, though buttons are distinct now
-                    if (e) e.stopPropagation();
+        var updateButtons = function (dark) {
+            var ids = ['theme-toggle-sun', 'theme-toggle-moon',
+                       'mobile-theme-toggle-sun', 'mobile-theme-toggle-moon'];
+            for (var i = 0; i < ids.length; i++) {
+                var el = document.getElementById(ids[i]);
+                if (!el) continue;
+                var isSun = ids[i].indexOf('sun') !== -1;
+                el.style.display = (dark === !isSun) ? 'inline-block' : 'none';
+            }
+        };
 
-                    const body = document.getElementsByTagName('body')[0];
-                    const isCurrentlyDark = body.classList.contains('dark-theme');
+        document.addEventListener('DOMContentLoaded', function () {
+            var body = document.body;
+            var dark = body.classList.contains('dark-theme');
 
-                    if (isCurrentlyDark) {
-                        body.classList.remove('dark-theme');
-                        updateButtons(false);
-                        window.localStorage && window.localStorage.setItem('theme', 'light');
-                    } else {
-                        body.classList.add('dark-theme');
-                        updateButtons(true);
-                        window.localStorage && window.localStorage.setItem('theme', 'dark');
-                    }
-                };
+            syncThemeColor(dark);
+            updateButtons(dark);
 
-                const sunBtn = document.getElementById("theme-toggle-sun");
-                const moonBtn = document.getElementById("theme-toggle-moon");
-                const mobileSunBtn = document.getElementById("mobile-theme-toggle-sun");
-                const mobileMoonBtn = document.getElementById("mobile-theme-toggle-moon");
-
-                if (sunBtn) sunBtn.addEventListener('click', toggleFunc);
-                if (moonBtn) moonBtn.addEventListener('click', toggleFunc);
-                if (mobileSunBtn) mobileSunBtn.addEventListener('click', toggleFunc);
-                if (mobileMoonBtn) mobileMoonBtn.addEventListener('click', toggleFunc);
+            var toggle = function (e) {
+                if (e) e.stopPropagation();
+                dark = !body.classList.contains('dark-theme');
+                body.classList.toggle('dark-theme', dark);
+                updateButtons(dark);
+                syncThemeColor(dark);
+                try { localStorage.setItem('theme', dark ? 'dark' : 'light'); } catch (err) {}
             };
-            _Blog.toggleTheme();
 
-            if (window.matchMedia && !configDefault) {
-                window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
-                    const newTheme = e.matches ? 'dark' : 'light';
-                    applyTheme(e.matches);
-                    window.localStorage && window.localStorage.setItem('theme', newTheme);
+            ['theme-toggle-sun', 'theme-toggle-moon',
+             'mobile-theme-toggle-sun', 'mobile-theme-toggle-moon'].forEach(function (id) {
+                var el = document.getElementById(id);
+                if (el) el.addEventListener('click', toggle);
+            });
+
+            // Follow the OS while the visitor has not chosen manually.
+            var hasSaved = false;
+            try { hasSaved = !!localStorage.getItem('theme'); } catch (err) {}
+            if (window.matchMedia && !hasSaved) {
+                window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function (e) {
+                    dark = e.matches;
+                    body.classList.toggle('dark-theme', dark);
+                    updateButtons(dark);
+                    syncThemeColor(dark);
                 });
             }
-        }
-    );
+        });
+    })();
 </script>
 
 <script>
@@ -245,7 +165,6 @@
 
 
 
-
     
 
     
@@ -297,7 +216,7 @@
             <a href="/">
                 
                 
-                    <img class="avatar" alt="avatar" src="/images/avatar.png">
+                    <img class="avatar" alt="avatar" src="/images/avatar.png" width="36" height="36">
                 
             </a>
         </div>
@@ -337,73 +256,73 @@
             
             
             
-			<li class="post-item "><time class="mod-archive__time" datetime="2026-03-27">2026-03-27</time> <span>&nbsp;&nbsp;&nbsp;</span>
-       <a href="/post/retention-is-not-a-module/">
+			<li class="post-item "><time class="mod-archive__time" datetime="2025-06-22">2025-06-22</time> <span>&nbsp;&nbsp;&nbsp;</span>
+       <a href="/post/philosophy-of-priority/">
         
-        留存不是模块
+        优先级哲学
        </a>
       </li>
             
-			<li class="post-item "><time class="mod-archive__time" datetime="2026-03-19">2026-03-19</time> <span>&nbsp;&nbsp;&nbsp;</span>
-       <a href="/post/when-execution-devalues/">
+			<li class="post-item "><time class="mod-archive__time" datetime="2025-05-25">2025-05-25</time> <span>&nbsp;&nbsp;&nbsp;</span>
+       <a href="/post/between-name-and-behavior/">
         
-        执行力贬值之后
+        在「知道名字」与「理解行为」之间
        </a>
       </li>
             
-			<li class="post-item "><time class="mod-archive__time" datetime="2026-01-18">2026-01-18</time> <span>&nbsp;&nbsp;&nbsp;</span>
-       <a href="/post/gamification-false-progress/">
+			<li class="post-item "><time class="mod-archive__time" datetime="2025-05-10">2025-05-10</time> <span>&nbsp;&nbsp;&nbsp;</span>
+       <a href="/post/recording-as-practice/">
         
-        虚假的进步
+        记录即修行
        </a>
       </li>
             
-			<li class="post-item "><time class="mod-archive__time" datetime="2026-01-12">2026-01-12</time> <span>&nbsp;&nbsp;&nbsp;</span>
-       <a href="/post/imagination/">
+			<li class="post-item "><time class="mod-archive__time" datetime="2025-03-13">2025-03-13</time> <span>&nbsp;&nbsp;&nbsp;</span>
+       <a href="/post/self-rescue/">
         
-        想象力
+        所遇皆自渡
        </a>
       </li>
             
-			<li class="post-item "><time class="mod-archive__time" datetime="2025-12-12">2025-12-12</time> <span>&nbsp;&nbsp;&nbsp;</span>
-       <a href="/post/high-signal-filtering/">
+			<li class="post-item "><time class="mod-archive__time" datetime="2024-12-11">2024-12-11</time> <span>&nbsp;&nbsp;&nbsp;</span>
+       <a href="/post/create-your-way-out/">
         
-        高信噪比筛选
+        用创造突围浅薄
        </a>
       </li>
             
-			<li class="post-item "><time class="mod-archive__time" datetime="2025-10-12">2025-10-12</time> <span>&nbsp;&nbsp;&nbsp;</span>
-       <a href="/post/bridge-over-info-wasteland/">
+			<li class="post-item "><time class="mod-archive__time" datetime="2024-10-27">2024-10-27</time> <span>&nbsp;&nbsp;&nbsp;</span>
+       <a href="/post/against-entropy/">
         
-        信息荒原上的桥梁
+        对抗熵增：长期主义与克制之道
        </a>
       </li>
             
-			<li class="post-item "><time class="mod-archive__time" datetime="2025-10-01">2025-10-01</time> <span>&nbsp;&nbsp;&nbsp;</span>
-       <a href="/post/belief-before-action/">
+			<li class="post-item "><time class="mod-archive__time" datetime="2024-10-25">2024-10-25</time> <span>&nbsp;&nbsp;&nbsp;</span>
+       <a href="/post/slow-is-fast/">
         
-        信念先于行动
+        精进不怠：慢即是快
        </a>
       </li>
             
-			<li class="post-item "><time class="mod-archive__time" datetime="2025-09-06">2025-09-06</time> <span>&nbsp;&nbsp;&nbsp;</span>
-       <a href="/post/value-and-impact/">
+			<li class="post-item "><time class="mod-archive__time" datetime="2024-07-19">2024-07-19</time> <span>&nbsp;&nbsp;&nbsp;</span>
+       <a href="/post/writing-to-think/">
         
-        价值与影响
+        以「写」推动思考
        </a>
       </li>
             
-			<li class="post-item "><time class="mod-archive__time" datetime="2025-07-05">2025-07-05</time> <span>&nbsp;&nbsp;&nbsp;</span>
-       <a href="/post/why-grow-a-garden-is-popular/">
+			<li class="post-item "><time class="mod-archive__time" datetime="2024-05-26">2024-05-26</time> <span>&nbsp;&nbsp;&nbsp;</span>
+       <a href="/post/on-contradiction/">
         
-        为什么《Grow a Garden》如此受欢迎
+        论矛盾
        </a>
       </li>
             
-			<li class="post-item "><time class="mod-archive__time" datetime="2025-06-23">2025-06-23</time> <span>&nbsp;&nbsp;&nbsp;</span>
-       <a href="/post/hollow-cognition/">
+			<li class="post-item "><time class="mod-archive__time" datetime="2024-03-02">2024-03-02</time> <span>&nbsp;&nbsp;&nbsp;</span>
+       <a href="/post/craftsman/">
         
-        认知空洞化
+        手艺人
        </a>
       </li>
             
@@ -411,10 +330,6 @@
 
 		<div class="posts-nav">
             
-                
-                <div style="float:right;">
-                    <a href="/post/page/3/" class="page-numbers current flip">下一页</a>
-                </div>
                 
                 
                 

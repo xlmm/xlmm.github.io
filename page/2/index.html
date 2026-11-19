@@ -3,17 +3,16 @@
 
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport"
-        content="initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=0, width=device-width" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="renderer" content="webkit">
     <meta name="format-detection" content="telephone=no, email=no, address=no">
 
     <meta name="generator" content="Gridea Pro 0.0.0-dev">
-    <title>Lucas</title>
+    <title>Lucas 的博客——游戏设计与产品思考、概率思维、读书笔记</title>
 
     
     <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
-    <meta name="theme-color" content="#292a2d" media="(prefers-color-scheme: dark)">
+    <meta name="theme-color" content="#1e1f22" media="(prefers-color-scheme: dark)">
 
     
     <link rel="shortcut icon" href="/media/images/favicon.ico">
@@ -43,147 +42,68 @@
 
 
     <script>
-    // declaraction of document.ready() function.
+    // Theme behavior: toggle binding + browser-chrome color sync + system following.
+    // Initial theme class is applied by the inline script at the top of <body>
+    // (header.ejs / index.ejs), before first paint — no flash.
     (function () {
-        var ie = !!(window.attachEvent && !window.opera);
-        var wk = /webkit\/(\d+)/i.test(navigator.userAgent) && (RegExp.$1 < 525);
-        var fn = [];
-        var run = function () {
-            for (var i = 0; i < fn.length; i++) fn[i]();
-        };
-        var d = document;
-        d.ready = function (f) {
-            if (!ie && !wk && d.addEventListener)
-                return d.addEventListener('DOMContentLoaded', f, false);
-            if (fn.push(f) > 1) return;
-            if (ie)
-                (function () {
-                    try {
-                        d.documentElement.doScroll('left');
-                        run();
-                    } catch (err) {
-                        setTimeout(arguments.callee, 0);
-                    }
-                })();
-            else if (wk)
-                var t = setInterval(function () {
-                    if (/^(loaded|complete)$/.test(d.readyState))
-                        clearInterval(t), run();
-                }, 0);
-        };
-    })();
+        var configDefault = 'dark';
 
-
-    document.ready(
-        function () {
-            var _Blog = window._Blog || {};
-
-            const getSystemTheme = () => {
-                if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                    return 'dark';
-                }
-                return 'light';
-            };
-
-            const configDefault = 'dark';
-            const currentTheme = window.localStorage && window.localStorage.getItem('theme');
-            const initialTheme = currentTheme || configDefault || getSystemTheme();
-            const isDark = initialTheme === 'dark';
-
-            const updateButtons = (dark) => {
-                const sunBtn = document.getElementById("theme-toggle-sun");
-                const moonBtn = document.getElementById("theme-toggle-moon");
-                const mobileSunBtn = document.getElementById("mobile-theme-toggle-sun");
-                const mobileMoonBtn = document.getElementById("mobile-theme-toggle-moon");
-
-                if (dark) {
-                    if (sunBtn) sunBtn.style.display = 'none';
-                    if (moonBtn) moonBtn.style.display = 'inline-block';
-                    if (mobileSunBtn) mobileSunBtn.style.display = 'none';
-                    if (mobileMoonBtn) mobileMoonBtn.style.display = 'inline-block';
-                } else {
-                    if (sunBtn) sunBtn.style.display = 'inline-block';
-                    if (moonBtn) moonBtn.style.display = 'none';
-                    if (mobileSunBtn) mobileSunBtn.style.display = 'inline-block';
-                    if (mobileMoonBtn) mobileMoonBtn.style.display = 'none';
-                }
-            };
-
-            const updateThemeColor = (dark) => {
-                const themeColor = dark ? '#292a2d' : '#ffffff';
-                const metaTags = document.querySelectorAll('meta[name="theme-color"]');
-                if (metaTags.length > 0) {
-                    // 保留第一个，移除其他的，避免重复
-                    for (let i = 1; i < metaTags.length; i++) {
-                        metaTags[i].remove();
-                    }
-                    metaTags[0].setAttribute('content', themeColor);
-                    metaTags[0].removeAttribute('media');
-                } else {
-                    const meta = document.createElement('meta');
-                    meta.name = 'theme-color';
-                    meta.content = themeColor;
-                    document.head.appendChild(meta);
-                }
-            };
-
-            const applyTheme = (dark) => {
-                const body = document.getElementsByTagName('body')[0];
-                if (dark) {
-                    body.classList.add('dark-theme');
-                } else {
-                    body.classList.remove('dark-theme');
-                }
-                updateButtons(dark);
-                updateThemeColor(dark);
-            };
-
-            // Initial application
-            applyTheme(isDark);
-            if (!currentTheme) {
-                window.localStorage && window.localStorage.setItem('theme', initialTheme);
+        var syncThemeColor = function (dark) {
+            var metas = document.querySelectorAll('meta[name="theme-color"]');
+            if (metas.length > 0) {
+                // Keep the first, drop the media-qualified duplicates
+                for (var i = 1; i < metas.length; i++) metas[i].remove();
+                metas[0].setAttribute('content', dark ? '#1e1f22' : '#ffffff');
+                metas[0].removeAttribute('media');
             }
+        };
 
-            _Blog.toggleTheme = function () {
-                const toggleFunc = (e) => {
-                    // Prevent bubbling if needed, though buttons are distinct now
-                    if (e) e.stopPropagation();
+        var updateButtons = function (dark) {
+            var ids = ['theme-toggle-sun', 'theme-toggle-moon',
+                       'mobile-theme-toggle-sun', 'mobile-theme-toggle-moon'];
+            for (var i = 0; i < ids.length; i++) {
+                var el = document.getElementById(ids[i]);
+                if (!el) continue;
+                var isSun = ids[i].indexOf('sun') !== -1;
+                el.style.display = (dark === !isSun) ? 'inline-block' : 'none';
+            }
+        };
 
-                    const body = document.getElementsByTagName('body')[0];
-                    const isCurrentlyDark = body.classList.contains('dark-theme');
+        document.addEventListener('DOMContentLoaded', function () {
+            var body = document.body;
+            var dark = body.classList.contains('dark-theme');
 
-                    if (isCurrentlyDark) {
-                        body.classList.remove('dark-theme');
-                        updateButtons(false);
-                        window.localStorage && window.localStorage.setItem('theme', 'light');
-                    } else {
-                        body.classList.add('dark-theme');
-                        updateButtons(true);
-                        window.localStorage && window.localStorage.setItem('theme', 'dark');
-                    }
-                };
+            syncThemeColor(dark);
+            updateButtons(dark);
 
-                const sunBtn = document.getElementById("theme-toggle-sun");
-                const moonBtn = document.getElementById("theme-toggle-moon");
-                const mobileSunBtn = document.getElementById("mobile-theme-toggle-sun");
-                const mobileMoonBtn = document.getElementById("mobile-theme-toggle-moon");
-
-                if (sunBtn) sunBtn.addEventListener('click', toggleFunc);
-                if (moonBtn) moonBtn.addEventListener('click', toggleFunc);
-                if (mobileSunBtn) mobileSunBtn.addEventListener('click', toggleFunc);
-                if (mobileMoonBtn) mobileMoonBtn.addEventListener('click', toggleFunc);
+            var toggle = function (e) {
+                if (e) e.stopPropagation();
+                dark = !body.classList.contains('dark-theme');
+                body.classList.toggle('dark-theme', dark);
+                updateButtons(dark);
+                syncThemeColor(dark);
+                try { localStorage.setItem('theme', dark ? 'dark' : 'light'); } catch (err) {}
             };
-            _Blog.toggleTheme();
 
-            if (window.matchMedia && !configDefault) {
-                window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
-                    const newTheme = e.matches ? 'dark' : 'light';
-                    applyTheme(e.matches);
-                    window.localStorage && window.localStorage.setItem('theme', newTheme);
+            ['theme-toggle-sun', 'theme-toggle-moon',
+             'mobile-theme-toggle-sun', 'mobile-theme-toggle-moon'].forEach(function (id) {
+                var el = document.getElementById(id);
+                if (el) el.addEventListener('click', toggle);
+            });
+
+            // Follow the OS while the visitor has not chosen manually.
+            var hasSaved = false;
+            try { hasSaved = !!localStorage.getItem('theme'); } catch (err) {}
+            if (window.matchMedia && !hasSaved) {
+                window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function (e) {
+                    dark = e.matches;
+                    body.classList.toggle('dark-theme', dark);
+                    updateButtons(dark);
+                    syncThemeColor(dark);
                 });
             }
-        }
-    );
+        });
+    })();
 </script>
 
 <script>
@@ -245,7 +165,6 @@
 
 
 
-
     
 
     
@@ -283,111 +202,111 @@
     
     ,{
       "@type": "BlogPosting",
-      "title": "留存不是模块",
-      "description": "以前认为留存是一个个功能模块，装进游戏就能用。 新知是：留存是设计本身的结果，不是装上去的东西。有留存的游戏，是真正进入了玩家生活节奏的东西。 GaaS 和 F2P 不是一回事。GaaS 是经营策略——选择持续陪伴玩家，走长路。F2P 是收入模型——免费进入、付费增值。两者可以独立。 做留存是为了让玩家持续感受到价值，不只是防止他们走了之后少挣一笔。前者是设...",
-      "keywords": "游戏设计",
-      "url": "/post/retention-is-not-a-module/",
+      "title": "优先级哲学",
+      "description": "时间留白 设计从来不是对一张白纸填满逻辑。真正的创作，是在有限之中选择「哪一瞬值得被点亮」，哪一帧必须保持沉默。 在一个日程挤满、功能爆炸、共识稀缺的开发现场，我们都明白「不能什么都做」。但更深的命题是： 什么值得被放弃？ 是否能直视那些用户也许根本不会意识到的细节，在心里默念一声「对不起」，然后将它移出这趟开发的旅程。 这不是冷血，是「情绪优先级」。 情绪...",
+      "keywords": "产品设计, 优先级, 克制",
+      "url": "/post/philosophy-of-priority/",
       
-      "published": "2026-03-27T00:00:00+08:00",
+      "datePublished": "2025-06-22T00:00:00+08:00",
       "author": ""
     }
     
     ,{
       "@type": "BlogPosting",
-      "title": "执行力贬值之后",
-      "description": "最近在想一个问题：效率到底是什么。以前的理解很简单——把准备好的事情，快速、正确地落地。但 AI 工具推平了技术壁垒之后，这个定义就不够用了。效率的重心不再是执行，而是判断：先去到未来，找到一件对的事，再逆推回现在——要做成它，当下需要什么条件？ 最被低估的人 当下不缺工程师，不缺美术，也不缺能把需求拆成 ticket 的项目经理。真正缺的，是那种拿起一个产...",
-      "keywords": "AI, 产品经理, 判断力",
-      "url": "/post/when-execution-devalues/",
+      "title": "在「知道名字」与「理解行为」之间",
+      "description": " &amp;ldquo;如果梁文锋继续读博士，还有今天的 DeepSeek 吗？如果王兴兴继续读博士，还有今天的宇树科技吗？如果汪滔继续读博士，还有今天的大疆吗？&amp;ldquo;在搜狐科技年度论坛上，福耀科技大学校长王树国面向台下观众发问。 如果教育无法保证质量的话，教育的意义又是什么？同理，反过来思考，在校园之外，在工作生活中，是什么让那些「做得好」的人，能在较长的...",
+      "keywords": "教育, 费曼, 学习方法",
+      "url": "/post/between-name-and-behavior/",
       
-      "published": "2026-03-19T00:00:00+08:00",
+      "datePublished": "2025-05-25T00:00:00+08:00",
       "author": ""
     }
     
     ,{
       "@type": "BlogPosting",
-      "title": "虚假的进步",
-      "description": "过去这些年，各种 app 都在做游戏化——累计签到、积分排行榜、任务进度条。似乎有了这些，参数调得够精巧，用户就能更投入、更持久。但从近两年的数据和自身体验来看，这些设计不单没效果，甚至产生了反效果。 最近三年，我是 Duolingo 的重度用户，累计签到超过 1000 天。但投入了这么多时间，学到的东西真的很少。于是在去年下半年，我放弃了续费，卸载了。 从...",
-      "keywords": "游戏设计",
-      "url": "/post/gamification-false-progress/",
-      
-      "published": "2026-01-18T00:00:00+08:00",
-      "author": ""
-    }
-    
-    ,{
-      "@type": "BlogPosting",
-      "title": "想象力",
-      "description": "我们在关键事物上常常「失明」，在别处却又「过度敏锐」，甚至矛盾重重。我们的「想象力」，似乎总在「该看见」的地方缺席，在「无需如此复杂」的地方泛滥。例如： 用户会为付出了大量时间精力但体验不佳的产品进行辩护，认为这个产品真的好用 开发者会精心设计新引导、规则说明，但数据表明用户极其厌恶说教，进而跳过所有指引 设计师投入了大量精力去设计样式，但是配置的数据模型从...",
-      "keywords": "游戏设计",
-      "url": "/post/imagination/",
-      
-      "published": "2026-01-12T00:00:00+08:00",
-      "author": ""
-    }
-    
-    ,{
-      "@type": "BlogPosting",
-      "title": "高信噪比筛选",
-      "description": "信息过载的时代，核心问题不再是「如何获取信息」，而是「如何过滤信息」。 什么是信噪比 信噪比是一个来自信号处理的概念：有用信号与背景噪声的比值。在信息消费中，它意味着：在投入的每一分钟阅读时间里，有多少转化为可用的认知，有多少被消耗在无意义的噪声上。 大多数人日常的信息消费信噪比极低。刷一小时短视频，可能只有一条有价值的信息。读十篇公众号推文，可能只有一段值...",
+      "title": "记录即修行",
+      "description": " 阿纳伊斯·宁说：&amp;ldquo;我们写作是为了品尝两次人生，一次是当下，一次是回顾&amp;rdquo;。 记录是一件美妙的事情，尽管能力有限，但依旧如此表达。十年的工作经历，每天的工作日志，每周的工作小结，每月的工作回顾，每季度的工作安排，沉淀成几十个 project lists，在这些文字的褶皱里，安放不断迭代的自我认知。当然，这个「工作」也可以换成「生活」，这...",
       "keywords": "思考方法",
-      "url": "/post/high-signal-filtering/",
+      "url": "/post/recording-as-practice/",
       
-      "published": "2025-12-12T00:00:00+08:00",
+      "datePublished": "2025-05-10T00:00:00+08:00",
       "author": ""
     }
     
     ,{
       "@type": "BlogPosting",
-      "title": "信息荒原上的桥梁",
-      "description": "昨晚听了 Lex Fridman 与 Pavel Durov 的一场四小时对话。Durov 把自己放在时间与权力的临界线上：既是构建信息通道的人（Telegram），也是被通道反射回来的世界见证者。 在最后，Lex 问他：&amp;ldquo;你害怕吗？害怕失去这一切？&amp;quot;，Durov 沉默了三秒。这三秒，比任何论述都真实。孤独的创造者，总是被自己的理想困住...",
-      "keywords": "平台治理, 自由, 产品设计",
-      "url": "/post/bridge-over-info-wasteland/",
+      "title": "所遇皆自渡",
+      "description": "探索 假如将思维视为一条奔腾的河流，那么保持对新事物的好奇心，便如同为这条河流引入源头活水。河流奔腾越快，思维更新便越迅猛，激发出更为强劲的创造力。 如果这一天自己没有接触与工作毫无关联的事物，夜幕时分便深觉这一天的虚度。于是总习惯在一些未知中寻找新鲜的可能性，本想以此来将工作割裂开，殊不知往往很多灵感与想法，却能反过来启发工作中的一些疑难杂症，貌似割裂，实...",
+      "keywords": "个人成长, 思考, 动机",
+      "url": "/post/self-rescue/",
       
-      "published": "2025-10-12T00:00:00+08:00",
+      "datePublished": "2025-03-13T00:00:00+08:00",
       "author": ""
     }
     
     ,{
       "@type": "BlogPosting",
-      "title": "信念先于行动",
-      "description": "最近两个月因面试的缘故，累计与十余位候选人进行了面对面的交流。学历背景普遍优秀，能力表现也不俗。然而，整体给人的气场偏弱，自信不足，精神状态显得有些挫败。但我个人的直觉与观察是：在沟通中展现出的自信与从容，往往比学历或技能更能打动人心。 构建信念的框架 罗马诗人维吉尔说过一句话：他们能行，因为他们认为自己能行。 我们习惯把行动的起点归功于动机、纪律、天赋，或...",
-      "keywords": "个人成长, 信念, 自我管理",
-      "url": "/post/belief-before-action/",
-      
-      "published": "2025-10-01T00:00:00+08:00",
-      "author": ""
-    }
-    
-    ,{
-      "@type": "BlogPosting",
-      "title": "价值与影响",
-      "description": "近期学习一个平凡却意义深远的招聘决策：两位候选人 A 与 B 在执行项目上的能力几乎无异，但最终，A 被认为更适合领导角色。原因不仅在于他能完成任务，而在于他能够判断哪些工作值得投入，如何分配团队有限的资源——能够评估投资回报率，并帮助团队明确优先级。 行动理性与价值判断 在高速运转的组织中，任务总是层出不穷，甚至杂乱无章。每个身处其中的相关者都面对多项并行...",
-      "keywords": "产品经理, 优先级, ROI",
-      "url": "/post/value-and-impact/",
-      
-      "published": "2025-09-06T00:00:00+08:00",
-      "author": ""
-    }
-    
-    ,{
-      "@type": "BlogPosting",
-      "title": "为什么《Grow a Garden》如此受欢迎",
-      "description": "Grow a Garden 是 Roblox 平台上现象级的爆款，打破了所有记录。截至 2025 年 7 月初，其总访问量已达 136 亿次，收藏人数超过 460 万。其在线人数峰值达到 2100 万至 2160 万——远超任何其他 Roblox 游戏，甚至超过一些主机或 PC 大作（例如 PUBG 的 Steam 记录为 320 万，Fortnite 为 ...",
-      "keywords": "游戏设计",
-      "url": "/post/why-grow-a-garden-is-popular/",
-      
-      "published": "2025-07-05T00:00:00+08:00",
-      "author": ""
-    }
-    
-    ,{
-      "@type": "BlogPosting",
-      "title": "认知空洞化",
-      "description": "想象这样一幕： 笔记提醒去年今日读过的论文 自动摘要将其凝练为四条要点 聊天机器人开始起草引用段落 此时我只需点击确认按钮，界面甚至会对我说：哇，这是非常棒的操作。当所有环节都被「效率」工具承包，原本应当触发我们内心疑问的「裂缝」，也被逐一磨平。我此刻甚至感到一丝害怕，我在想，这时的我，还在思考吗？ 我逐渐开始反抗提高「生产力」这一虚幻的名词，我需要更慢的思...",
+      "title": "用创造突围浅薄",
+      "description": "快餐文化 一本书被他人总结，为书评。一部电影被他人剖析，为影评。一场会议或播客，被他人提炼，为纪要。 这些经过他人浓缩的信息，也即被消化过之后、过滤之后的产物。这些浓缩的信息，的确能带来便捷，可以让我们快速了解到基础面。但也带来了局限性：无法深入洞察，无法引发思辨，无法突破固见。 独自思辨 深度对话也是独自思辨的实践方式。过中感受，往死里问总会受益匪浅。其中...",
       "keywords": "思考方法",
-      "url": "/post/hollow-cognition/",
+      "url": "/post/create-your-way-out/",
       
-      "published": "2025-06-23T00:00:00+08:00",
+      "datePublished": "2024-12-11T00:00:00+08:00",
+      "author": ""
+    }
+    
+    ,{
+      "@type": "BlogPosting",
+      "title": "对抗熵增：长期主义与克制之道",
+      "description": "一个项目，历经多个产品经理之手之后，在不同时期不同的 KPI 考核标准下，必然走向混乱。包括代码架构、功能逻辑，甚至是交互界面。没有设计规范的严格要求，「熵增」是必然的结局。后来的负责人，在完成 KPI 的同时，也必须拖着前面的腐朽，冒险沉重前行。 不要仅瞩目于项目的商业指标，项目背后的健康度、复杂度也更应该考虑。在系统之外，产品经理不应该仅仅构建和经营该产...",
+      "keywords": "长期主义, 产品管理, 克制",
+      "url": "/post/against-entropy/",
+      
+      "datePublished": "2024-10-27T00:00:00+08:00",
+      "author": ""
+    }
+    
+    ,{
+      "@type": "BlogPosting",
+      "title": "精进不怠：慢即是快",
+      "description": "本周针对老旧项目进行梳理，发现很多问题，很多事情以往做得并不到位。以此检讨。 用户至上 在很多产品细节、运营细节里，我们做得并不够好，有时候甚至是很不好。我们没有设身处地站在用户的角度，思考他们的感受，体会他们的痛苦，去替他们解决问题。 敢于质疑 常对自己 fake it until you make it，但是真正去 make it 的时候，总对自己不诚实...",
+      "keywords": "产品管理, 团队, 自我反省",
+      "url": "/post/slow-is-fast/",
+      
+      "datePublished": "2024-10-25T00:00:00+08:00",
+      "author": ""
+    }
+    
+    ,{
+      "@type": "BlogPosting",
+      "title": "以「写」推动思考",
+      "description": "通过「写」来推动思考，是本次要分享的点。 遇到一些问题解决方案，或者上下级同步到的一些需求意见，又或者是自己灵光乍现得到的一些 idea，我们无妨将这些都统称为「想法」。但是这些想法，如果我们不去记录捕捉，很可能过五分钟就会有其他的「新想法」进来，入栈出栈式遗忘。 诸如将这些想法记录下来，以瞬间为单位则为闪念，以天为单位则为日志，以周为单位则为周报，以月为单...",
+      "keywords": "思考方法",
+      "url": "/post/writing-to-think/",
+      
+      "datePublished": "2024-07-19T00:00:00+08:00",
+      "author": ""
+    }
+    
+    ,{
+      "@type": "BlogPosting",
+      "title": "论矛盾",
+      "description": "2024 年还剩下 60%，年初设计的目标，和期望差距较大。工作是做了，但是没有看到明显的效果，进行深刻的反省，任重于道远。此文在寻找一些灵感和答案的时候，留下来的感受碎片。 如果说《实践论》告诉我们不要偏信教条主义和经验主义，从实践中进行规律总结，那么《矛盾论》则告诉我们如何去思考和看待问题的本质，在实践之前做好预演。 联系与运动 在「唯物辩证法」中，世界...",
+      "keywords": "哲学, 矛盾论, 产品设计",
+      "url": "/post/on-contradiction/",
+      
+      "datePublished": "2024-05-26T00:00:00+08:00",
+      "author": ""
+    }
+    
+    ,{
+      "@type": "BlogPosting",
+      "title": "手艺人",
+      "description": "太阳底下无新事，每年每个季度都会有一样的问题需要回答，如面试招聘。 本质上说，我们坐在办公室里面，做产品设计，敲代码，和在建筑工地上面的泥瓦匠、木匠等都没有任何区别，都是手艺人，只不过工作环境不一样，面对的客户不一样罢了。有手艺，能做出别人做不出的东西，或者用更低成本做出别人需要的东西，用户付费就是一件很自然的事情。 而招聘面试，企业的问题就是寻找更合适的「...",
+      "keywords": "职业成长, 产品经理, 方法论",
+      "url": "/post/craftsman/",
+      
+      "datePublished": "2024-03-02T00:00:00+08:00",
       "author": ""
     }
     
@@ -423,7 +342,7 @@
                         <a href="/">
                             
                                 
-                                    <img class="mod-index__logo" alt="avatar" src="/images/avatar.png">
+                                    <img class="mod-index__logo" alt="avatar" src="/images/avatar.png" width="72" height="72">
                                     
                         </a>
                     </div>
