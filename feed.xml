@@ -6,10 +6,824 @@
     <description>Lucas 的博客——游戏设计与产品思考、概率思维、读书笔记</description>
     <language>zh-CN</language>
     <generator>Gridea Pro</generator>
-    <lastBuildDate>Fri, 20 Nov 2026 12:00:00 +0800</lastBuildDate>
+    <lastBuildDate>Fri, 20 Nov 2026 18:30:00 +0800</lastBuildDate>
     <atom:link href="https://xlmm.github.io/feed.xml" rel="self" type="application/rss+xml"></atom:link>
     <item>
-      <title>反编译视频拆解 Monopoly Go 与 Royal Kingdom：藏起来的机制，被放到几百万人面前</title>
+      <title>Domino Dreams 代码架构深度研究报告</title>
+      <link>https://xlmm.github.io/post/domino-dreams-code-architecture/</link>
+      <guid isPermaLink="true">https://xlmm.github.io/post/domino-dreams-code-architecture/</guid>
+      <pubDate>Fri, 20 Nov 2026 18:30:00 +0800</pubDate>
+      <description><![CDATA[<p><strong>一句话结论：Domino Dreams 把 24,673 个类摊成了一座按业务分区的城市——逻辑全在包内，协议是明文 JSON，运营活动是画出来的图，上线新活动不用发版。</strong> 本文继上次 Monopoly Go 与 Royal Kingdom 的拆解之后，这次拆的是 SuperPlay 自己的包，看一家头部休闲游戏公司怎么搭长线运营的架构底座。</p>
+<blockquote>
+<p>📖 文中 <code>type[N]</code>/<code>m[N]</code>/文件行号是反编译清单的坐标（相当于页码），只作证据用，已全部下沉到各节末尾的折叠证据块，读白话可完全跳过。</p>
+</blockquote>
+<h2 id="0-">0. 一段话读懂</h2>
+<p>Domino Dreams 是 SuperPlay（Screenshake 原名，与 Dice Dreams 同厂；<code>SuperPlay.Domino.*</code> 命名空间 <strong>4745 处命中</strong>，grep 实测）的多米诺休闲手游，拆解版本 1.64.1.0，拿到的是<strong>逻辑全在包内</strong>的 IL2CPP 产物（编译后包内仍附带全量类名/方法名清单，即 metadata——这正是静态拆解能进行的原因）。</p>
+<p>把这个包想象成一座<strong>规划良好的城市</strong>：代码按业务分区（变现区、集卡区、玩法区、社交区），区与区之间不串门、只通过「接口邮局」递协议书；对外有<strong>六条专线</strong>（六条 WebSocket 长连接，各连一个微服务）；活动内容由总部（服务端）<strong>传真</strong>过来（配置下发），不用重印城市地图（客户端发版）。整座城市 24,673 幢建筑（类型）、149,003 条管线（方法），全部类名方法名可读——这正是本次拆解能进行的原因。</p>
+<p>五个核心结论，正文逐条给证据：</p>
+<ol>
+<li><strong>分层是按业务域切分的，不是按技术层</strong>：Domino.Game 2752 / Domino.MTX 927 / Domino.Messages 755 / Domino.Domino 717 / Domino.TemplatesBehavior 887，每个程序集对应一个可独立演进的 LiveOps 业务域（§二）。</li>
+<li><strong>网络栈是全自研</strong>：SuperHTTP 程序集（29 类型）自带 HTTP 客户端、WebSocket、证书 pin 三件套；六个 WebSocket 服务各挂一个 SocketComponent，共享一个 51 方法的基类（§三）。</li>
+<li><strong>协议层是明文 JSON</strong>：wire 格式 <code>[{&quot;Id&quot;:N,&quot;Error&quot;:0,&quot;Messages&quot;:[{&quot;Item1&quot;:&quot;类型名&quot;,&quot;Item2&quot;:payload}]}]</code>，无序列化混淆——对逆向者友好，对开发效率友好（§四）。</li>
+<li><strong>LiveOps 内容管线是四通道配置 + 可视化行为图</strong>：DCX/LCX/MTX/PCX 四族配置（CDN + WS delta 同步），887 类型的 TemplatesBehavior 里藏着一整套 BlueGraph 节点图运行时——<strong>运营活动是画出来的，不是写出来的</strong>（§六）。</li>
+<li><strong>与前作 Dice Dreams 相比完成了一次网络架构换代</strong>：Dice Dreams 走 REST HTTPS API + MessagePack 变体 WS；Domino Dreams 六服务全 WebSocket + 明文 JSON，配置同步也从 REST hash 增量搬进 WS 消息（§八）。</li>
+</ol>
+<h2 id="heading">一、一条消息的旅行（主线）</h2>
+<p>从玩家一次点击看整座城市怎么协作：</p>
+<pre><code class="language-flow">玩家点击 → [Domino.Domino 本地规则引擎跑一帧] → [Domino.Game 状态机打包消息]
+→ [SocketComponent 六专线之一] → 明文 JSON → wss:// 六微服务 → 服务端记账/回包
+→ [Domino.Game 解包分发] → [Domino.Templates 模板演出] → 玩家看到结果
+</code></pre>
+<p>白话拆解每一站：</p>
+<ul>
+<li>
+<p><strong>本地先跑</strong>：出牌、匹配、结算全在客户端本地引擎算完（手感零延迟）。</p>
+</li>
+<li>
+<p><strong>打包</strong>：Domino.Game 的状态机把「发生了什么」装进一条消息——消息格式是明文 JSON，类型名即文档（§四）。</p>
+</li>
+<li>
+<p><strong>发车</strong>：六个 SocketComponent 组件各守一条专线，共享同一个基类（登录/收发/休眠/风控全套 51 方法），各自只填自己的业务差异（§三）。</p>
+</li>
+<li>
+<p><strong>记账</strong>：服务端收到后记账、回包；涉及花钱的走 DTC 专线对账（§七 安全姿态）。</p>
+</li>
+<li>
+<p><strong>演出</strong>：回包由 UI 模板组件演出，行为图（BlueGraph）决定演什么——运营活动就是画出来的图（§六）。</p>
+</li>
+</ul>
+<h2 id="heading-1">二、城市分区：程序集全景与分层</h2>
+<p>181 个程序集里，SuperPlay 自有代码约 66 个（Domino.* 前缀 51 + spsf-<em>/game-</em> common libs 13 + BoardGame + Assembly-CSharp，grep 计数），其余是 Unity 引擎模块、.NET BCL 和第三方 SDK。自有代码按类型数排序：</p>
+<table>
+<thead>
+<tr>
+<th>程序集</th>
+<th>类型数</th>
+<th>职责</th>
+<th>来源: assemblies.txt</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Domino.Game</td>
+<td>2752</td>
+<td>客户端主逻辑：状态机、socket 组件、系统编排</td>
+<td>行 1</td>
+</tr>
+<tr>
+<td>Domino.MTX</td>
+<td>927</td>
+<td>变现域：活动/商城/badge/合并玩法运行时</td>
+<td>行 5</td>
+</tr>
+<tr>
+<td>Domino.TemplatesBehavior.Runtime</td>
+<td>887</td>
+<td>行为图运行时（BlueGraph 节点 + 执行引擎）</td>
+<td>行 12</td>
+</tr>
+<tr>
+<td>Domino.Domino</td>
+<td>717</td>
+<td>多米诺桌面玩法：tile/scope/particles/结算</td>
+<td>行 8</td>
+</tr>
+<tr>
+<td>Domino.Messages</td>
+<td>755</td>
+<td>协议消息类型（客户端自有消息）</td>
+<td>行 33</td>
+</tr>
+<tr>
+<td>Domino.Templates.Runtime</td>
+<td>489</td>
+<td>UI/弹窗模板组件</td>
+<td>行 17</td>
+</tr>
+<tr>
+<td>Domino.Data</td>
+<td>357</td>
+<td>配置数据层</td>
+<td>行 31</td>
+</tr>
+<tr>
+<td>Domino.App</td>
+<td>321</td>
+<td>应用壳层</td>
+<td>行 16</td>
+</tr>
+<tr>
+<td>Domino.Album</td>
+<td>263</td>
+<td>集卡册（含 Deluxe/Pixie/Archive 分层）</td>
+<td>行 25</td>
+</tr>
+<tr>
+<td>Domino.Shared</td>
+<td>199</td>
+<td>跨域共享</td>
+<td>行 29</td>
+</tr>
+<tr>
+<td>Domino.Metagame</td>
+<td>187</td>
+<td>元游戏编排</td>
+<td>行 22</td>
+</tr>
+<tr>
+<td>BoardGame</td>
+<td>185</td>
+<td>骰子棋盘事件（Dice Dreams 式副玩法，<code>BoardGameEvent.Runtime</code> 命名空间）</td>
+<td>行 34</td>
+</tr>
+<tr>
+<td>Domino.Contracts</td>
+<td>121</td>
+<td>接口契约层（端口定义）</td>
+<td>行 43</td>
+</tr>
+<tr>
+<td>Domino.Algorithm</td>
+<td>143</td>
+<td>通用算法</td>
+<td>行 37</td>
+</tr>
+<tr>
+<td>SuperHTTP</td>
+<td>29</td>
+<td>自研网络栈</td>
+<td>行 99</td>
+</tr>
+<tr>
+<td>spsf-<em>/game-</em> common libs</td>
+<td>各 7-184</td>
+<td>六服务协议模型（服务端共享契约的客户端镜像）</td>
+<td>行 72-158</td>
+</tr>
+</tbody>
+</table>
+<p>分区之间的三条「城市规划决策」：</p>
+<ul>
+<li>
+<p><strong>Contracts 是纯接口层</strong>：121 个类型几乎全是端口定义。业务域之间不直接引用，通过 Contracts 里的接口 + 依赖注入拼装——这是<strong>六边形架构</strong>（六边形架构 = 模块之间只通过「协议书」式的接口对话，谁也不直接调用谁的内部，模块可独立替换）。</p>
+</li>
+<li>
+<p><strong>规则核与表现彻底分离</strong>：桌面玩法（717 类型）与骰子棋盘副玩法（185 类型，全部为棋盘事件命名空间）互不依赖，靠元游戏编排。SuperPlay 把 Dice Dreams 的棋盘玩法做成了<strong>可插拔事件模块</strong>。</p>
+</li>
+<li>
+<p><strong>客户端自带 outcome 模拟器</strong>：33 个类型的模拟器家族（基础/发现优先/概率/空/旧核五个模拟器）。在客户端跑概率模拟——用于动画预演、教学对局或概率展示，具体用途尚无法从包内确认，但「模拟器是一等公民」这件事本身说明他们的数值验证是工程化的。</p>
+</li>
+</ul>
+<details><summary>证据（分区与接口坐标）</summary>
+<ul>
+<li>
+<p>Domino.App 行 16（以 assemblies.txt 为准）；其余行号照录原表</p>
+</li>
+<li>
+<p>Contracts 端口：<code>IAlbumProxyService</code> / <code>IAvatarProxyService</code> / <code>IDominoSimulator</code> / <code>BackendComponent</code> 等（来源: dump_structures.txt:11085-18577，Domino.Contracts.dll 节内 type[20479]-[20493] 连续接口类型）</p>
+</li>
+<li>
+<p>BoardGame 可插拔模块：全部为 <code>BoardGameEvent.Runtime</code> 命名空间（来源: dump_structures.txt:2615 节起；RollButton/DiceBehaviour/TierReward/TileNavigation 等完整一套，2615-4219）</p>
+</li>
+<li>
+<p>模拟器家族：<code>DominoBaseSimulator</code> / <code>DominoDiscoveryFirstSimulator</code> / <code>DominoProbabilisticSimulator(+Core)</code> / <code>DominoNullSimulator</code> / <code>DominoOldSimulatorCore</code>（来源: dump_structures.txt:51791-51881）</p>
+</li>
+</ul>
+</details>
+<p>分层图（按依赖方向自上而下）：</p>
+<pre><code class="language-text">┌────────────────────────── 表现层 ──────────────────────────┐
+│  Domino.Templates.Runtime(489)  Domino.TemplatesBehavior(887) │
+│  Domino.UI(246)  spine-unity/spine-csharp(163+209)  Animancer │
+├────────────────────────── 编排层 ──────────────────────────┤
+│  Domino.Game(2752)──状态机/SocketComponent×6/系统编排          │
+│  Domino.Metagame(187)   Domino.App(321)                       │
+├────────────── 业务域（可独立发布的插件式程序集）──────────────│
+│  MTX(927)   Album(263)   Pets(63)   Trail(80)   Merge(143)    │
+│  Collaboration(120+14)  BoardGame(185)  Domino(717 桌面规则)  │
+├────────────────────────── 契约/协议层 ──────────────────────┤
+│  Domino.Contracts(121, 接口端口)  Domino.Messages(755)        │
+│  spsf-{gs,dtc,gcx,social,tournaments,socket,iap,discovery}    │
+│  game-{gcx(184),gs,race,tournaments,social}-common-lib        │
+├────────────────────────── 基础设施层 ──────────────────────┤
+│  SuperHTTP(29)  Domino.Data(357)  DataSource(54)  player-state│
+│  UniTask(582+561)  MessagePipe(231)  VContainer(122)          │
+│  Constants(82)  Algorithm(143)  Utils(92)  JsonPatch(15)      │
+└────────────────────────────────────────────────────────────┘
+</code></pre>
+<h2 id="superhttp--socketcomponent-">三、自研网络栈：SuperHTTP + SocketComponent 家族</h2>
+<h3 id="31-superhttp29-">3.1 SuperHTTP：29 个类型的全自研传输栈</h3>
+<p>SuperHTTP.dll 不是对 UnityWebRequest 的封装，是一套完整自研实现：HTTP 客户端（带异步状态机，还内嵌了一层 Mono 风格兼容层）、WebSocket（极简实现，方法集只有开/关/发/收/释放，帧解析自管）、证书 pin 三件套（接口 + 默认实现 + pin 处理器）。</p>
+<p>这套栈选型的含义：Unity 自带网络组件的证书校验链不好做 pin 注入，自研栈让 pin 逻辑完全在自己手里。代价是重造轮子，收益是传输层 100% 可控。</p>
+<details><summary>证据（SuperHTTP 坐标）</summary>
+<ul>
+<li>
+<p>规模：29 类型（来源: assemblies.txt:99）</p>
+</li>
+<li>
+<p>HTTP 客户端：<code>SuperHTTP.HTTPRequest</code>（type[23670]）+ <code>SuperHTTP.HTTPResponse</code>（type[23671]），async 状态机（<code>&lt;GetAsync&gt;d__5</code> / <code>&lt;GetAsyncWithProgress&gt;d__7</code> / <code>&lt;PostAsync&gt;d__8</code> / <code>&lt;PutDataAsync&gt;d__2</code>，来源: dump_structures.txt:77594 节），内嵌 Mono 风格 <code>WebRequest</code>/<code>WebResponse</code>/<code>WebHeaderCollection</code> 兼容层（type[9961]/[9962]/[9956]）</p>
+</li>
+<li>
+<p>WebSocket：<code>SuperHTTP.WebSocket.WebSocket</code>（type[23679]），方法集 <code>Open / Close / Send / ReceiveLoop / Dispose</code> + <code>HeaderParser</code>/<code>HeaderInfoTable</code>（来源: dump_structures.txt:77679-77690 附近，m[146390]-m[146400]）</p>
+</li>
+<li>
+<p>证书 pin：<code>ISSLCertificateValidationService</code>（type[23672]）+ <code>SSLCertificateValidationService</code>（type[23673]）+ <code>SSLPinningCertificateHandler</code>（type[23674]）（来源: dump_structures.txt:77669-77676）</p>
+</li>
+</ul>
+</details>
+<h3 id="32---">3.2 服务拓扑：一个注册表 + 六条专线</h3>
+<p>客户端启动时先 <code>GET https://prod-spsf-discovery-v2.domino-dreams.com/api/discovery/endpoints</code>，服务端返回一张 12 项端点地图（下表 11 行——CDN_DCX 与 CDN_LCX 两项合并为一行；HTTP/2 响应，server: Kestrel，经 CloudFront HKG54-P1——后端是 ASP.NET Core + CloudFront 边缘分发）：</p>
+<table>
+<thead>
+<tr>
+<th>服务</th>
+<th>地址</th>
+<th>类型</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GS（游戏主服务）</td>
+<td>wss://prod-game-gs-v2.domino-dreams.com</td>
+<td>GS</td>
+</tr>
+<tr>
+<td>GCX（配置/变现通道）</td>
+<td>wss://prod-game-gcx-v2.domino-dreams.com</td>
+<td>GCX</td>
+</tr>
+<tr>
+<td>DTC（IAP 交易清算）</td>
+<td>wss://prod-spsf-dtc.domino-dreams.com</td>
+<td>DTC</td>
+</tr>
+<tr>
+<td>Social</td>
+<td>wss://prod-game-social-v2.domino-dreams.com</td>
+<td>SOCIAL</td>
+</tr>
+<tr>
+<td>Tournaments</td>
+<td>wss://prod-game-tournaments-v2.domino-dreams.com</td>
+<td>TOURNAMENTS</td>
+</tr>
+<tr>
+<td>Race</td>
+<td>wss://prod-game-race-v2.domino-dreams.com</td>
+<td>RACE</td>
+</tr>
+<tr>
+<td>IAP（REST 回执）</td>
+<td><a href="https://www.prod-spsf-iap.domino-dreams.com/api/iap/">https://www.prod-spsf-iap.domino-dreams.com/api/iap/</a></td>
+<td>IAP</td>
+</tr>
+<tr>
+<td>Play Integrity</td>
+<td>&hellip;/api/PlayIntegrity/（挂 discovery 域）</td>
+<td>PLAY_INTEGRITY</td>
+</tr>
+<tr>
+<td>DCX/LCX 配置</td>
+<td><a href="https://prod-assets-cdn.domino-dreams.com/prod/server/gcx/">https://prod-assets-cdn.domino-dreams.com/prod/server/gcx/</a>&hellip;</td>
+<td>CDN_DCX_PATH / CDN_LCX_PATH</td>
+</tr>
+<tr>
+<td>Mixpanel</td>
+<td><a href="https://api.mixpanel.com/">https://api.mixpanel.com/</a></td>
+<td>MIXPANEL</td>
+</tr>
+<tr>
+<td>Certificate_IAP</td>
+<td><code>0AA088B37066BF834DE15481E9AC696D18E3E7DF</code></td>
+<td>CERTIFICATE</td>
+</tr>
+</tbody>
+</table>
+<p>两个细节值得划线：<strong>IAP 证书指纹是服务端下发的</strong>（注册表 id=14 的 link 字段就是 SHA-1 指纹，type=CERTIFICATE）——pin 不是硬编码在包里，而是运行时从注册表拉取，可以随时轮换；后端技术栈由响应头坐实（Kestrel + CloudFront）。</p>
+<h3 id="33-socketcomponent">3.3 SocketComponent：六服务共享的连接基类</h3>
+<p>客户端为每个 WS 服务写了一个 socket 组件（socket 组件 = 维持一条与服务器的长连接并负责收发消息的代码件），全部继承同一个基类——六条连接共用同一套登录/收发/休眠代码，各自只填自己的差异部分。基类 51 个方法构成完整的连接生命周期，白话读法：</p>
+<ul>
+<li>
+<p><strong>登录流</strong>：判断要不要登录 → 生成登录消息 → 执行登录 → 处理登录响应</p>
+</li>
+<li>
+<p><strong>收发流</strong>：发请求 → 收消息 → 解包（请求响应与主动推送分开处理）</p>
+</li>
+<li>
+<p><strong>批处理</strong>：批次号分配 → 批次消息组 → 发送批次</p>
+</li>
+<li>
+<p><strong>生命周期</strong>：开连接 → 处理循环 → 后台休眠（App 切后台挂起省电，回前台唤醒）</p>
+</li>
+<li>
+<p><strong>风控侧</strong>：封禁判定、封禁原因、未成年判定</p>
+</li>
+<li>
+<p><strong>可观测</strong>：连接状态、平均响应时间</p>
+</li>
+</ul>
+<p>子类只做差异化的三件事：各自的登录消息（GS 带全量身份字段）、各自的业务方法（DTC 挂四个交易方法，GS 挂存档/补偿/集卡交易）。</p>
+<details><summary>证据（SocketComponent 坐标）</summary>
+<ul>
+<li>
+<p>六组件与基类：DTCSocketComponent type[488]@22578、GCXSocketComponent type[500]@22636、GSSocketComponent type[509]@22699、RaceSocketComponent type[514]@22744、SocialSocketComponent type[547]@22864、TournamentsSocketComponent type[562]@23044，基类 type[554]@22961</p>
+</li>
+<li>
+<p>基类 51 方法（m[3418]-m[3468]）：<code>ShouldAttemptLogin → GetLoginMessage → PerformLogin → TryProcessLoginResponse</code>；<code>SendRequest(×2重载) → OnMessage → InflateMessage / InflatePushMessage → HandleResponseMessage / HandlePushMessage → TryDequeuePushMessage</code>；<code>GetNextBatchId → GetMessageBatch → ReleaseMessageBatch → SendBatch → IsBatchValid</code>；<code>OpenConnection → ProcessLoop → SetHibernationState → CloseSocket/Dispose</code>；<code>IsBanned / GetBanReason / GetBanReasonByCode / IsBannedErrorCode / IsUnderage / HasReceivedBannedErrorCode</code>；<code>GetConnectivityStatus / GetAvgResponseTime_ms / MeasureAvgResponseTime / GetDebugStatusString</code>（来源: dump_structures.txt:22961-23027）</p>
+</li>
+<li>
+<p>差异点：GS 登录全量身份字段（protocol-message-inventory.json:19-22）；DTCSocketComponent 挂 <code>CancelTransaction/ConsumeTransaction/GetUnconsumedTransactions</code> 四个交易方法（dump_structures.txt:22578-22600）；GSSocketComponent 挂 <code>SaveRemotePlayerState/GetRemotePlayerState/GetCompensations/AlbumTradingSystem</code>（22699-22744）</p>
+</li>
+</ul>
+</details>
+<h3 id="34---">3.4 请求-响应-推送三模型</h3>
+<p>每个发出的请求挂一个「等待回包」对象（可取消/完成/失败/中止），请求带 Id 匹配响应；服务端主动推送走独立队列——wire 格式里的 <code>&quot;Id&quot;</code> 字段就是为这个服务的。连接有休眠协议：App 切后台挂起 socket 省电。</p>
+<details><summary>证据（三模型坐标）</summary>
+<ul>
+<li>
+<p><code>PendingSocketRequest</code>（type[558]，方法 <code>Cancel/Resolve/Fail/Abort</code>）+ <code>PendingSocketResponse</code>（type[556]）+ <code>PendingSocketPushMessage</code>（type[557]）+ 泛型 <code>TypedPendingSocketRequest&lt;T&gt;</code>（type[559]）（来源: dump_structures.txt:23022-23032）</p>
+</li>
+<li>
+<p>休眠：<code>SetHibernationState</code> + <code>BackendComponentHibernationStateRequest</code>（type[18819]@47471）</p>
+</li>
+</ul>
+</details>
+<h2 id="-jsonbot-">四、协议层：明文 JSON、契约共享、bot 在契约层</h2>
+<h3 id="41-wire-">4.1 wire 格式</h3>
+<p>真机 TX 抓包确认，协议没有二进制混淆，消息类型名即文档：</p>
+<pre><code class="language-json">[{&quot;Id&quot;:1,&quot;Error&quot;:0,&quot;Messages&quot;:[{&quot;Item1&quot;:&quot;SPSF.GS.Common.Messages.GetCompensationsRequestMessage&quot;,&quot;Item2&quot;:null}]}]
+</code></pre>
+<p>C# 元组序列化风格（Item1/Item2）直接暴露在 wire 上——服务端用的就是 Newtonsoft.Json 序列化整个消息信封。五个服务各有一条登录消息（Race 的登录帧未在本批 TX 捕获中出现），登录链为：五服务并发登录 → GS 补偿/身份查询 → 全量拉状态 → DTC IAP 对账。</p>
+<details><summary>证据（wire 与登录链坐标）</summary>
+<ul>
+<li>
+<p>wire 格式来源：protocol-message-inventory.json:4</p>
+</li>
+<li>
+<p>五条登录消息：<code>GSLoginRequestMessage</code> / <code>DTC_LoginRequestMessage</code> / <code>GCXLoginRequestMessage</code> / <code>SocialLoginRequestMessage</code> / <code>SPSF_TournamentsLoginRequestMessage</code>（Race 未捕获，来源: protocol-message-inventory.json:11-30）</p>
+</li>
+<li>
+<p>登录链：五服务并发登录（Id=0）→ GS 补偿/身份查询 → <code>GetGameStateRequestMessage</code> 全量拉状态 → DTC <code>GetUnconsumedTransactionsRequestMessage</code> IAP 对账（来源: protocol-message-inventory.json:31-46）</p>
+</li>
+</ul>
+</details>
+<h3 id="42-">4.2 协议程序集的物理分布</h3>
+<p>协议类型不集中在 Domino.Messages.dll，而是按服务拆在 13 个 common-lib 里（服务端共享契约的客户端镜像）：</p>
+<table>
+<thead>
+<tr>
+<th>命名空间</th>
+<th>类型数</th>
+<th>所在程序集</th>
+<th>来源</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SPSF.GCX.*</td>
+<td>111</td>
+<td>spsf-gcx-common-lib（124 类型）</td>
+<td>dump_structures grep 计数</td>
+</tr>
+<tr>
+<td>SPSF.Social.*</td>
+<td>115</td>
+<td>spsf-social-common-lib（119）</td>
+<td>同上</td>
+</tr>
+<tr>
+<td>SPSF.GS.*</td>
+<td>20</td>
+<td>spsf-gs-common-lib（28）</td>
+<td>同上</td>
+</tr>
+<tr>
+<td>SPSF.DTC.*</td>
+<td>14</td>
+<td>spsf-dtc-common-lib（19）</td>
+<td>同上</td>
+</tr>
+<tr>
+<td>SPSF.Tournaments.*</td>
+<td>8</td>
+<td>spsf-tournaments-common-lib（11）</td>
+<td>同上</td>
+</tr>
+<tr>
+<td>Game.GCX.*</td>
+<td>54</td>
+<td>game-gcx-common-lib（184）</td>
+<td>同上</td>
+</tr>
+<tr>
+<td>Game.Race.*</td>
+<td>13</td>
+<td>game-race-common-lib（17）</td>
+<td>同上</td>
+</tr>
+<tr>
+<td>Game.{GS,Tournaments,Social}.*</td>
+<td>8/10/6</td>
+<td>对应 game-*-common-lib</td>
+<td>同上</td>
+</tr>
+<tr>
+<td>SuperPlay.Domino.Messages.*</td>
+<td>732</td>
+<td>Domino.Messages（755）</td>
+<td>dump_structures.txt:46903 节</td>
+</tr>
+</tbody>
+</table>
+<p><code>spsf-*</code> 装协议信封（请求/响应/推送三件套），<code>game-*</code> 装领域模型——<strong>配置数值模型也在协议库里</strong>（如 LevelCostV2/V3、关卡难度指数、任务成本、SKU 信息），说明服务端和客户端共享同一份 C# 领域模型库（推断为独立 NuGet 包，两端同源编译）。</p>
+<details><summary>证据（协议分布坐标）</summary>
+<ul>
+<li>
+<p>计数方法：dump_structures grep；SPSF.* 全量 292 个类型（grep <code>type\[[0-9]+\] SPSF\.</code> 计数）</p>
+</li>
+<li>
+<p>game-gcx-common-lib 领域模型：<code>LevelCostV2/V3</code> / <code>LevelDifficultyIndexV2</code> / <code>MissionCost</code> / <code>SKUInfo</code> / <code>ResourceRoundingV2</code>（来源: dump_structures.txt:160427 节 type[19395]-[19410]）</p>
+</li>
+<li>
+<p>Domino.Messages：755 个类型中 732 个在 <code>SuperPlay.Domino.Messages</code> 平铺命名空间（awk 统计 dump_structures.txt:46903-50537）；命名规律 <code>XxxRequestMessage / XxxResponseMessage / XxxPushMessage</code>；特殊消息——从缓存读 bot：<code>GetBotProfileDataFromCacheRequest/Response</code>（type[19125]/[19126]@47976-47978）</p>
+</li>
+</ul>
+</details>
+<h3 id="43-bot-">4.3 Bot 在契约层存在</h3>
+<p>四个「玩家画像」契约并列定义在 Domino.Contracts：Race 玩家、<strong>Bot</strong>、好友、锦标赛玩家，均继承同一个 <code>PlayerProfileData</code> 基类。<strong>Bot 和真人共用同一张画像契约</strong>——对局/排行榜/锦标赛里的「玩家」在数据模型层无法区分，客户端消息直接从缓存取 bot 画像。这与 Dice Dreams 抓包里「排行榜 bot/FB 头像池」互为印证：SuperPlay 的对手生态是真人+bot 混池，契约层一开始就为此设计。</p>
+<details><summary>证据（bot 契约坐标）</summary>
+<ul>
+<li>
+<p>四画像：<code>RacePlayerData</code>（type[18458]）、<code>BotProfileData</code>（type[18459]）、<code>FriendProfileData</code>（type[18460]）、<code>TournamentPlayerData</code>（type[18462]），均继承 <code>PlayerProfileData</code>（type[18461]，字段 <code>PlayerInfo/FacebookId/Level/JoinDate/PlayerStats</code>，来源: dump_structures.txt:46914-46932）</p>
+</li>
+<li>
+<p>前作互证：Dice Dreams 真机抓包战报（排行榜 bot/FB 头像池）</p>
+</li>
+</ul>
+</details>
+<h2 id="heading-2">五、工程栈盘点：第三方与开源库</h2>
+<p>栈的画像一句话：<strong>异步用 UniTask、事件用 MessagePipe、装配用 VContainer、动画 Animancer+spine 双轨、调试面板内置 SRDebugger</strong>——2025-2026 年 Unity 休闲游戏的标准现代栈，没有自研框架倾向，第三方选型全走社区主流。唯一的自研基建是 SuperHTTP（网络）和 BlueGraph（行为图，§六）。<strong>值得注意 Braze 并未在程序集清单中出现</strong>——观测栈实为 Mixpanel + Firebase + AppsFlyer + Embrace 四件。</p>
+<details><summary>证据（第三方库全清单，按用途分组）</summary>
+<p><strong>异步/消息/DI（现代 Unity 三件套）</strong></p>
+<table>
+<thead>
+<tr>
+<th>库</th>
+<th>程序集与规模</th>
+<th>用途推断</th>
+<th>来源</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>UniTask</td>
+<td>UniTask 582 + UniTask.Linq 561 + Addressables/DOTween/TextMeshPro 各 3</td>
+<td>零 GC async/await，全项目异步基座</td>
+<td>assemblies.txt:9,13,175-177</td>
+</tr>
+<tr>
+<td>MessagePipe</td>
+<td>MessagePipe 231 + MessagePipe.VContainer 12</td>
+<td>进程内 pub/sub 消息总线</td>
+<td>assemblies.txt:42,140</td>
+</tr>
+<tr>
+<td>VContainer</td>
+<td>VContainer 122 + EnableCodeGen 5</td>
+<td>DI 容器（代码生成模式，启动零反射）</td>
+<td>assemblies.txt:57,178</td>
+</tr>
+</tbody>
+</table>
+<p><strong>动画/表现</strong></p>
+<table>
+<thead>
+<tr>
+<th>库</th>
+<th>规模</th>
+<th>用途</th>
+<th>来源</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>spine-csharp / spine-unity / spine-timeline</td>
+<td>209+163+19</td>
+<td>骨骼动画（角色/特效主方案）</td>
+<td>assemblies.txt:23,24,111</td>
+</tr>
+<tr>
+<td>Animancer</td>
+<td>188</td>
+<td>基于播放的动画状态机（免 Animator Controller）</td>
+<td>assemblies.txt:27</td>
+</tr>
+<tr>
+<td>Unity TextMeshPro + TextCore</td>
+<td>197+126</td>
+<td>文本渲染</td>
+<td>assemblies.txt:15,20</td>
+</tr>
+<tr>
+<td>Coffee.UIMaterialPropertyInjector / Coffee.UIParticle</td>
+<td>47+28</td>
+<td>UGUI 材质注入与粒子支持（社区开源）</td>
+<td>assemblies.txt:75,81</td>
+</tr>
+<tr>
+<td>Taptic / NativeShare</td>
+<td>9+12</td>
+<td>触感反馈、原生分享</td>
+<td>assemblies.txt:145,130</td>
+</tr>
+</tbody>
+</table>
+<p><strong>平台与增长基建</strong></p>
+<table>
+<thead>
+<tr>
+<th>库</th>
+<th>规模</th>
+<th>用途</th>
+<th>来源</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Facebook.Unity</td>
+<td>225+2</td>
+<td>登录/分享/受众</td>
+<td>assemblies.txt:30,179</td>
+</tr>
+<tr>
+<td>Firebase（App/Analytics/Platform）</td>
+<td>61+19+42</td>
+<td>崩溃/分析基座</td>
+<td>assemblies.txt:47,91,92</td>
+</tr>
+<tr>
+<td>Google.Play（Games/Integrity/Common/Core/Review）</td>
+<td>171+33+18+23+13</td>
+<td>GPGS 登录、<strong>Play Integrity 防篡改</strong>、应用内评分</td>
+<td>assemblies.txt:38,102,108,128,147</td>
+</tr>
+<tr>
+<td>AppsFlyer</td>
+<td>71</td>
+<td>归因</td>
+<td>assemblies.txt:69</td>
+</tr>
+<tr>
+<td>AppLovin MAX（MaxSdk.Scripts + Purchasing.Common）</td>
+<td>58+16</td>
+<td>广告聚合</td>
+<td>assemblies.txt:62,126</td>
+</tr>
+<tr>
+<td>Embrace.SDK</td>
+<td>59+11</td>
+<td>可观测性/崩溃监控（注: Braze 在 181 程序集清单中无对应程序集，未采信）</td>
+<td>assemblies.txt:55,127</td>
+</tr>
+<tr>
+<td>Mixpanel</td>
+<td>Domino.Editor.MixPanelUtils 3 + Editor 工具方法</td>
+<td>数据分析主通道（Editor 程序集说明埋点有专用工具链）</td>
+<td>assemblies.txt:174; dump_structures.txt:7376,51701</td>
+</tr>
+<tr>
+<td>Helpshift</td>
+<td>24</td>
+<td>客服工单</td>
+<td>assemblies.txt:94</td>
+</tr>
+<tr>
+<td>StompyRobot.SRDebugger + SRF</td>
+<td>167+95</td>
+<td>运行时调试面板（QA/开发用）</td>
+<td>assemblies.txt:32,49</td>
+</tr>
+<tr>
+<td>Newtonsoft.Json</td>
+<td>496</td>
+<td>JSON 序列化（协议+配置）</td>
+<td>assemblies.txt:10</td>
+</tr>
+<tr>
+<td>Unity Purchasing 全家桶（Stores/Security/WinRT/Apple）</td>
+<td>302+88+42+…</td>
+<td>IAP，含收据校验安全层</td>
+<td>assemblies.txt:26,67,70,146</td>
+</tr>
+<tr>
+<td>Unity Services Core 系</td>
+<td>122+24+14+…</td>
+<td>UGS 基座</td>
+<td>assemblies.txt:56,109</td>
+</tr>
+<tr>
+<td>SerializableDictionary / resource-parser</td>
+<td>11+60</td>
+<td>序列化工具</td>
+<td>assemblies.txt:134,58</td>
+</tr>
+</tbody>
+</table>
+</details>
+<h2 id="--">六、配置与模板系统：四通道配置 + 可视化行为图</h2>
+<h3 id="61-">6.1 四族配置，两条同步路径</h3>
+<p>启动配置同步走 GCX WS 通道，一次握手带四族配置请求：<strong>MTX</strong>（变现配置，25 个缓存哈希做增量同步——客户端报本地缓存哈希，服务端只回有变化的活动配置）、<strong>PCX</strong>（第二配置通道，单哈希）、<strong>DCX</strong>（数值/服务端配置）与 <strong>LCX</strong>（本地化）不走 WS，走 <strong>CDN 直拉</strong>。客户端侧「baked / cached / live」<strong>三层配置回退</strong>——打进包里的兜底配置、上次会话缓存、本次拉取，弱网也能进游戏。客户端侧对应四个缓存加载器；配置接线是 40 个适配器阵列，每个数据域一个适配器把原始配置翻译成领域对象。</p>
+<details><summary>证据（配置通道坐标）</summary>
+<ul>
+<li>
+<p>MTX：<code>MTX_RequestMessage</code> payload 含 <strong><code>CacheHashes</code>（25 个 event-type-id→md5 条目）</strong> + <code>ClanId</code> / <code>IncludedEventTypes</code> / <code>DeepLinkKey</code> / <code>CampaignsPreviewDate</code> / <code>IncludeDA</code> / <code>DARevision</code>（来源: protocol-message-inventory.json:55-61；25 个缓存键含 remote-config 与 offer 块）；PCX 单 CacheHash</p>
+</li>
+<li>
+<p>DCX/LCX CDN：<code>https://prod-assets-cdn.domino-dreams.com/prod/server/gcx/dcx/configurations</code> 与 <code>.../gcx/lcx/translations</code>（来源: capture/domino_new_account.mitm discovery 注册表 id=18/17）</p>
+</li>
+<li>
+<p>三层回退的埋点证词：<code>baked dcx loaded</code> / <code>baked llx loaded</code> / <code>cached lcx loaded</code> / <code>cached mtx loaded</code> / <code>live pcx loaded</code> / <code>live mtx loaded</code> / <code>load live dcx error</code> 等（来源: capture/domino_new_account.mitm 事件名清单）</p>
+</li>
+<li>
+<p>适配器：40 个 <code>*DCXAdaptor</code>（其中 23 个以 <code>DataDCXAdaptor</code> 后缀命名；样例 <code>AchievementsDataDCXAdaptor</code> / <code>AdUnitsDataDCXAdaptor</code> / <code>EconomyIndexMappingDCXAdaptor</code> / <code>EconomyWRParametersDCXAdaptor</code> / <code>CoinProgressionDataDCXAdaptor</code> / <code>FeatureUnlockDCXAdaptor</code>…，grep <code>SuperPlay.Domino.Game.*DCXAdaptor$</code> 计数 = 40）；缓存元数据 <code>DCXCacheInfo</code> / <code>LCXCacheInfo</code> / <code>DCXCCCacheInfo</code>（dump_structures.txt:23213-23217）</p>
+</li>
+</ul>
+</details>
+<h3 id="62-bluegraph">6.2 BlueGraph：运营活动的可视化编程运行时</h3>
+<p>Domino.TemplatesBehavior.Runtime.dll（887 类型）内嵌一整套 <strong>BlueGraph</strong> 节点图框架（开源可视化编程框架：编辑器里画节点图、运行时按图执行）。<strong>节点库即运营能力清单</strong>：开箱、写活动状态、IAP 选档逻辑（是图节点！）、播音频……样例见证据块。</p>
+<p>这套系统的完整含义：<strong>行为图运行时不直接依赖任何业务系统，全部通过接口端口取能力</strong>（八个 Provider 端口：分析/购买/奖励/玩家状态/弹窗位置/事务/触发器/提示）——图可以由服务端/编辑器任意组合，客户端只保证端口实现齐全。MTX 的活动/offer/弹窗逻辑<strong>在编辑器里画图生成</strong>，随 MTX 配置下发执行。新增一个运营活动不需要发版——Templates（489 类型，UI 模板组件）+ TemplatesBehavior（887 类型，图执行引擎）+ MTX delta 同步构成完整 LiveOps 内容管线。具体模板样例：补偿模板、徽章组件、开箱动画、贴纸动画。</p>
+<details><summary>证据（BlueGraph 坐标）</summary>
+<ul>
+<li>
+<p>节点命名空间：<code>Shared.domino_mtx_templates_shared.TemplatesBehavior.Graph.Nodes</code></p>
+</li>
+<li>
+<p>框架：<code>BlueGraph.Graph</code> / <code>BlueGraph.Node</code> / <code>BlueGraph.Port</code> / <code>PortDirection</code> / <code>PortCapacity</code> / <code>Connection</code> / <code>Comment</code> / <code>Group</code>（来源: dump_structures.txt:54770 节 type[12281]-[12298]）</p>
+</li>
+<li>
+<p>节点样例：<code>UnpackChest</code>（开箱）、<code>ShowTextResourceGroupTooltip</code>（文案提示）、<code>WriteEventStatePixelPath</code> / <code>WriteStateBagGeneric</code>（写活动状态）、<code>IAP.IsDtcSelected</code> / <code>IAP.SelectDtc</code>（IAP 选档逻辑是图节点）、<code>Action.PlayAudio</code>（来源: dump_structures.txt:12252-12262）</p>
+</li>
+<li>
+<p>八个 Provider 端口（落在 Domino.Templates.Runtime 程序集——图引擎在 TemplatesBehavior、端口在 Templates，两者分属不同程序集）：<code>IBehaviorAnalyticsProvider</code> / <code>IBehaviorPurchasingProvider</code> / <code>IBehaviorRewardsProvider</code> / <code>IBehaviorPlayerStateProvider</code> / <code>IBehaviorPopupPlacementProvider</code> / <code>IBehaviorTransactionsProvider</code> / <code>IBehaviorTriggerProvider</code> / <code>IBehaviorTooltipProvider</code>（来源: dump_structures.txt:54770 节 type[12300]-[12311]）</p>
+</li>
+<li>
+<p>模板样例：<code>CompensationTemplate</code> / <code>BadgeBaseWidgetBehaviour</code> / <code>ChestAnimationHandler</code> / <code>AlbumStickerAnimationHandler</code>（dump_structures.txt:52005 节）</p>
+</li>
+</ul>
+</details>
+<h3 id="63-">6.3 变现域的组织方式</h3>
+<p>Domino.MTX（927 类型）内部按事件类型组织：活动战役/工厂/行为系统/自动开启/徽章覆盖/挑战系统等，活动事件实现类与配置数据类分离——<strong>配置驱动</strong>，和 §6.2 的行为图闭环。DreamClub（订阅制俱乐部）作为独立产品线挂在同一域。</p>
+<details><summary>证据（MTX 组织坐标）</summary>
+<ul>
+<li><code>MTXCampaign</code> / <code>MTXCampaignFactory</code> / <code>MTXBehaviorSystem</code> / <code>MTXAutoOpenSystem</code> / <code>MTXBadgeOverrideSystem</code> / <code>MTXChallengeSystem</code> 等（来源: dump_structures.txt:37671 节 type[7903]-[7924]）；活动事件实现类 <code>MTXAysOfferEvent</code> / <code>MTXPerformForcedActionEvent</code>（type[7829]/[7830]）；配置数据类（<code>BonusData</code> / <code>ConversionData</code> / <code>ConversionTierData</code> / <code>TaskBoosterData</code> / <code>AssetsData</code>，type[7827]-[7837]）；DreamClub <code>MTXDreamClubBenefitsEvent</code> / <code>DreamClubData</code>（dump_structures.txt:325,13041-13302）</li>
+</ul>
+</details>
+<h2 id="heading-3">七、工程质量评估</h2>
+<p><strong>栈的年龄：全新。</strong> Unity 6000.4.12f1（Unity 6 是 2025 年后的最新大版本线）；IL2CPP metadata v39 新到 Il2CppDumper 直接崩溃，本次靠 REA 直拆 metadata 才解开。targetSdk 36。版本 1.64.1.0——版本号已迭代到第 64 个 minor 版本，发布节奏极快。</p>
+<p><strong>规模</strong>：24,673 类型 / 149,003 方法，自有代码合计 10,563 类型。单一程序集最大 2,752 类型（Domino.Game），但内部按子命名空间继续切分——巨型程序集内部仍有模块纪律。</p>
+<p><strong>工程化程度</strong>（白话）：</p>
+<ul>
+<li>
+<p><strong>状态机驱动</strong>：核心流程全部状态机化（38 类 Game.States + GameManager.States）</p>
+</li>
+<li>
+<p><strong>移动端生命周期一等公民</strong>：socket 休眠协议 + iOS Live Activities / Android ForegroundService——对局状态推送到锁屏</p>
+</li>
+<li>
+<p><strong>GC 治理</strong>：垃圾回收是被主动监控的指标（接口 + 埋点事件）</p>
+</li>
+<li>
+<p><strong>埋点密度</strong>：新账号 11 分钟会话捕获 66 个唯一事件名、406 处 /track 调用串、10 个上报流；会话记录口径开局 2 分钟约 125 条埋点。事件覆盖资源进出、奖励链路逐步、配置加载、情绪点。<strong>资源进出全量埋点意味着经济系统可以被逐玩家逐局审计——这是做数值平衡的基建</strong></p>
+</li>
+<li>
+<p><strong>弹性设计</strong>：配置三层回退（baked/cached/live）、IAP 交易对账协议（掉单必补）、登录失败补偿查询</p>
+</li>
+</ul>
+<p><strong>安全姿态</strong>：TLS 证书 pin 双向部署 + Play Integrity 全量接入 + IAP 走专用清算服务 DTC。<strong>抓包实战印证</strong>：本次 MITM 在 TLS 层直接失败；三层 hook 全部命中返回 true 但 <strong>TLS 握手仍持续失败</strong>——pin 的实际裁决门在 Mono native TLS 层（native = 编译后的机器码层，managed = 可读的 C# 代码层；hook 工具只能拦 C# 层，够不着机器码层），managed 层 hook 不可达，防护强度高于表面；最终以放行直连 + frida 应用层捕获明文帧破局。运行环境检测（Play Integrity）叠加上述 pin，实际门槛很高。</p>
+<p><strong>短板</strong>：协议明文 JSON 无混淆，中间人可读可写（本次 TX 侧即明文捕获）；pin 的绕过成本对一个有 frida 经验的团队是一天级。SuperPlay 的安全投资集中在<strong>设备完整性</strong>（Play Integrity）而非<strong>协议保密性</strong>——正确的取舍：作弊的经济学在假设备+假收据，不在协议逆向。</p>
+<details><summary>证据（工程质量坐标）</summary>
+<ul>
+<li>
+<p>引擎版本：libil2cpp.so 内嵌路径字符串 <code>C:/Program Files/Unity/Hub/Editor/6000.4.12f1/...</code> 与 frida-unpin.log <code>[*] unity 6000.4.12f1</code>；metadata v39 崩溃实录 <code>ERROR: Metadata file supplied is not a supported version[39]</code>（dump-il2cpp.log:5）；targetSdk 36；版本 1.64.1.0（protocol-message-inventory.json:7）</p>
+</li>
+<li>
+<p>规模计数：<code>grep -cE &quot;^type\[&quot; dump_structures.txt</code> = 24673；方法计数 149003；自有代码 10,563 类型（awk 对 assemblies.txt 求和）；Domino.Game 内部子命名空间 <code>States</code> / <code>GameManager.States</code> / <code>ForcedActionsSystem</code> / <code>SaveGameStateSystem</code> / <code>LiveActivity</code> 等（awk 命名空间统计，dump_structures.txt:18577-37623 节）</p>
+</li>
+<li>
+<p>状态机：<code>Game.States</code> 38 类型 + <code>GameManager.States</code>（grep 计数）</p>
+</li>
+<li>
+<p>生命周期：<code>Game.LiveActivity.*</code> 6 类型含 Duel 数据模型、<code>Game.ForegroundService</code>（dump_structures.txt:18716-18841）</p>
+</li>
+<li>
+<p>GC：<code>GarbageCollectionTrigger</code> / <code>IGarbageCollectionService</code>（Contracts type[20454]/[20455]）+ Mixpanel 事件 <code>garbage collection triggered</code></p>
+</li>
+<li>
+<p>埋点：66 唯一事件名 / 406 /track 串 / 10 上报流（capture/domino_new_account.mitm grep 统计）；开局 2 分钟约 125 条（会话记录口径）；事件覆盖 <code>coins in/out</code> / <code>stars in/out</code> / <code>resource in/used</code>、<code>reward sequence started/step started/completed/step tapped to skip</code>、四族配置 loaded/error 成对、<code>not enough stars</code></p>
+</li>
+<li>
+<p>安全对抗实录：三层 hook（<code>SSLPinningCertificateHandler.ValidateCertificate</code> 恒返 true、<code>Mono.Security.X509.X509Chain.IsTrusted</code>、<code>SSLCertificateValidationService.IsValid</code>）全部命中返回 true（unpin-session.log <code>[CALL#1-7]</code>）但 mitmdump 侧 prod-game-gs-v2 握手失败延续至 18:17（该段日志后因服务重启轮换）；破局 = mitmdump ignore_hosts 放行 WS 直连 + frida 应用层 hook <code>SuperHTTP.WebSocket.WebSocket.Send</code>（来源: ws-capture.log）</p>
+</li>
+</ul>
+</details>
+<h2 id="-dice-dreams-">八、与 Dice Dreams 同门对比：一次网络架构换代</h2>
+<p>同为 SuperPlay 出品，两代产品的抓包证据并排看，演进脉络清晰：</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>Dice Dreams（前作）</th>
+<th>Domino Dreams（本作）</th>
+<th>证据</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>服务发现</td>
+<td><code>/api/discovery/endpoints</code> 返回 REST API 地图</td>
+<td>同名机制，返回混合注册表（6 wss + 3 https + CDN + pin）</td>
+<td>前作抓包战报; discovery JSON</td>
+</tr>
+<tr>
+<td>游戏实时协议</td>
+<td>WS（MessagePack 变体）</td>
+<td>六服务全 WS，wire 明文 JSON</td>
+<td>前作抓包战报; protocol inventory:4</td>
+</tr>
+<tr>
+<td>配置同步</td>
+<td>REST hash 增量（<code>/api/v2/dcx?Hash=</code>，无变化 45B）</td>
+<td>WS delta（MTX_RequestMessage CacheHashes 25 键）+ DCX/LCX 走 CDN</td>
+<td>前作抓包战报; inventory:55-57</td>
+</tr>
+<tr>
+<td>配置家族</td>
+<td>GCX/ACX/MTX/DCX/CCX/LCX/DRX 七族</td>
+<td>MTX/PCX（WS）+ DCX/LCX（CDN）四族，族数收窄</td>
+<td>前作抓包战报; §6.1</td>
+</tr>
+<tr>
+<td>IAP</td>
+<td>REST 交易接口</td>
+<td>DTC 专用 WS 清算服务 + REST 回执兜底（spsf-iap）</td>
+<td>inventory:43-46; discovery id=7,16</td>
+</tr>
+<tr>
+<td>静态资源</td>
+<td>—</td>
+<td>DCX/LCX/翻译全上 CloudFront CDN</td>
+<td>capture discovery id=17,18</td>
+</tr>
+</tbody>
+</table>
+<p>三条结构性判断：</p>
+<ol>
+<li>
+<p><strong>从 REST 轮询到 WS 长连接</strong>。前作所有业务走 REST 短连接（含配置、交易、排行榜），本作把<strong>有状态、高频、服务端可主动推</strong>的业务全部迁到 WS 六通道，按业务域分服务（game/dtc/social/race/tournaments/gcx 各自独立部署、独立扩缩容）。这是典型的微服务后端在前端的投影。</p>
+</li>
+<li>
+<p><strong>配置分发去应用化</strong>。前作配置走应用 API；本作把 DCX/LCX 这类<strong>无状态只读大文件</strong>下沉到 CDN，应用 API 只留 delta 协商——带宽成本和延迟都降一级。</p>
+</li>
+<li>
+<p><strong>协议反而更「裸」</strong>。前作 WS 用 MessagePack 变体（二进制），本作用明文 JSON。序列化人类可读、直接用 Newtonsoft、调试零工具——在已有 TLS pin + Play Integrity 防线的前提下，协议混淆的边际收益被放弃了。工程效率优先。</p>
+</li>
+</ol>
+<p>（前作证据来源：Dice Dreams 真机抓包战报；本作证据来源：本作协议清单全文与 discovery 响应抓包。）</p>
+<h2 id="heading-4">九、可借鉴的工程实践（站在长线休闲游戏团队的视角）</h2>
+<p>按可迁移性排序，每条注明成本档位：</p>
+<ol>
+<li>
+<p><strong>配置三层回退（baked/cached/live）+ delta 同步</strong>——成本低，收益极大。包内打一份兜底配置，本地缓存上次会话版本，启动时只拉哈希不同的部分。数值表、活动参数照此改造后，弱网环境的玩家进游戏不再被配置拉取卡死，服务端带宽省一个数量级。配置事件成对埋 <code>loaded/error</code> 便于监控配置通道健康。</p>
+</li>
+<li>
+<p><strong>资源进出全量埋点</strong>——成本低。<code>coins in/out</code>、<code>stars in/out</code> 每笔带来源/去向。变现与留存的调优都要求先能回答「资源从哪来、到哪去」，经济流水审计是调奖励节奏的前提；SuperPlay 连 <code>reward sequence step tapped to skip</code> 都埋，说明他们用埋点直接驱动奖励节奏调优。</p>
+</li>
+<li>
+<p><strong>SocketComponent 模式：多服务长连接 + 统一基类</strong>——中成本。若要做实时性更强的玩法（实时对战），按业务域拆 WS 服务、共享一个含登录/批处理/休眠/风控判定的基类，比单连接多路复用好维护；休眠协议省电对中低端设备是留存问题不是优化问题。</p>
+</li>
+<li>
+<p><strong>契约层先行（Contracts 程序集）</strong>——中成本。接口端口与实现分离，bot 与真人共用画像契约。若要做 bot 混池（对手生态的常见做法），从第一天就把 PlayerProfileData 设计成统一契约，bot 只是其中一个实现，后期不用返工。</p>
+</li>
+<li>
+<p><strong>客户端模拟器作为一等公民</strong>——中成本。Domino.Simulation 六个模拟器（含概率模拟）说明 SuperPlay 的数值验证不靠感觉。自己的关键数值值得配一个可跑对拍的模拟器——「数值必须跑模拟」这条策略在他们那里是工程化的。</p>
+</li>
+<li>
+<p><strong>行为图 LiveOps 管线（BlueGraph 模式）</strong>——高成本，长期收益最大。活动逻辑画图生成、随配置下发、不占发版。小团队完整复刻不现实，但可以取其神：<strong>活动配置里嵌行为描述（哪怕只是简单的触发条件+奖励 JSON），客户端一个通用执行器解释执行</strong>，先把「新活动不发版」做到 60 分。</p>
+</li>
+<li>
+<p><strong>安全投资集中在设备完整性而非协议保密</strong>——低成本正确取舍。TLS pin（服务端下发指纹可轮换）+ Play Integrity + IAP 服务端权威清算（掉单必补的对账协议），不搞协议加密混淆。自己的 IAP 对账协议（GetUnconsumedTransactions 形态）值得尽早补齐。</p>
+</li>
+</ol>
+<p>一句话总结：Domino Dreams 的架构没有炫技，每一处自研（SuperHTTP、BlueGraph）都服务于同一个目标——<strong>让 LiveOps 内容的生产和分发不依赖客户端发版</strong>。这是超休闲长线运营的架构终局形态，也是长线产品从「一次性设计」走向「持续调优」最值得对齐的方向。</p>
+<p>以上，是本次要分享的。</p>
+<p>顺颂时祺</p>
+<p>2026 年 11 月 20 日</p>
+<p>Lucas</p>
+]]></description>
+      <category>游戏设计</category>
+      <category>行业观察</category>
+    </item>
+    <item>
+      <title>反编译拆解 Monopoly Go 与 Royal Kingdom</title>
       <link>https://xlmm.github.io/post/decompiling-monopoly-go-royal-kingdom/</link>
       <guid isPermaLink="true">https://xlmm.github.io/post/decompiling-monopoly-go-royal-kingdom/</guid>
       <pubDate>Fri, 20 Nov 2026 12:00:00 +0800</pubDate>
@@ -952,68 +1766,6 @@ Lucas</p>
 <p>AI 时代，产品经理最核心的能力不是写文档，不是画原型，不是协调资源——是<strong>提出正确的问题，然后判断哪个答案值得相信</strong>。</p>
 ]]></description>
       <category>AI</category>
-    </item>
-    <item>
-      <title>需求文档</title>
-      <link>https://xlmm.github.io/post/refining-requirements-documents-on-april-24-2026/</link>
-      <guid isPermaLink="true">https://xlmm.github.io/post/refining-requirements-documents-on-april-24-2026/</guid>
-      <pubDate>Fri, 24 Apr 2026 17:38:11 +0800</pubDate>
-      <description><![CDATA[<h2 id="lucas">lucas</h2>
-<p>「任何一个系统，在被书写之前，都是不可控的。」—— 连轴写三周设计文档的感受。</p>
-<h2 id="heading">需求文档</h2>
-<p>需求文档不是写给任何人的，而是写给系统本身的。或者这是本质，它不仅仅是一个沟通媒介，或者仅仅是展示方案，更应该是一种语言文字中的系统重建过程。</p>
-<p>需求文档，并不是陈述结果，而是构建因果，并不是为了展示出撰稿人已经想好的部分，更是为了暴露那些还没想清楚的部分。在写的过程中，即为一种建模行为。从写下的第一句话开始，就不再是思维的隐喻，而是文字搭建出来的显性结构。</p>
-<h2 id="heading-1">需求本质</h2>
-<p>需求的本质，是在不确定中做出约束；<br />
-撰写的本质，是在混乱中建立出逻辑。</p>
-<p>一个成熟的需求，它不应该只是，这个功能，这个系统，它应该是怎样做的。更应是，在什么约束下，如何做出取舍，为什么要这样做。这不是在描述撰写人的构想，而是在构建对复杂性的压缩，对模糊性的约束。</p>
-<p>所以我认为它必须具备这些属性：</p>
-<p><strong>拓扑性</strong>：每一个逻辑节点都要有明确的连接关系，不能孤立存在。</p>
-<p><strong>封装性</strong>：每一个段落内，只解决一个问题，不要引入其他维度的变量。</p>
-<p><strong>稳定性</strong>：可以容纳新的假设，进行修改，并确保不会在这些局部变动中，失去整体的稳定性。</p>
-<p>需求文档上的内容，不仅是一个个句子，而是具备信息密度，和逻辑闭环的，自洽的空间结构。它，本身就是建造本身的一部分。</p>
-<h2 id="heading-2">信息转移</h2>
-<p>需求文档，最难的一部分，不是逻辑严谨，也不是技术精准，而是让读者从原本不理解到懂了，从不相信走向相信。</p>
-<p>这意味着，撰写人要理解读者所处的认知位置，知道他们在：</p>
-<ul>
-<li>想要什么；</li>
-<li>怀疑什么；</li>
-<li>害怕什么；</li>
-<li>假设了什么，但未曾意识到。</li>
-</ul>
-<p>撰写人无需论证，更该引导。无需辩论，更应构建路径，让读者在潜意识中自己走完全程，并说出，哦，原来这样。</p>
-<ul>
-<li>A→B，是撰稿人熟悉的路径；</li>
-<li>B→C，是撰稿人已接受的推论；</li>
-<li>那么 C→D，就不需要争论，只需要铺陈。</li>
-</ul>
-<p>而这个路径的每一个转折点，都必须有控制地暴露张力、适时地释放能量。这不是什么浮夸的撰写技巧，而是心理建模能力。越了解读者，文档信息转移就越高效。</p>
-<h2 id="heading-3">认知节奏设计</h2>
-<p>很多设计文档看似齐整，却让人看得云里雾里。大多问题都在只满足了文档模板，却没有构建出认知路径图。所以，结构不应该是撰写的容器，而是协助推理的发条。</p>
-<ul>
-<li><strong>需求背景</strong>不只是单去告诉发生了什么，更要确立不可推翻的起点。</li>
-<li><strong>需求目标</strong>也不单指是宣言，而是为整个后文设定一个逻辑的终点坐标。</li>
-<li><strong>备选方案</strong>不是&quot;列出来&quot;，而是让读者理解撰稿人为何不选它们，整个取舍过程。</li>
-<li><strong>决策理由</strong>不是利弊分析，而是对冲未来质疑的预埋结构。</li>
-<li><strong>风险</strong>不是弱点，而是对系统边界的诚实声明；<strong>流程</strong>也不仅仅是下一个步骤，而是对未来延伸的承诺。</li>
-</ul>
-<p>所以，一个真正高级的需求结构，应该让整篇文档读起来像一部在慢慢自我展开的逻辑机器，没有一颗齿轮是多余的，没有一个章节可以调换。</p>
-<hr />
-<p>综上：</p>
-<p>代码让系统运转，文字让人类协作。</p>
-<p>预算可以改变，排期可以延后，但一个糟糕的需求文档会在系统上线后以十倍的代价回来索命。在复杂系统的产品生命周期中，真正能穿越时间、团队变动、架构演进的，不是产品本身，也不是撰写人的记录，而是那份看似无声、却自洽如初的需求文档。</p>
-<p>它是对系统混沌的最早驯服，也是最重要的承诺。产品人以为自己在写一份文档。但其实是在设计一个未来，在用语言驯服混沌，在用结构封印噪声，在用共识替代争论。</p>
-<p>当那一份文档足够清晰、冷静、坚固、优雅，<br />
-它会在无数次会议、交接、重构、灾难与回顾中一次次被打开，仿佛在对后来者说：</p>
-<blockquote>
-<p>&ldquo;看，这就是我们当时是怎么想清楚的。&rdquo;<br />
-&ldquo;这不是我的文字，这是系统自己的语言。&rdquo;<br />
-&ldquo;一切从这里开始。&rdquo;</p>
-</blockquote>
-]]></description>
-      <category>产品</category>
-      <category>写作</category>
-      <category>需求</category>
     </item>
   </channel>
 </rss>
