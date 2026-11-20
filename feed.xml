@@ -6,8 +6,37 @@
     <description>Lucas 的博客——游戏设计与产品思考、概率思维、读书笔记</description>
     <language>zh-CN</language>
     <generator>Gridea Pro</generator>
-    <lastBuildDate>Wed, 18 Nov 2026 22:14:40 +0800</lastBuildDate>
+    <lastBuildDate>Fri, 20 Nov 2026 12:00:00 +0800</lastBuildDate>
     <atom:link href="https://xlmm.github.io/feed.xml" rel="self" type="application/rss+xml"></atom:link>
+    <item>
+      <title>反编译视频拆解 Monopoly Go 与 Royal Kingdom：藏起来的机制，被放到几百万人面前</title>
+      <link>https://xlmm.github.io/post/decompiling-monopoly-go-royal-kingdom/</link>
+      <guid isPermaLink="true">https://xlmm.github.io/post/decompiling-monopoly-go-royal-kingdom/</guid>
+      <pubDate>Fri, 20 Nov 2026 12:00:00 +0800</pubDate>
+      <description><![CDATA[<p><strong>两句话结论：Monopoly Go 的代码里有一张老虎机词汇表，Royal Kingdom 的每一关都藏着一个玩家看不见的更难副本。</strong> 数据科学家 Ayo Omolewa（网名 Ayoships）最新两支反编译视频，把两款头部休闲游戏的暗机制摊开了。上一轮他拆 Block Blast、Candy Crush、Subway Surfers 已经在 Instagram 拿到千万级播放，这次轮到 Scopely 和 Dream Games。</p>
+<blockquote>
+<p>来源：mobilegamer.biz，2026-11-19。以下机制均为 Ayoships 反编译后的单方指控，未经独立验证，原始报道方已联系两家公司，截至发稿未获回复。</p>
+</blockquote>
+<h2 id="monopoly-go">Monopoly Go：代码里的老虎机词汇表</h2>
+<p>视频的核心证据是变量名。Scopely 的代码里直接出现 <code>RTPDist1_low</code>、<code>NearMiss</code>、<code>TriesToForceJackpot</code>——RTP 即 return to player（玩家回报率），是机台术语；NearMiss 是险失设计；TriesToForceJackpot 是强制头奖。变量名不会撒谎：这套调控体系不是借了机台的「感觉」，是借了机台的方法。</p>
+<p>Omolewa 说，RTP 分 low / mid / high 三档，决定玩家随时间的获胜频率，季节活动的奖卡牌组也用同一套分布。新手部分：每个新玩家拿到的是同一份 80 次骰子的脚本清单，骰子耗尽的时间点精确衔接两个动作——弹评分请求、开始展示付费礼包。</p>
+<p>贴纸相册是同一套逻辑的延长线。pity counter（保底计数器）在剩 9 张时关闭，按他对游戏设置的模拟：前 189 张贴纸约 3500 包开出，最后 9 张约 12700 包。保底机制在最后一段被关掉，收官段的期望包数是前面的 3.6 倍。</p>
+<h2 id="royal-kingdom">Royal Kingdom：每关藏一个更难副本</h2>
+<p>Dream Games 的 Royal Kingdom，5400 关，每关另有一个更难的副本：步数更少，外加一条 LowMatch 规则——发给你拼不上的碎片。他的实测：同一关打 400 局，LowMatch 关掉胜率 52%，打开 12%。</p>
+<p>付费侧同样分层：没付过费的玩家步数用完，$0.99 买一次继续机会；付过的，同一次继续 $6.99。而在一笔 $99.99 的购买之后，商店最低价从 $1.99 跳到 $54.99——付得越多，价格锚点越高。</p>
+<h2 id="heading">这组视频为什么值得注意</h2>
+<p>传播数据本身就是行业事件：Block Blast 拆解 IG 2240 万 + TikTok 170 万播放，Candy Crush 4.2M + 80.2 万。他已经拆到 TikTok、Duolingo、Tinder，IG 粉丝 45.7 万。<strong>拆解本身正在成为流量品类。</strong></p>
+<h2 id="heading-1">我的看法</h2>
+<p><strong>玩家感知不到，不等于没人知道。</strong> 这类机制在行业里并不新鲜——动态难度调整、pity 保底、分层定价都是正统工具，工具本身没有原罪。真正被改变的是「藏」的成本结构：过去隐藏难度的期望收益建立在「玩家无法验证」上，反编译视频把这个前提拿掉了。几百万播放意味着玩家的怀疑成本归零，而厂商的沉默成本在上升。</p>
+<p><strong>从设计者角度，检验标准只有一条：敢不敢写在更新公告里。</strong> 你愿意写在发布说明里的机制，是你认可的设计；不敢说的机制，无论数值多漂亮，设计上就该重新过一遍。数值必须跑模拟，但模拟通过不等于设计成立——2026 年，玩家手里也有反编译器。</p>
+<p>以上，是本次要分享的。</p>
+<p>顺颂时祺</p>
+<p>2026 年 11 月 20 日</p>
+<p>Lucas</p>
+]]></description>
+      <category>游戏设计</category>
+      <category>行业观察</category>
+    </item>
     <item>
       <title>做游戏的成本归零之后</title>
       <link>https://xlmm.github.io/post/when-making-games-costs-zero/</link>
@@ -985,39 +1014,6 @@ Lucas</p>
       <category>产品</category>
       <category>写作</category>
       <category>需求</category>
-    </item>
-    <item>
-      <title>判断力</title>
-      <link>https://xlmm.github.io/post/judging-power-2026-april-20/</link>
-      <guid isPermaLink="true">https://xlmm.github.io/post/judging-power-2026-april-20/</guid>
-      <pubDate>Mon, 20 Apr 2026 21:34:27 +0800</pubDate>
-      <description><![CDATA[<p>AI 把代码生产的成本打下来之后，工程师的核心价值到底在哪里。</p>
-<p>以前答案很清楚：技术。你能写出别人写不出的代码，你就值钱。建造是瓶颈，能建造的人站在价值链顶端。</p>
-<p>现在代码变得更容易生产了。过去几天的事，现在几小时能跑出原型。壁垒在消失。</p>
-<p>壁垒消失后，决定结果的东西换了一批。建造什么，比怎么建造更重要。判断力开始变得关键。</p>
-<hr />
-<p>判断力回答的是这类问题：这功能要不要做？是不是过度设计了？捷径的长期代价是什么？什么时候该快，什么时候该稳？</p>
-<p>没有标准答案，但对错之间差距极大。</p>
-<p>举一个反例：两个工程师，零付费用户，一开始就上微服务架构。这不是技术问题，是判断力问题。代价轻则技术债累积，重则公司关门。</p>
-<hr />
-<p>判断力拆成两个部分：实用主义和品味。</p>
-<p>实用主义是在真实世界的约束下找最优解。预算、团队能力、时间、硬件限制——这些绕不开。好的判断力是在约束里仍能找到最有价值的路径。</p>
-<p>品味更难说清。它是一种对「这个方案对不对」的直觉。简洁难以定义，但看到就知道。能让系统既简单又容易演进的决策，说不出道理，凭经验知道它对。</p>
-<p>两者都需要积累。这也是为什么基础知识和领域经验现在比以前更值钱——没有底子，谈不上好的判断。</p>
-<hr />
-<p>判断力在不同规模的组织里，重要程度差异很大。</p>
-<p>大公司里，角色分工明确，单个工程师的决策空间有限，很多判断被流程和上下游锁死了。有施展空间，但不大。</p>
-<p>小公司里完全不同。从立项到开发到上线都是同一个人，每个判断直接影响结果。有自主权，有责任，才是判断力真正发挥价值的土壤。</p>
-<hr />
-<p>执行力贬值，判断力升值。这个转变不只发生在工程师身上，产品、设计、运营同样在发生。</p>
-<p>AI 把建造门槛打低了。「造什么」变成了真正的稀缺能力。代码便宜之后，问题从「你能不能写出来」变成「你能不能判断该写什么」。</p>
-<p>门槛降低，反而让真正的能力更稀缺。</p>
-<p>顺颂时祺<br />
-Lucas</p>
-]]></description>
-      <category>思维</category>
-      <category>判断力</category>
-      <category>AI</category>
     </item>
   </channel>
 </rss>
