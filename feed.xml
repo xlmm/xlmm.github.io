@@ -6,8 +6,130 @@
     <description>Lucas 的博客——游戏设计与产品思考、概率思维、读书笔记</description>
     <language>zh-CN</language>
     <generator>Gridea Pro</generator>
-    <lastBuildDate>Fri, 20 Nov 2026 18:30:00 +0800</lastBuildDate>
+    <lastBuildDate>Fri, 20 Nov 2026 18:50:00 +0800</lastBuildDate>
     <atom:link href="https://xlmm.github.io/feed.xml" rel="self" type="application/rss+xml"></atom:link>
+    <item>
+      <title>礼包数值，跑出来</title>
+      <link>https://xlmm.github.io/post/gift-pack-value-simulator/</link>
+      <guid isPermaLink="true">https://xlmm.github.io/post/gift-pack-value-simulator/</guid>
+      <pubDate>Fri, 20 Nov 2026 18:50:00 +0800</pubDate>
+      <description><![CDATA[<p>集卡礼包改一个保底参数，单包期望会动多少？这个问题靠感觉答不了，但几百行的模拟器可以。我把整套机制参数化成一个单文件模拟器：蒙特卡洛和解析近似互相校验，一条命令扫完整个参数档位。这篇文章记录它的做法，以及扫出来的几个反直觉结果。</p>
+<h2 id="heading">机制</h2>
+<p>一套典型的集卡礼包，五层结构：</p>
+<ul>
+<li>每包开 N 张卡，N 可以是小数期望（4.2 = 20% 开 5 张，80% 开 4 张）</li>
+<li>每张卡按等级权重 roll 星级，各星级有对应价值；有概率转化为黄金卡，价值乘一个大倍率</li>
+<li>每张普通卡有 dup 概率是重复卡</li>
+<li>软保底：连续开出重复卡 n 张，下一张以 n×M 的概率触发保护（封顶 100%）。触发后给黄金 Lucky 卡或一张缺失卡，计数器清零；开出普通新卡也清零</li>
+<li>硬保底：连续 K 包没出黄金 Lucky，下一包必出一张——照常开满，其中一张替换成黄金 Lucky，其余卡照常走保底判定</li>
+</ul>
+<h2 id="heading-1">两把尺子</h2>
+<p>只跑蒙特卡洛是危险的：写错一行逻辑，模拟照样出数，你分不清是真规律还是 bug。所以模拟器里同时跑两把尺子，蒙特卡洛和解析近似。</p>
+<p>解析链四步：连续重复次数的平稳分布 → 单张触发率 λ → 单包至少触发一次的概率 g → 硬保底服从几何分布。最后期望就是一个三项式：</p>
+<pre><code class="language-typescript">const ev =
+  cfg.base +
+  (cfg.count - pHard) * perCardEV +
+  cfg.lucky * (pHard + (1 - pHard) * cfg.count * lambda * cfg.pGolden);
+</code></pre>
+<p>推导忽略「硬保底清零截断计数器」这一个二阶效应，代价是解析值系统性偏高：触发率高约 12%，期望端偏差在 1% 量级。实测对照：默认参数百万次模拟，两者偏差 0.014%；扫到最极端档（重复率 1.0）偏差约 1.3%。</p>
+<p>两把尺子对不上，要么模拟有 bug，要么近似假设被打破——无论哪种，你都想知道。这就是交叉验证的价值：它不是让数字更准，是让错误现形。</p>
+<h2 id="heading-2">扫档</h2>
+<p>一条命令按重复率 0 到 1.0 扫七档，复现整张结果表（以下为 10 万次实测，金额单位：金币）：</p>
+<table>
+<thead>
+<tr>
+<th>重复率</th>
+<th>单包期望</th>
+<th>解析近似</th>
+<th>黄金 Lucky/包</th>
+<th>硬保底占比</th>
+<th>保底触发/包</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0.0</td>
+<td>6,507,248</td>
+<td>6,493,527</td>
+<td>0.0667</td>
+<td>0.0667</td>
+<td>0.0000</td>
+</tr>
+<tr>
+<td>0.2</td>
+<td>6,614,902</td>
+<td>6,635,959</td>
+<td>0.0715</td>
+<td>0.0623</td>
+<td>0.0465</td>
+</tr>
+<tr>
+<td>0.4</td>
+<td>6,849,297</td>
+<td>6,863,223</td>
+<td>0.0792</td>
+<td>0.0561</td>
+<td>0.1164</td>
+</tr>
+<tr>
+<td>0.5</td>
+<td>7,027,528</td>
+<td>7,028,511</td>
+<td>0.0849</td>
+<td>0.0512</td>
+<td>0.1672</td>
+</tr>
+<tr>
+<td>0.6</td>
+<td>7,185,954</td>
+<td>7,244,350</td>
+<td>0.0916</td>
+<td>0.0470</td>
+<td>0.2232</td>
+</tr>
+<tr>
+<td>0.8</td>
+<td>7,790,524</td>
+<td>7,893,350</td>
+<td>0.1118</td>
+<td>0.0347</td>
+<td>0.3892</td>
+</tr>
+<tr>
+<td>1.0</td>
+<td>8,821,517</td>
+<td>8,939,922</td>
+<td>0.1462</td>
+<td>0.0219</td>
+<td>0.6258</td>
+</tr>
+</tbody>
+</table>
+<p>三行结果值得停一下。</p>
+<p><strong>重复率 0 时，黄金 Lucky 产出 = 硬保底占比 = 1/15。</strong> 没有软保底可触发，全部产出来自硬保底的几何分布，模拟值精确踩在理论值上。这是模拟器正确性的免费自检。</p>
+<p><strong>重复率越高，软保底触发越频繁，硬保底反而越少出现。</strong> 重复率 1.0 时，62.6% 的包靠软保底出卡，硬保底占比被压到 2.2%——软保底总是抢在硬保底前面触发，把硬保底架空了。</p>
+<p><strong>在这套参数下，重复不是损失，是保底的燃料。</strong> 单包期望从 651 万（重复率 0）涨到 882 万（重复率 1.0）：重复卡喂大了触发频率，触发喂大了黄金 Lucky 产出。直觉说重复让玩家难受，数字说重复在推高期望——两条都对，怎么权衡是设计判断，不是模拟器的事。</p>
+<h2 id="heading-3">最大的杠杆</h2>
+<p>硬保底的 K 是整套机制里最大的一个旋钮。默认 K=14 时单包期望约 703 万；把它收到 4，期望涨到 1090 万，+55%，黄金 Lucky 产出从 8.5% 涨到 21.6%。</p>
+<p>一个整数参数，半个期望。调参时先动它，再看别的。</p>
+<h2 id="heading-4">工程上</h2>
+<p>一个文件，约 280 行 TypeScript，bun 直接跑，零依赖：</p>
+<ul>
+<li>参数全走命令行（<code>--dup 0.5 --hard-n 4</code>），默认值是一套演示口径，不对应任何线上配置</li>
+<li>mulberry32 种子随机，同一个 seed 出同一个结果，数字可以复现</li>
+<li>输入校验挡住概率越界、权重和为零这类配置错误</li>
+<li><code>--sweep</code> 一键扫档，<code>--times 1000000</code> 把波动收紧到 ±0.1%</li>
+</ul>
+<h2 id="heading-5">商业化上</h2>
+<p>礼包期望是调参的锚。每次动保底步长、硬保底 K、黄金概率，先跑模拟看期望曲线，确认方向再进测试。同品类产品的集卡系统结构大同小异，这套模拟器参数化到可以直接换算别家机制——竞品的礼包设计，也能用同一把尺子量一遍。</p>
+<h2 id="heading-6">最后</h2>
+<p>数值必须跑模拟，体验必须真实感知——两者缺一不可。模拟器的价值不是给出答案，是把讨论从「我觉得」拉到「数字说」：期望、触发率、保底占比摆上桌面之后，剩下的部分——这个数字给玩家的感受对不对——才轮到设计判断。</p>
+<p>参数往哪个方向调，是设计意图；模拟器只负责告诉你，这一步走了多远。</p>
+]]></description>
+      <category>游戏设计</category>
+      <category>数值</category>
+      <category>概率</category>
+    </item>
     <item>
       <title>Domino Dreams 代码架构深度研究报告</title>
       <link>https://xlmm.github.io/post/domino-dreams-code-architecture/</link>
@@ -1734,38 +1856,6 @@ Lucas</p>
 <hr />
 <p><em>本手册基于 2026-05-17 实际安装状态。技能描述来源于各 SKILL.md frontmatter 和工作流文件。共覆盖 54 全局 skill + 13 本地 skill + 10 agent 类型。</em></p>
 ]]></description>
-    </item>
-    <item>
-      <title>需要的是提问</title>
-      <link>https://xlmm.github.io/post/ask-more-questions/</link>
-      <guid isPermaLink="true">https://xlmm.github.io/post/ask-more-questions/</guid>
-      <pubDate>Mon, 11 May 2026 00:00:00 +0800</pubDate>
-      <description><![CDATA[<h2 id="ai-">AI 放大了什么</h2>
-<p>有人观察到一个有意思的现象：AI 放大的是组织现状，不是组织潜力。</p>
-<p>一个精密的组织，AI 让它更精密。一个混乱的组织，AI 让它更快速地混乱。</p>
-<p>这个机制是什么？生产环节被 AI 加速了 10 倍，但验证环节还是老样子。结果不是&quot;效率提升 10 倍&quot;，而是：10 倍多的代码在排队等 review，10 倍多的功能在等测试，10 倍多的产品决策等判断。</p>
-<p>瓶颈从&quot;生产&quot;转移到了&quot;组织内部协作&quot;。</p>
-<p>大多数人没看到这个本质。他们招 AI 来加速开发，然后 reviewer 被压垮，测试周期拉长，产品判断质量下降，最后得出结论：&ldquo;AI 不好用。&ldquo;不是 AI 不好用，是整个组织没有为 AI 速度重新设计自己的流程。</p>
-<h2 id="heading">想法不稀缺，判断才稀缺</h2>
-<p>历史上同一个发现往往被两个人同时想到。 calculus 是牛顿和莱布尼茨各自独立发明的，进化论是达尔文和华莱士各自独立提出的。这不是巧合，是知识的必然：当一个领域的知识积累到某个临界点，下一个突破就在空气中。</p>
-<p>在 AI 时代，这个规律被放大了。AI 能帮任何人快速生成方案、快速验证假设、快速搭建原型。&ldquo;想法&quot;本身不再稀缺。真正稀缺的是：<strong>在十个看起来都不错的想法里，判断哪个值得投入。</strong></p>
-<p>这个判断力来自哪里？来自对用户的深度理解、对市场的长期观察、对自身能力的诚实评估。这些东西，AI 帮不了你。</p>
-<h2 id="heading-1">提问比答案更重要</h2>
-<p>当 AI 可以瞬间给出答案的时候，<strong>问题的质量决定了输出的质量</strong>。</p>
-<p>一个好问题有几个特征：</p>
-<ul>
-<li>具体到可以行动</li>
-<li>承认自己的无知，而不是包装已有的偏见</li>
-<li>指向&quot;为什么&quot;而非&quot;是什么&rdquo;</li>
-</ul>
-<p>大多数人不会提问。他们问的不是问题，是请求确认——&ldquo;这样做对吗？&ldquo;而不是&quot;为什么这样做？有没有更好的方式？&rdquo;</p>
-<p>在组织中，鼓励提问的文化比鼓励执行的文化更有长期价值。一个团队如果能持续提出好问题，即使暂时没有答案，也已经在正确的方向上了。因为好问题会引导思考，而答案只是在验证思考的结果。</p>
-<blockquote>
-<p>「判断一个人，不看他的答案，看他的问题。」——伏尔泰（ attributed）</p>
-</blockquote>
-<p>AI 时代，产品经理最核心的能力不是写文档，不是画原型，不是协调资源——是<strong>提出正确的问题，然后判断哪个答案值得相信</strong>。</p>
-]]></description>
-      <category>AI</category>
     </item>
   </channel>
 </rss>
