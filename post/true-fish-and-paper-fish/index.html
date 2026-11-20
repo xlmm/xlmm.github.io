@@ -1,0 +1,493 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="renderer" content="webkit">
+    <meta name="format-detection" content="telephone=no, email=no, address=no">
+
+    <meta name="generator" content="Gridea Pro 0.0.0-dev">
+    <title>真鱼与纸鱼：一条鱼的经济学 | Lucas</title>
+
+    
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#1e1f22" media="(prefers-color-scheme: dark)">
+
+    
+    <link rel="shortcut icon" href="/media/images/favicon.ico">
+<link rel="stylesheet" href="/styles/main.min.css">
+
+    
+    <style>:root{--accent-color:#28df99;}</style>
+    
+
+    <script>
+    // 自动为所有 target="_blank" 的链接添加 rel="noopener noreferrer"
+    document.addEventListener('DOMContentLoaded', function() {
+        var links = document.querySelectorAll('a[target="_blank"]');
+        links.forEach(function(link) {
+            var rel = link.getAttribute('rel') || '';
+            if (rel.indexOf('noopener') === -1) {
+                rel += ' noopener';
+            }
+            if (rel.indexOf('noreferrer') === -1) {
+                rel += ' noreferrer';
+            }
+            link.setAttribute('rel', rel.trim());
+        });
+    });
+</script>
+
+
+
+    <script>
+    // Theme behavior: toggle binding + browser-chrome color sync + system following.
+    // Initial theme class is applied by the inline script at the top of <body>
+    // (header.ejs / index.ejs), before first paint — no flash.
+    (function () {
+        var configDefault = 'dark';
+
+        var syncThemeColor = function (dark) {
+            var metas = document.querySelectorAll('meta[name="theme-color"]');
+            if (metas.length > 0) {
+                // Keep the first, drop the media-qualified duplicates
+                for (var i = 1; i < metas.length; i++) metas[i].remove();
+                metas[0].setAttribute('content', dark ? '#1e1f22' : '#ffffff');
+                metas[0].removeAttribute('media');
+            }
+        };
+
+        var updateButtons = function (dark) {
+            var ids = ['theme-toggle-sun', 'theme-toggle-moon',
+                       'mobile-theme-toggle-sun', 'mobile-theme-toggle-moon'];
+            for (var i = 0; i < ids.length; i++) {
+                var el = document.getElementById(ids[i]);
+                if (!el) continue;
+                var isSun = ids[i].indexOf('sun') !== -1;
+                el.style.display = (dark === !isSun) ? 'inline-block' : 'none';
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', function () {
+            var body = document.body;
+            var dark = body.classList.contains('dark-theme');
+
+            syncThemeColor(dark);
+            updateButtons(dark);
+
+            var toggle = function (e) {
+                if (e) e.stopPropagation();
+                dark = !body.classList.contains('dark-theme');
+                body.classList.toggle('dark-theme', dark);
+                updateButtons(dark);
+                syncThemeColor(dark);
+                try { localStorage.setItem('theme', dark ? 'dark' : 'light'); } catch (err) {}
+            };
+
+            ['theme-toggle-sun', 'theme-toggle-moon',
+             'mobile-theme-toggle-sun', 'mobile-theme-toggle-moon'].forEach(function (id) {
+                var el = document.getElementById(id);
+                if (el) el.addEventListener('click', toggle);
+            });
+
+            // Follow the OS while the visitor has not chosen manually.
+            var hasSaved = false;
+            try { hasSaved = !!localStorage.getItem('theme'); } catch (err) {}
+            if (window.matchMedia && !hasSaved) {
+                window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function (e) {
+                    dark = e.matches;
+                    body.classList.toggle('dark-theme', dark);
+                    updateButtons(dark);
+                    syncThemeColor(dark);
+                });
+            }
+        });
+    })();
+</script>
+
+<script>
+    // Reading Progress Component
+    document.addEventListener('DOMContentLoaded', () => {
+        const progressValue = document.querySelector('.reading-value');
+        const progressCircle = document.querySelector('.progress-ring__circle');
+        const container = document.querySelector('.reading-progress-container');
+
+        // Exit if elements don't exist (e.g., not on a post page)
+        if (!progressValue || !progressCircle || !container) {
+            return;
+        }
+
+        // SVG Circle setup
+        const radius = progressCircle.r.baseVal.value;
+        const circumference = 2 * Math.PI * radius;
+
+        progressCircle.style.strokeDasharray = `${circumference} ${circumference}`;
+        progressCircle.style.strokeDashoffset = circumference;
+
+        function setProgress(percent) {
+            const safePercent = Math.min(100, Math.max(0, percent));
+            progressValue.textContent = `${Math.round(safePercent)}%`;
+            const offset = circumference - (safePercent / 100) * circumference;
+            progressCircle.style.strokeDashoffset = offset;
+        }
+
+        function onScroll() {
+            const scrollTop = window.scrollY || document.documentElement.scrollTop;
+            const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+
+            if (scrollHeight <= 0) {
+                setProgress(0);
+                return;
+            }
+
+            const scrollPercent = (scrollTop / scrollHeight) * 100;
+            setProgress(scrollPercent);
+
+            // Show/Hide logic: Show if scrolled more than 100px
+            if (scrollTop > 100) {
+                container.classList.add('show');
+            } else {
+                container.classList.remove('show');
+            }
+        }
+
+        // Initialize
+        onScroll();
+
+        // Listen for scroll events
+        window.addEventListener('scroll', onScroll, { passive: true });
+
+        // Recalculate on resize
+        window.addEventListener('resize', onScroll);
+    });
+</script>
+
+
+
+    
+
+    
+<meta name="description" content="一个游戏策划，为什么在读一本 2010 年的奥地利学派小人书？起因是我在微信读书里划了一条批注。书里说，有人花 100 万美元买了空气，这笔交易也会被算进 GDP，计作 100 万的增长。我在旁边写：这种统计方式是错误的，就像只看 DAU，一大堆不产生价值的小号工作室刷上去，DAU 狂涨但不产生任何价值，这个数据也是没用的。 GDP 之于宏观经济学家，就是 DAU 之于游戏策划——一个可以被刷的&amp;hellip;">
+<meta name="keywords" content="游戏设计,概率,产品,读书笔记,Lucas">
+<link rel="canonical" href="https://xlmm.github.io/post/true-fish-and-paper-fish/">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"真鱼与纸鱼：一条鱼的经济学","url":"https://xlmm.github.io/post/true-fish-and-paper-fish/","description":"一个游戏策划，为什么在读一本 2010 年的奥地利学派小人书？起因是我在微信读书里划了一条批注。书里说，有人花 100 万美元买了空气，这笔交易也会被算进 GDP，计作 100 万的增长。我在旁边写：这种统计方式是错误的，就像只看 DAU，一大堆不产生价值的小号工作室刷上去，DAU 狂涨但不产生任何价值，这个数据也是没用的。 GDP 之于宏观经济学家，就是 DAU 之于游戏策划——一个可以被刷的\u0026hellip;","datePublished":"2026-11-16T12:00:00+08:00","dateModified":"2026-11-16T12:00:00+08:00","author":{"@type":"Person","name":"Lucas"},"publisher":{"@type":"Organization","logo":{"@type":"ImageObject","url":"/images/avatar.png"},"name":"Lucas"}}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","item":"https://xlmm.github.io","name":"Lucas","position":1},{"@type":"ListItem","item":"https://xlmm.github.io/post/true-fish-and-paper-fish/","name":"真鱼与纸鱼：一条鱼的经济学","position":2}]}</script>
+<meta property="og:title" content="真鱼与纸鱼：一条鱼的经济学">
+<meta property="og:description" content="一个游戏策划，为什么在读一本 2010 年的奥地利学派小人书？起因是我在微信读书里划了一条批注。书里说，有人花 100 万美元买了空气，这笔交易也会被算进 GDP，计作 100 万的增长。我在旁边写：这种统计方式是错误的，就像只看 DAU，一大堆不产生价值的小号工作室刷上去，DAU 狂涨但不产生任何价值，这个数据也是没用的。 GDP 之于宏观经济学家，就是 DAU 之于游戏策划——一个可以被刷的&amp;hellip;">
+<meta property="og:url" content="https://xlmm.github.io/post/true-fish-and-paper-fish/">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Lucas">
+<meta property="og:image" content="https://xlmm.github.io/media/preview.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:url" content="https://xlmm.github.io/post/true-fish-and-paper-fish/">
+<meta name="twitter:title" content="真鱼与纸鱼：一条鱼的经济学">
+<meta name="twitter:description" content="一个游戏策划，为什么在读一本 2010 年的奥地利学派小人书？起因是我在微信读书里划了一条批注。书里说，有人花 100 万美元买了空气，这笔交易也会被算进 GDP，计作 100 万的增长。我在旁边写：这种统计方式是错误的，就像只看 DAU，一大堆不产生价值的小号工作室刷上去，DAU 狂涨但不产生任何价值，这个数据也是没用的。 GDP 之于宏观经济学家，就是 DAU 之于游戏策划——一个可以被刷的&amp;hellip;">
+<meta name="twitter:image" content="https://xlmm.github.io/media/preview.png">
+<!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "ddca502f0e304987b84e722188d0b7d3"}'></script><!-- End Cloudflare Web Analytics -->
+</head>
+
+    <body>
+
+        <script>
+    (function () {
+        const getSystemTheme = () => {
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                return 'dark';
+            }
+            return 'light';
+        };
+
+        const configDefault = 'dark';
+        let savedTheme = null;
+        try { savedTheme = localStorage.getItem('theme'); } catch (err) {}
+        const theme = savedTheme || configDefault || getSystemTheme();
+
+        if (theme === 'dark') {
+            document.body.classList.add('dark-theme');
+        }
+        // No write on first visit: an explicit toggle stores the choice;
+        // until then scripts.ejs keeps following the OS preference.
+    })();
+</script>
+<header class="mod-head">
+    <div class="mod-head__left">
+        <div class="mod-head__logo">
+            <a href="/">
+                
+                
+                    <img class="avatar" alt="avatar" src="/images/avatar.png" width="36" height="36">
+                
+            </a>
+        </div>
+    </div>
+
+    <div class="mod-head__right">
+        <span>
+            <button id="theme-toggle-sun" class="tiptap-button theme-toggle-sun" aria-label="Switch to dark mode">
+                <svg width="18" height="18" class="tiptap-button-icon" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 1C12.5523 1 13 1.44772 13 2V4C13 4.55228 12.5523 5 12 5C11.4477 5 11 4.55228 11 4V2C11 1.44772 11.4477 1 12 1Z" fill="currentColor"></path>
+                    <path fill-rule="evenodd" clip-rule="evenodd" d="M7 12C7 9.23858 9.23858 7 12 7C14.7614 7 17 9.23858 17 12C17 14.7614 14.7614 17 12 17C9.23858 17 7 14.7614 7 12ZM12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9Z" fill="currentColor"></path>
+                    <path d="M13 20C13 19.4477 12.5523 19 12 19C11.4477 19 11 19.4477 11 20V22C11 22.5523 11.4477 23 12 23C12.5523 23 13 22.5523 13 22V20Z" fill="currentColor"></path>
+                    <path d="M4.22282 4.22289C4.61335 3.83236 5.24651 3.83236 5.63704 4.22289L7.04704 5.63289C7.43756 6.02341 7.43756 6.65658 7.04704 7.0471C6.65651 7.43762 6.02335 7.43762 5.63283 7.0471L4.22282 5.6371C3.8323 5.24658 3.8323 4.61341 4.22282 4.22289Z" fill="currentColor"></path>
+                    <path d="M18.367 16.9529C17.9765 16.5623 17.3433 16.5623 16.9528 16.9529C16.5623 17.3434 16.5623 17.9766 16.9528 18.3671L18.3628 19.7771C18.7533 20.1676 19.3865 20.1676 19.777 19.7771C20.1675 19.3866 20.1675 18.7534 19.777 18.3629L18.367 16.9529Z" fill="currentColor"></path>
+                    <path d="M1 12C1 11.4477 1.44772 11 2 11H4C4.55228 11 5 11.4477 5 12C5 12.5523 4.55228 13 4 13H2C1.44772 13 1 12.5523 1 12Z" fill="currentColor"></path>
+                    <path d="M20 11C19.4477 11 19 11.4477 19 12C19 12.5523 19.4477 13 20 13H22C22.5523 13 23 12.5523 23 12C23 11.4477 22.5523 11 22 11H20Z" fill="currentColor"></path>
+                    <path d="M7.04704 16.9529C7.43756 17.3434 7.43756 17.9766 7.04704 18.3671L5.63704 19.7771C5.24651 20.1676 4.61335 20.1676 4.22282 19.7771C3.8323 19.3866 3.8323 18.7534 4.22283 18.3629L5.63283 16.9529C6.02335 16.5623 6.65651 16.5623 7.04704 16.9529Z" fill="currentColor"></path>
+                    <path d="M19.777 5.6371C20.1675 5.24657 20.1675 4.61341 19.777 4.22289C19.3865 3.83236 18.7533 3.83236 18.3628 4.22289L16.9528 5.63289C16.5623 6.02341 16.5623 6.65658 16.9528 7.0471C17.3433 7.43762 17.9765 7.43762 18.367 7.0471L19.777 5.6371Z" fill="currentColor"></path>
+                </svg>
+            </button>
+            <button id="theme-toggle-moon" class="tiptap-button theme-toggle-moon" aria-label="Switch to light mode">
+                <svg width="18" height="18" class="tiptap-button-icon" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C10.0222 2 8.08879 2.58649 6.4443 3.6853C4.79981 4.78412 3.51809 6.3459 2.76121 8.17317C2.00433 10.0004 1.8063 12.0111 2.19215 13.9509C2.578 15.8907 3.53041 17.6725 4.92894 19.0711C6.32746 20.4696 8.10929 21.422 10.0491 21.8079C11.9889 22.1937 13.9996 21.9957 15.8268 21.2388C17.6541 20.4819 19.2159 19.2002 20.3147 17.5557C21.4135 15.9112 22 13.9778 22 12C22 11.5955 21.7564 11.2309 21.3827 11.0761C21.009 10.9213 20.5789 11.0069 20.2929 11.2929C19.287 12.2988 17.9226 12.864 16.5 12.864C15.0774 12.864 13.713 12.2988 12.7071 11.2929C11.7012 10.287 11.136 8.92261 11.136 7.5C11.136 6.07739 11.7012 4.71304 12.7071 3.70711C12.9931 3.42111 13.0787 2.99099 12.9239 2.61732C12.7691 2.24364 12.4045 2 12 2ZM7.55544 5.34824C8.27036 4.87055 9.05353 4.51389 9.87357 4.28778C9.39271 5.27979 9.13604 6.37666 9.13604 7.5C9.13604 9.45304 9.91189 11.3261 11.2929 12.7071C12.6739 14.0881 14.547 14.864 16.5 14.864C17.6233 14.864 18.7202 14.6073 19.7122 14.1264C19.4861 14.9465 19.1295 15.7296 18.6518 16.4446C17.7727 17.7602 16.5233 18.7855 15.0615 19.391C13.5997 19.9965 11.9911 20.155 10.4393 19.8463C8.88743 19.5376 7.46197 18.7757 6.34315 17.6569C5.21447 16.538 4.4624 15.1126 4.15372 13.5607C3.84504 12.0089 4.00347 10.4003 4.60897 8.93853C5.21447 7.47672 6.23985 6.22729 7.55544 5.34824Z" fill="currentColor"></path>
+                    <path d="M19 2C19.5523 2 20 2.44772 20 3V4H21C21.5523 4 22 4.44772 22 5C22 5.55228 21.5523 6 21 6H20V7C20 7.55228 19.5523 8 19 8C18.4477 8 18 7.55228 18 7V6H17C16.4477 6 16 5.55228 16 5C16 4.44772 16.4477 4 17 4H18V3C18 2.44772 18.4477 2 19 2Z" fill="currentColor"></path>
+                </svg>
+            </button>
+        </span>
+    </div>
+</header>
+<!-- <a href="#" id="back-to-top" style="display: inline;"> ^ </a> -->
+
+            <article class="mod-post mod-post__type-post">
+                <header>
+                    <h1 class="mod-post__title">
+                        真鱼与纸鱼：一条鱼的经济学
+                    </h1>
+                </header>
+
+                <div class="mod-post__meta">
+                    <time datetime="2026-11-16">
+                        2026-11-16
+                    </time> • 4 分钟阅读 •
+                        
+                            <a href="/tag/du-shu-bi-ji/">
+                                读书笔记
+                            </a>
+                             · 
+                                    
+                            <a href="/tag/jing-ji-xue/">
+                                经济学
+                            </a>
+                             · 
+                                    
+                            <a href="/tag/pan-duan-li/">
+                                判断力
+                            </a>
+                            
+                                    
+                </div>
+
+
+
+                <div class="mod-post__entry wzulli">
+                    
+                            <p>一个游戏策划，为什么在读一本 2010 年的奥地利学派小人书？起因是我在微信读书里划了一条批注。书里说，有人花 100 万美元买了空气，这笔交易也会被算进 GDP，计作 100 万的增长。我在旁边写：这种统计方式是错误的，就像只看 DAU，一大堆不产生价值的小号工作室刷上去，DAU 狂涨但不产生任何价值，这个数据也是没用的。</p>
+<p>GDP 之于宏观经济学家，就是 DAU 之于游戏策划——一个可以被刷的指标。从这条批注出发，这本书我读出了比经济学更多的东西。</p>
+<h2 id="heading">一条鱼的一辈子</h2>
+<p>《经济为什么会崩溃》，彼得·希夫与安德鲁·希夫兄弟写于 2010 年，中文版再版时改名《小岛经济学》。它把奥地利学派经济学画成一个小岛：三个人徒手抓鱼，每人每天抓一条，正好吃完，没有储蓄，没有信贷，困在生存线上。转折是一个人饿着肚子织出岛上第一张渔网——产出从每天一条变成两条，生产率翻倍，全部来自延迟消费换来的工具。</p>
+<p>全书十七章，只用一个引擎：<strong>储蓄 → 资本 → 生产率</strong>。渔网是资本，鱼是储蓄，官鱼缩水是货币贬值，中岛帝国是制造业大国的镜像。三幕剧：第一幕讲真实增长如何发生（资本、储蓄、信贷、货币、银行）；第二幕讲货币如何被政治化（政府接管鱼储蓄，发行鱼邦储备券，官鱼在历次政治需要中一次次变小）；第三幕讲崩溃如何收场（低利率、房价泡沫、印钞刺激、恶性通胀）。读者只需要跟住一个问题：这一章里，什么是真鱼，什么是纸鱼？</p>
+<p>三句话是全书最冷的，值得单独抄出来：</p>
+<ul>
+<li><strong>「官鱼从未变大，物价从未下降。」</strong> 十二个字讲完货币贬值史。</li>
+<li><strong>「攒纸的人以为自己在攒鱼。」</strong> 中岛帝国人拿真鱼换钞票，攒了几十年，最后发现对手连养活自己百姓的能力都没有，拿什么兑换？</li>
+<li><strong>「只有美索尼亚保有经济和军事大国的地位，鱼邦储备券才具有价值。」</strong> 法币的担保从来不是黄金，是国家的实力——信用本身就是抵押品。</li>
+</ul>
+<h2 id="16-">16 年成绩单</h2>
+<p>这本书立场极强，作者不假装中立。读它的正确姿势不是全盘接受，是结账：把作者的判断对照现实，逐条结算。</p>
+<table>
+<thead>
+<tr>
+<th>判断（时点）</th>
+<th>现实</th>
+<th>判定</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>房市泡沫破裂（2006 公开预测）</td>
+<td>2006-2008 次贷危机兑现</td>
+<td>✅ 判对</td>
+</tr>
+<tr>
+<td>救市印钞终致通胀（2010 后记）</td>
+<td>2010s 通胀躺平十年；2021-2023 大通胀（40 年最高）</td>
+<td>🟡 迟到十年，机制兑现</td>
+</tr>
+<tr>
+<td>美元恶性通胀迫近（2010）</td>
+<td>美元储备份额仍约 58%，恶性通胀未发生</td>
+<td>🔴 未兑现</td>
+</tr>
+<tr>
+<td>债权国觉醒抛售（第 17 章）</td>
+<td>未上演，美元陷阱反而把债权人锁得更深</td>
+<td>🔴 未兑现</td>
+</tr>
+<tr>
+<td>刺激是向后代借债（后记）</td>
+<td>美国国债从约 10 万亿涨到超 36 万亿美元</td>
+<td>✅ 持续兑现</td>
+</tr>
+</tbody>
+</table>
+<p><strong>机制有价值，预言无信用。</strong> 拿它当世界观，会错过整个 2010 年代；拿它当机制库，2020-2023 它是你最好的眼镜。机制判对、时点判错，是所有宏大预言的共同毛病：无法证伪——通胀没来可以说还在路上，来了可以说我早说过。</p>
+<p>作者哪里不严谨？最要害的一条我在批注里写了：<strong>不谈剂量谈毒性是没意义的。</strong> 书把「储蓄高于消费」写成无条件的真理，但储蓄率过高同样致命——总需求不足、订单枯竭、失业上升。寓言擅长讲机制，永远讲不了剂量：储蓄率多高算过高？货币增速多快算过快？这才是真正的政策难题。</p>
+<h2 id="heading-1">把小岛读成一个游戏服务器</h2>
+<p>这本书对策划的真正价值不是经济学，是指标哲学。</p>
+<p><strong>GDP 与 DAU 是同一种指标：活动量，不是价值量。</strong> 两者的共同点是用「方便统计」取代了「真实价值」，且都能被系统性刷高。北极星指标的选法因此只有一条铁律：选难刷的。付费口径的指标之所以被许多团队当作北极星，因为钱比行为难刷——工作室可以注册一千个小号，注册不了一千张信用卡。指标的防刷属性，就是它的「真鱼属性」。</p>
+<p><strong>官鱼缩水就是数值通胀。</strong> 参议员偷偷把官鱼切小的每一次，都是数值策划偷偷调表的一次：玩家攒了三个月的货币一夜之间购买力减半。区别只在时间尺度——主权国家用十年稀释一代人的储蓄，服务器用一个版本稀释玩家一个月的库存。游戏经济的信用本身就是抵押品：玩家对数值的信任一旦崩塌，比任何数值崩塌都难修。</p>
+<p><strong>拉 DAU 却不产留存的活动，就是服务器里的房市泡沫。</strong> 书对泡沫的定义只有一句：「这些活动吸收了越来越多的产能，却没有换来更多的真鱼。」判断标准只有一条：活动结束后，留存的真鱼留下了吗？</p>
+<p>最后一句是我自己的转述，也是整本书最想留下的一句话：<strong>策划就是小岛的参议员，手里握着印钞机——你偷偷缩官鱼的每一次，都记在玩家信任的账上。</strong></p>
+<h2 id="heading-2">附赠：思想也是生意</h2>
+<p>这本书还是一份失利方的产品说明书。作者在序言里自己分析了败因：凯恩斯主义者有「明显的优势」，一个「自我实现、相互吹捧的社会」催生了大批顶级经济学家。翻译成产品语言：凯恩斯主义是为政客定制的产品——见效即时（花钱当季可见，紧缩十年后显现）、责任可外推（效果不好是刺激不够，不是方向错了）、渠道垄断（央行、财政部、学术界、媒体都是渠道，渠道自己也受益）。奥派是反面产品：要求客户什么都不做、承担短期痛苦、把功劳让给市场。</p>
+<p>一个要求客户克制的商业产品，注定卖不过一个许诺客户马上见效的产品。<strong>正确但缓慢的产品，会被错误但即时的产品压制整整一代人</strong>——直到 2021 年通胀回来，货架才重新给奥派腾出位置。这也是为什么这本书值得读两遍：它输掉的是市场，不是逻辑。</p>
+<p>以上，是本次要分享的。</p>
+<p>顺颂时祺</p>
+<p>2026 年 11 月 16 日</p>
+<p>Lucas</p>
+<hr />
+<p><strong>参考</strong></p>
+<ul>
+<li>彼得·D.希夫 / 安德鲁·J.希夫《经济为什么会崩溃：鱼、美元与经济学的故事》（中信出版集团；2017 年以《小岛经济学》为名再版，内容为同一本书）</li>
+<li>债务通缩理论：Irving Fisher, The Debt-Deflation Theory of Great Depressions (1933)</li>
+<li>特里芬难题：Robert Triffin (1960)</li>
+<li>美元储备份额约 58%（IMF COFER 公开口径，约数）；美国国债超 36 万亿美元（美国财政部公开口径）</li>
+</ul>
+
+                </div>
+
+            </article>
+
+
+            
+                
+	<div class="mod-post__foot">
+	 文章标签: 
+     
+        <a href="/tag/du-shu-bi-ji/">读书笔记</a>, 
+     
+        <a href="/tag/jing-ji-xue/">经济学</a>, 
+     
+        <a href="/tag/pan-duan-li/">判断力</a>
+     
+     </br>
+	</div>
+
+                    
+
+                        <div class="mod-post__poster">
+                        </div>
+
+                        
+                            
+<br>
+
+<div style="margin-bottom: 10px;">
+    上一篇 : <a href="/post/when-making-games-costs-zero/">做游戏的成本归零之后</a>
+</div>
+
+
+
+<div style="margin-bottom: 40px;">
+    下一篇 : <a href="/post/fool-mode-acceptance/">傻逼模式验收</a>
+</div>
+
+
+</div>	
+
+                                
+
+                                    
+<div class="giscus-wrap" style="margin: 2.5rem auto 0; max-width: 800px; padding: 0 1rem;">
+    <script src="https://giscus.app/client.js"
+        data-repo="xlmm/xlmm.github.io"
+        data-repo-id="R_kgDOSGDpLQ"
+        data-category="Announcements"
+        data-category-id="DIC_kwDOSGDpLc4DLOpW"
+        data-mapping="pathname"
+        data-strict="0"
+        data-reactions-enabled="1"
+        data-emit-metadata="0"
+        data-input-position="top"
+        data-theme="preferred_color_scheme"
+        data-lang="zh-CN"
+        data-loading="lazy"
+        crossorigin="anonymous"
+        async>
+    </script>
+</div>
+
+
+    
+                                        
+
+                                        <!-- Reading Progress Component -->
+<div class="reading-progress-container">
+  <span class="reading-label">阅读进度</span>
+  <span class="reading-value">0%</span>
+  <svg class="progress-ring" viewBox="0 0 24 24">
+    <!-- Background Circle -->
+    <circle class="progress-ring__circle-bg" stroke-width="3" fill="transparent" r="10" cx="12" cy="12" />
+    <!-- Progress Circle -->
+    <circle class="progress-ring__circle" stroke-width="3" fill="transparent" r="10" cx="12" cy="12" />
+  </svg>
+</div>
+                                            <footer id="footer" class="footer">
+    <nav>
+        
+            
+                    <a class="menu-item" href="/">
+                        首页
+                    </a>
+                    
+             · 
+                    <a class="menu-item" href="/post">
+                        博客
+                    </a>
+                    
+             · 
+                    <a class="menu-item" href="/memos">
+                        闪念
+                    </a>
+                    
+             · 
+                    <a class="menu-item" href="/archives">
+                        归档
+                    </a>
+                    
+             · 
+                    <a class="menu-item" href="/tags">
+                        标签
+                    </a>
+                    
+             · 
+                    <a class="menu-item" href="/links">
+                        友链
+                    </a>
+                    
+             · 
+                    <a class="menu-item" href="/post/about">
+                        关于
+                    </a>
+                    
+    </nav>
+
+    <div class="Copyright">Copyright &copy; 2026 <a href="https://xlmm.github.io">
+                Lucas
+            </a></div>
+
+    <div class="index_footer">
+        写给自己看的笔记。 ·
+            <a class="rss" href="/feed.xml" target="_blank" rel="noopener noreferrer">
+                <i class="ri-rss-line"></i> RSS
+            </a>
+    </div>
+</footer>
+
+
+
+
+    <script>console.log("\n%c ✦ Gridea Pro v0.0.0-dev %c · Theme: amore v1.1.0 · https://gridea.pro %c\n","color:#fadfa3;background:#111111;padding:9px 14px;border-radius:4px 0 0 4px;font-weight:500;font-size:12px","color:#e05c00;background:#fff3ec;padding:9px 14px;border-radius:0 4px 4px 0;font-size:11px","")</script>
+</body>
+
+    </html>
