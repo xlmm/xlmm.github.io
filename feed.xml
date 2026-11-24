@@ -6,8 +6,74 @@
     <description>Lucas 的博客——游戏设计与产品思考、概率思维、读书笔记</description>
     <language>zh-CN</language>
     <generator>Gridea Pro</generator>
-    <lastBuildDate>Fri, 20 Nov 2026 18:50:00 +0800</lastBuildDate>
+    <lastBuildDate>Tue, 24 Nov 2026 20:59:00 +0800</lastBuildDate>
     <atom:link href="https://xlmm.github.io/feed.xml" rel="self" type="application/rss+xml"></atom:link>
+    <item>
+      <title>礼包规则，拆开看</title>
+      <link>https://xlmm.github.io/post/gift-pack-rules/</link>
+      <guid isPermaLink="true">https://xlmm.github.io/post/gift-pack-rules/</guid>
+      <pubDate>Tue, 24 Nov 2026 20:59:00 +0800</pubDate>
+      <description><![CDATA[<p>上一篇<a href="https://xlmm.github.io/post/gift-pack-value-simulator/">《礼包数值，跑出来》</a>只用五条把机制带过，这篇把规则本身写清楚：玩家点下购买，到卡落进卡槽，中间一共三道随机、两重保底，外加一条跨天规则。按判定的先后顺序过一遍。</p>
+<h2 id="heading">三道随机</h2>
+<p>一个礼包分两部分：一笔基础金币，加一个卡包。卡包的开法是三道随机，一道接一道。第一道，开几张：张数带权重，拿一套具体数字走一遍，2、4、6、8、10 张各占 20%，期望是 6 张。第二道，每张几级：卡分 1 到 5 级，价值从 5 万到 100 万金币，概率逐级递减。</p>
+<table>
+<thead>
+<tr>
+<th>等级</th>
+<th>价值（金币）</th>
+<th>概率</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>50,000</td>
+<td>30%</td>
+</tr>
+<tr>
+<td>2</td>
+<td>100,000</td>
+<td>25%</td>
+</tr>
+<tr>
+<td>3</td>
+<td>250,000</td>
+<td>20%</td>
+</tr>
+<tr>
+<td>4</td>
+<td>500,000</td>
+<td>15%</td>
+</tr>
+<tr>
+<td>5</td>
+<td>1,000,000</td>
+<td>10%</td>
+</tr>
+</tbody>
+</table>
+<p>按这一套，单张卡的期望价值是 0.30 × 50,000 + 0.25 × 100,000 + 0.20 × 250,000 + 0.15 × 500,000 + 0.10 × 1,000,000 = 265,000，一包 6 张就是 159 万。第三道，黄金转化：每张卡都有概率转成黄金卡，价值是普通卡的 100 倍。只算普通卡和黄金卡，黄金概率每加 1 个百分点，单包期望就多 6 × 265,000 × 99 × 0.01 = 1,574,100，接近基线本身。这个旋钮是按百分点计价的。张数的权重、等级的概率、黄金的概率和倍率，全部可配置。</p>
+<h2 id="heading-1">软保底</h2>
+<p>三道随机管的是一包能开出多少价值，保底管的是另一件事：集齐。一共 120 个卡槽，越到后面，开出来的重复卡越多。重复卡对集卡进度没有贡献——所以系统在重复上挂了一个计数器：每连续开出一张重复卡，保底概率加 10%（步长可配置），连续 1 张是 10%，连续 5 张是 50%，十张封顶 100%。只要拿到一张非重复卡，或者拿到一张普通 Lucky 卡、一张黄金 Lucky 卡，概率就重置为 0%。</p>
+<p>这个计数器有多硬，可以算。最坏的情况是开出来的每一张都是重复卡，这时连吃十张重复还没被接住的概率是 0.9 × 0.8 × 0.7 × … × 0.1，约 0.036%，第十一张必然触发。保底触发之后，还要再随机一次：八成发一张个人缺失卡，两成发一张普通 Lucky 卡。八成落在个人缺失卡上，兜底的主路是补玩家自己缺的那张。玩家手上已经没有任何个人缺失卡时，随机给一张，这种情况同样把保底概率重置为 0%。</p>
+<h2 id="heading-2">硬保底与跨天</h2>
+<p>软保底管的是单张卡的重复，硬保底管的是 Lucky 卡。买礼包有概率拿到普通 Lucky 卡和黄金 Lucky 卡，拿不到的时候，有两个独立的计数器各管一档礼包：连续 N 次购买普通礼包都没拿到普通 Lucky 卡，第 N+1 次必给一张；连续 N 次购买高级礼包都没拿到黄金 Lucky 卡，第 N+1 次必给一张黄金 Lucky 卡。两个硬保底触发时，都会把软保底的概率重置为 0%。N 的力度不是线性的，上一篇的模拟里（演示口径），K 从 14 收到 4，单包期望涨了 55%，调参先动它。</p>
+<p>最后一条是时间规则：每个玩家每天购买这个礼包的次数有上限，隔天重置。但保底概率不重置，跨天继承。玩家今天重复卡吃得多，攒下的保底概率明天还在，限购清掉的是次数，不是运气。</p>
+<h2 id="heading-3">商业化上</h2>
+<p>这一整套规则没有一条是写死的：张数的权重、等级的概率、黄金的概率和倍率、软保底的步长、兜底的三个比例、硬保底的 N、每天的购买上限，全部可配置。同品类产品的集卡礼包结构大同小异，结构抄得走，参数和调参的手感抄不走。给多少不能拍脑袋，上一篇的模拟器就是为这件事做的：每动一个旋钮，先看单包期望往哪边走，再进测试。</p>
+<p>拆开看，一个礼包卖出去，玩家拿到的是三样东西：一笔确定的基础金币，一串按期望算得出价值的卡，和一个会跨天累积的保底计数。前两样决定这个礼包值多少钱，第三样是给运气差的玩家的：今天的重复卡不白吃，攒下的保底概率明天还在。每日限购压的是单日的量，普通礼包和高级礼包各带一个硬保底，两档各有各的保底承诺。</p>
+<h2 id="heading-4">最后</h2>
+<p>一个礼包里其实有两套账：价值用期望管，进度用保底管。开几张、几级、是不是黄金，这三道随机只改变一包值多少，每一包都有进账，算清期望就够了。重复卡和 Lucky 卡不一样，它们决定的是集卡进度往前走了没有，坏运气可以连续发生，所以每一个旁边都站着一个计数器；软保底攒下的概率，还跨天不清零。</p>
+<p><a href="https://xlmm.github.io/post/what-do-designers-design/">《设计什么》</a>里写过，保底是设计者在说：玩家的投入值一个底线。这套规则把这句话落成了三个计数器。加一个随机源很容易，难的是问一句：这个随机连续十次都不站在玩家这边的时候，谁来接住。想清楚了再上。</p>
+<p>以上，是本次要分享的。<br />
+顺颂时祺<br />
+2026 年 11 月 24 日<br />
+Lucas</p>
+]]></description>
+      <category>游戏设计</category>
+      <category>数值</category>
+      <category>概率</category>
+    </item>
     <item>
       <title>礼包数值，跑出来</title>
       <link>https://xlmm.github.io/post/gift-pack-value-simulator/</link>
@@ -1265,597 +1331,6 @@ Lucas</p>
 Lucas</p>
 ]]></description>
       <category>游戏设计</category>
-    </item>
-    <item>
-      <title>Lucas AI 技能与 Agent 完全操作手册</title>
-      <link>https://xlmm.github.io/post/lucas-ai-skill-agent-handbook/</link>
-      <guid isPermaLink="true">https://xlmm.github.io/post/lucas-ai-skill-agent-handbook/</guid>
-      <pubDate>Fri, 22 May 2026 17:39:43 +0800</pubDate>
-      <description><![CDATA[<h1 id="lucas-ai--agent-">Lucas AI 技能与 Agent 完全操作手册</h1>
-<blockquote>
-<p>覆盖 67 个 Skills（54 全局 + 13 本地）和 10 种 Agent 类型的完整使用指南。<br />
-基于 2026-05-17 实际安装状态编写，每项均标注触发方式、适用场景和你的使用频率。</p>
-</blockquote>
-<hr />
-<h2 id="heading">一、总览</h2>
-<table>
-<thead>
-<tr>
-<th>分类</th>
-<th>数量</th>
-<th>说明</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>PAI 思维技能</td>
-<td>16</td>
-<td>Algorithm 闭合枚举的思考能力</td>
-</tr>
-<tr>
-<td>PAI 系统技能</td>
-<td>15</td>
-<td>PAI 基础设施和维护</td>
-</tr>
-<tr>
-<td>Lucas 自定义技能</td>
-<td>14</td>
-<td>个人化工具和思维框架</td>
-</tr>
-<tr>
-<td>生产力/开发</td>
-<td>10</td>
-<td>日常开发和质量工具</td>
-</tr>
-<tr>
-<td>飞书/协作</td>
-<td>7</td>
-<td>Lark CLI 集成</td>
-</tr>
-<tr>
-<td>数据/研究</td>
-<td>5</td>
-<td>信息获取和分析</td>
-</tr>
-<tr>
-<td>Agent 类型</td>
-<td>10</td>
-<td>可派发的专业代理</td>
-</tr>
-</tbody>
-</table>
-<hr />
-<h2 id="pai-16-">二、PAI 思维技能（16 项）</h2>
-<p>Algorithm v6.3.0 闭合枚举，Algorithm 根据任务需要自动选用。</p>
-<h3 id="21-">2.1 深度分析类</h3>
-<p><strong>IterativeDepth</strong> — 对同一问题进行 2-8 轮不同科学视角的结构化多角度分析。4 轮通常能发现比直接分析多 30-50% 的需求。</p>
-<ul>
-<li>触发：<code>iterative depth</code>, <code>multi-angle</code>, <code>deep dive</code>, <code>what am I missing</code></li>
-<li>适用：有预算的重要任务、从未做过的任务</li>
-</ul>
-<p><strong>ApertureOscillation</strong> — 3 轮范围振荡（窄/战术 → 宽/战略 → 综合），暴露单一缩放级别不可见的设计张力。</p>
-<ul>
-<li>触发：<code>aperture oscillation</code>, <code>zoom in/out</code>, <code>tactical vs strategic</code>, <code>scope negotiation</code></li>
-<li>适用：架构决策、功能需对齐系统愿景时</li>
-</ul>
-<p><strong>SystemsThinking</strong> — 冰山模型、因果循环图、Meadows 12 杠杆点分析复杂系统结构。</p>
-<ul>
-<li>触发：<code>systems thinking</code>, <code>causal loop</code>, <code>leverage points</code>, <code>why does this keep happening</code></li>
-<li>适用：反复出现的问题、&ldquo;修复&quot;产生新问题、大规模干预前</li>
-</ul>
-<p><strong>RootCauseAnalysis</strong> — Five Whys / 鱼骨图 / 故障树 / IS-IS NOT 结构化事故调查。核心公理：人不是根因，系统允许错误发生。</p>
-<ul>
-<li>触发：<code>root cause</code>, <code>RCA</code>, <code>5 whys</code>, <code>fishbone</code>, <code>postmortem</code>, <code>incident analysis</code></li>
-<li>适用：事故调查、反复缺陷、事后复盘</li>
-</ul>
-<h3 id="22-">2.2 创意生成类</h3>
-<p><strong>BeCreative</strong> — 通过 Verbalized Sampling 发散生成，单次产出 5 个多样候选，选最强。7 种工作流（标准/最大/树状/领域/技术/SyntheticData）。</p>
-<ul>
-<li>触发：<code>be creative</code>, <code>brainstorm</code>, <code>divergent ideas</code>, <code>tree of thoughts</code>, <code>unconventional approach</code></li>
-<li>适用：需要创意脑暴、非传统方案、扩展数据集</li>
-</ul>
-<p><strong>Ideate</strong> — 进化式 9 阶段多周期创意引擎（消费/做梦/白日梦/沉思/偷窃/交配/测试/进化/元学习），产出真正新颖的想法。</p>
-<ul>
-<li>触发：<code>ideate</code>, <code>novel ideas</code>, <code>evolve ideas</code>, <code>innovate</code>, <code>breakthrough ideas</code></li>
-<li>适用：需要突破性想法、有充足预算、BeCreative 不够时</li>
-</ul>
-<h3 id="23-">2.3 推理框架类</h3>
-<p><strong>FirstPrinciples</strong> — 马斯克式物理学推理：拆解到基本真理 → 挑战每个假设 → 从零重建。三步：DECONSTRUCT / CHALLENGE / RECONSTRUCT。</p>
-<ul>
-<li>触发：<code>first principles</code>, <code>fundamental truths</code>, <code>challenge assumptions</code>, <code>rebuild from scratch</code></li>
-<li>适用：挑战&quot;这真是约束还是习惯&rdquo;、从零重建设计</li>
-</ul>
-<p><strong>Science</strong> — 科学方法作为通用算法：定目标 → 生成至少 3 个假设 → 设计可证伪实验 → 诚实测量 → 迭代。</p>
-<ul>
-<li>触发：<code>experiment</code>, <code>hypothesis</code>, <code>science</code>, <code>how do we test</code></li>
-<li>适用：需要严格验证、快速诊断、设计实验</li>
-</ul>
-<h3 id="24-">2.4 对抗与辩论类</h3>
-<p><strong>Council</strong> — 多智能体辩论，为每个话题临时组建定制领域专家团，多轮可见对话产生智力摩擦。</p>
-<ul>
-<li>触发：<code>council</code>, <code>debate</code>, <code>multiple perspectives</code>, <code>weigh options</code>, <code>what would experts say</code></li>
-<li>适用：复杂决策需多领域视角、重要策略审议</li>
-</ul>
-<p><strong>RedTeam</strong> — 32 并行专家对抗分析，攻击想法弱点，产出钢人论证 + 反论证。找弱点，非找人错。</p>
-<ul>
-<li>触发：<code>red team</code>, <code>attack idea</code>, <code>counterarguments</code>, <code>stress test</code>, <code>devil's advocate</code></li>
-<li>适用：压力测试策略、投入前&quot;打孔找问题&quot;</li>
-</ul>
-<h3 id="25-">2.5 质量与评估类</h3>
-<p><strong>Evals</strong> — AI Agent 评测框架，三种评分器（代码/模型/人类）+ pass@k 评分。</p>
-<ul>
-<li>触发：<code>eval</code>, <code>benchmark</code>, <code>regression test</code>, <code>compare models</code>, <code>pass@k</code></li>
-<li>适用：运行评测、对比模型/prompt、回归测试</li>
-</ul>
-<p><strong>BitterPillEngineering</strong> — 审计 AI 指令集过度提示，五问每条规则，分类为 CUT/RESOLVE/MERGE/KEEP 等。核心原则：越少脚手架 = 越好输出。</p>
-<ul>
-<li>触发：<code>BPE</code>, <code>bitter pill</code>, <code>audit setup</code>, <code>over-prompting</code>, <code>trim instructions</code></li>
-<li>适用：清理 CLAUDE.md、检查冗余规则、token 浪费统计</li>
-</ul>
-<h3 id="26-">2.6 全局视角类</h3>
-<p><strong>WorldThreatModel</strong> — 对抗 11 个时间跨度（6 月到 50 年）的世界模型，含地缘政治/技术/经济/社会/环境/安全/野卡。</p>
-<ul>
-<li>触发：<code>world model</code>, <code>test idea</code>, <code>future analysis</code>, <code>time horizon</code>, <code>long-term risk</code></li>
-<li>适用：评估长期策略韧性、高风险战略决策</li>
-</ul>
-<p><strong>ContextSearch</strong> — 两阶段上下文搜索（会话注册表 → git 历史），冷启动恢复。</p>
-<ul>
-<li>触发：<code>context search</code>, <code>prior work</code>, <code>previous sessions</code>, <code>cold start</code>, <code>resume</code></li>
-<li>适用：恢复中断工作、查找之前 session</li>
-</ul>
-<h3 id="27-">2.7 核心原语</h3>
-<p><strong>ISA</strong> — 理想状态工件，将&quot;完成&quot;表达为可测试标准（ISC）。Algorithm 在 OBSERVE 阶段自动调用。</p>
-<ul>
-<li>触发：<code>ideal state</code>, <code>ISA</code>, <code>ISC</code>, <code>project spec</code>, <code>articulating done</code></li>
-<li>适用：明确&quot;什么算做完&quot;、搭建项目规格</li>
-</ul>
-<p><strong>Fabric</strong> — 240+ 专门化 prompt 模式库（提取/总结/分析/创作/改进/安全/评分）。</p>
-<ul>
-<li>触发：<code>fabric</code>, <code>extract_wisdom</code>, <code>summarize</code>, <code>analyze claims</code>, <code>improve writing</code>, <code>create mermaid diagram</code></li>
-<li>适用：从内容提取智慧、威胁建模、改进写作、代码审查、创建图表</li>
-</ul>
-<hr />
-<h2 id="pai-15-">三、PAI 系统/基础设施技能（15 项）</h2>
-<p>PAI Life OS 的运维和管理工具。</p>
-<p><strong>ISA</strong> — Algorithm 核心，每次任务自动调用。12 节锁定结构，ISC 作为可测试标准。</p>
-<p><strong>PAIUpgrade</strong> — PAI 自升级机制。4 并行线程（历史审计 + 用户上下文 + 来源收集 + 内部反思）生成优先级排序的升级建议。定期跑。</p>
-<ul>
-<li>触发：<code>upgrade</code>, <code>PAI upgrade</code>, <code>check Anthropic</code>, <code>algorithm upgrade</code></li>
-</ul>
-<p><strong>Agents</strong> — 自定义代理组合系统。通过基础特质 + 语音 + 专长组合定制代理。</p>
-<ul>
-<li>触发：<code>custom agents</code>, <code>compose agent</code>, <code>agent voices</code></li>
-<li>注意：代理团队/群集用 Delegation</li>
-</ul>
-<p><strong>Delegation</strong> — 6 种并行模式：内置代理、工作树隔离、后台、自定义、团队、并行分发。3+ 独立工作流时 Algorithm 自动调用。</p>
-<ul>
-<li>触发：<code>parallel execution</code>, <code>agent team</code>, <code>spawn agents</code>, <code>fan out</code>, <code>divide and conquer</code></li>
-</ul>
-<p><strong>Knowledge</strong> — PAI 知识档案管理，4 域（人物/公司/想法/研究），支持搜索/添加/收割/开发/导入/矛盾检测/图谱导航。</p>
-<ul>
-<li>触发：<code>knowledge</code>, <code>knowledge base</code>, <code>search knowledge</code>, <code>add to knowledge</code></li>
-</ul>
-<p><strong>CreateSkill</strong> — PAI 技能开发生命周期：结构轨道（scaffold/validate/canonicalize）+ 效果轨道（test/improve/optimize）。</p>
-<ul>
-<li>触发：<code>create skill</code>, <code>new skill</code>, <code>validate skill</code>, <code>improve skill</code></li>
-</ul>
-<p><strong>Prompting</strong> — 元提示词标准库。Handlebars 模板系统 + RenderTemplate.ts。产出 prompt，非最终内容。</p>
-<ul>
-<li>触发：<code>meta-prompting</code>, <code>template generation</code>, <code>prompt engineering</code>, <code>write a prompt for</code></li>
-</ul>
-<p><strong>Interview</strong> — 分阶段对话式访谈遍历所有 PAI 上下文文件（TELOS → IDEAL_STATE → 偏好 → 身份）。</p>
-<ul>
-<li>触发：<code>/interview</code>, <code>start interview</code>, <code>review TELOS</code>, <code>quarterly context refresh</code></li>
-</ul>
-<p><strong>Telos</strong> — 人生操作系统与项目分析：管理目标/信仰/智慧/书籍/电影，McKinsey 式报告和仪表盘。</p>
-<ul>
-<li>触发：<code>Telos</code>, <code>life goals</code>, <code>projects</code>, <code>books</code>, <code>beliefs</code>, <code>wisdom</code></li>
-</ul>
-<p><strong>Migrate</strong> — 从外部来源导入内容，按 PAI 分类自动路由（≥70% 自动，40-70% 确认，&lt;40% 引导）。</p>
-<ul>
-<li>触发：<code>/migrate</code>, <code>migrate content</code>, <code>import</code>, <code>bulk import</code></li>
-</ul>
-<p><strong>Loop</strong> — 迭代改进循环，多轮 Algorithm 周期，每轮间人工审核。</p>
-<ul>
-<li>触发：<code>loop</code>, <code>iterate</code>, <code>refine</code>, <code>multiple passes</code>, <code>keep improving</code></li>
-</ul>
-<p><strong>Optimize</strong> — 自主优化循环，代码用指标驱动，技能/prompt 用 LLM-as-judge 评估。</p>
-<ul>
-<li>触发：<code>optimize</code>, <code>hill climb</code>, <code>improve performance</code>, <code>benchmark</code></li>
-</ul>
-<p><strong>Daemon</strong> — 管理公共数字形象，自动聚合 PAI 内容，安全过滤后发布。</p>
-<ul>
-<li>触发：<code>daemon</code>, <code>update daemon</code>, <code>daemon profile</code>, <code>deploy daemon</code></li>
-</ul>
-<p><strong>Security</strong> — 安全评估：网络侦察、Web 应用测试、提示注入测试、安全新闻监控。</p>
-<ul>
-<li>触发：<code>recon</code>, <code>port scan</code>, <code>pentest</code>, <code>OWASP</code>, <code>prompt injection</code>, <code>security news</code></li>
-</ul>
-<p><strong>Thinking</strong> — 多模式思维路由枢纽，将请求分发到 FirstPrinciples / IterativeDepth / BeCreative / Council / RedTeam / WorldThreatModel / Science。</p>
-<ul>
-<li>触发：任何上述子技能的关键词均可触发</li>
-</ul>
-<hr />
-<h2 id="lucas-14-">四、Lucas 自定义技能（14 项）</h2>
-<p>你的个人化工具和思维框架，安装在 vault 本地。</p>
-<h3 id="41-">4.1 核心思维</h3>
-<p><strong>lucas-perspective</strong> ⭐ 高频（9次/月）</p>
-<ul>
-<li>你的思维操作系统。基于日志、文章、工作文档提炼的 5 个心智模型 + 8 条决策启发式。</li>
-<li>触发：<code>用 Lucas 的视角</code>, <code>Lucas 会怎么看</code>, <code>lucas perspective</code></li>
-<li>流程：问题分类 → Lucas 式研究（留存结构/经济闭环/竞品分析/溯源/可证伪性）→ Lucas 式回答（拆问题/找同构/给判断/留局限）</li>
-<li>适用：游戏数值/商业化审视、需求定义前置检查、长期 vs 短期权衡</li>
-</ul>
-<p><strong>council-of-minds</strong> ⭐ 偶尔用</p>
-<ul>
-<li>五位思想家联合智库：费曼、乔布斯、芒格、马斯克、张一鸣。从各自视角分析，允许互相反驳。</li>
-<li>触发：<code>五位视角</code>, <code>智库分析</code>, <code>council</code>, <code>多角度分析</code></li>
-<li>输出：判决台 → 五人陈词 → 断层线 → 悬而未决</li>
-</ul>
-<p><strong>clarify</strong></p>
-<ul>
-<li>维特根斯坦 + 苏格拉底 + 波兰尼哲学融合的命题分解系统。Prompt 模式把模糊想法变精准指令；Decision 模式帮你理清纠结。</li>
-<li>触发：<code>/clarify</code>，或指令表述不清晰、面临纠结决策时</li>
-</ul>
-<h3 id="42-">4.2 内容创作</h3>
-<p><strong>humanizer-zh</strong> ⭐ 高频（12次/月）</p>
-<ul>
-<li>去除中文文本 AI 痕迹。识别 24 种 AI 模式 → 重写 → 保留含义 → 维持语调 → 注入灵魂。</li>
-<li>触发：<code>编辑文本</code>, <code>去除AI痕迹</code>, <code>人性化</code>, <code>改写得更自然</code></li>
-</ul>
-<p><strong>content-research-writer</strong></p>
-<ul>
-<li>深度研究式长文写作搭档。理解 → 评估 → 研究 → 大纲 → 逐节丰富 → 审查 → 交付。</li>
-<li>触发：<code>help me write</code>, <code>polish this article</code>, <code>add depth</code>, <code>refine this essay</code></li>
-</ul>
-<p><strong>ljg-card</strong> — 内容铸成 PNG 视觉卡片。六种模具：长图(-l)/信息图(-i)/多卡(-m)/视觉笔记(-v)/漫画(-c)/白板(-w)。</p>
-<ul>
-<li>触发：<code>铸</code>, <code>cast</code>, <code>做成图</code>, <code>做成卡片</code>, <code>视觉笔记</code>, <code>漫画</code></li>
-</ul>
-<p><strong>ljg-paper</strong> — 为非学术读者读论文。费曼式翻译 → 核心概念拆解 → 提炼洞见 → 博导审稿。</p>
-<ul>
-<li>触发：<code>读论文</code>, <code>分析论文</code>, <code>paper</code>, arxiv 链接</li>
-</ul>
-<p><strong>ljg-xray-book</strong> — 深度拆书机。三轮认知压缩（骨架扫描/血肉解剖/灵魂提取）→ 餐巾纸压缩（公式/图/一句话）。</p>
-<ul>
-<li>触发：<code>/ljg-xray-book 《书名》</code></li>
-</ul>
-<h3 id="43-">4.3 平台工具</h3>
-<p><strong>weread-skills</strong> — 微信读书助手。搜书/书架/笔记划线/书评/阅读统计/推荐好书。</p>
-<ul>
-<li>触发：<code>搜书</code>, <code>看看书架</code>, <code>导出笔记</code>, <code>阅读统计</code></li>
-</ul>
-<p><strong>obsidian-cli</strong> ⭐ 偶尔用（2次/月）</p>
-<ul>
-<li>通过 CLI 操作 Obsidian：读/写/搜索/属性管理/插件开发调试。</li>
-<li>触发：<code>操作 Obsidian</code>, <code>管理笔记</code>, <code>搜索笔记</code>, <code>Obsidian 插件开发</code></li>
-</ul>
-<p><strong>nuwa</strong>（女娲）</p>
-<ul>
-<li>输入人名或模糊需求 → 自动深度调研 → 生成可运行的人物思维 Skill。9 阶段流程。</li>
-<li>触发：<code>造skill</code>, <code>蒸馏XX</code>, <code>女娲</code>, <code>XX的思维方式</code>, <code>做个XX视角</code></li>
-</ul>
-<p><strong>bazi-skill</strong>（八字）⭐ 偶尔用（1次/月）</p>
-<ul>
-<li>四柱八字命理分析。交互式收集出生信息 → 排盘 → 综合解读（日主/十神/五行/格局/大运/流年）。</li>
-<li>触发：<code>算八字</code>, <code>看八字</code>, <code>排盘</code>, <code>算命</code>, <code>bazi</code>, <code>看运势</code></li>
-</ul>
-<p><strong>alphaear-news</strong> — 实时财经新闻、多源趋势汇总、Polymarket 预测市场数据。</p>
-<ul>
-<li>触发：<code>实时财经新闻</code>, <code>热点</code>, <code>趋势</code>, <code>Polymarket</code></li>
-</ul>
-<p><strong>autoresearch</strong> — Karpathy 方法论自主优化 Skill。生成 → 评分 → 变异 → 择优循环。</p>
-<ul>
-<li>触发：<code>优化这个 skill</code>, <code>improve this skill</code>, <code>run autoresearch</code></li>
-</ul>
-<p><strong>Investigation</strong>（本地）— OSINT 和人员调查统一入口，路由到 OSINT 或 PrivateInvestigator。</p>
-<ul>
-<li>触发：<code>OSINT</code>, <code>due diligence</code>, <code>background check</code>, <code>find person</code></li>
-</ul>
-<hr />
-<h2 id="10-">五、生产力/开发工具（10 项）</h2>
-<p>日常开发和质量保障。</p>
-<p><strong>check</strong> — 代码审查与发布闭环。审查 diff → 自动修复安全项 → 驱动 ship/release/issue。</p>
-<ul>
-<li>触发：<code>review</code>, <code>检查一下</code>, <code>代码 review</code>, <code>release</code>, <code>publish</code></li>
-</ul>
-<p><strong>hunt</strong> — 找根因而非修症状。提假设 → 验证 → 定根因。支持 git bisect 二分、截图回归对照、举一反三。</p>
-<ul>
-<li>触发：<code>排查</code>, <code>报错</code>, <code>崩溃</code>, <code>不工作</code>, <code>regression</code>, <code>debug</code></li>
-</ul>
-<p><strong>design</strong> — 产出有观点的生产级 UI，截图迭代打磨。五问方向锁定 + 品牌预设。</p>
-<ul>
-<li>触发：<code>设计</code>, <code>做页面</code>, <code>不好看</code>, <code>UI</code>, <code>screenshot</code>, <code>make it look good</code></li>
-</ul>
-<p><strong>kami</strong>（纸）— 专业文档排版。简历/一页纸/白皮书/信件/作品集/PPT/落地页。羊皮纸底 + 靛蓝强调 + 衬线层级。</p>
-<ul>
-<li>触发：<code>做 PDF</code>, <code>排版</code>, <code>简历</code>, <code>一页纸</code>, <code>白皮书</code>, <code>PPT</code>, <code>landing page</code></li>
-</ul>
-<p><strong>read</strong> ⭐ 高频（10次/月）</p>
-<ul>
-<li>任意 URL/PDF 转干净 Markdown。支持付费墙/JS 重页面/国内平台。只提取不做分析。</li>
-<li>触发：<code>看这个链接</code>, <code>读一下</code>, <code>抓取网页</code>, <code>read this</code>, <code>fetch this page</code></li>
-</ul>
-<p><strong>agent-reach</strong> ⭐ 偶尔用（3次/月）</p>
-<ul>
-<li>一站式 13+ 平台搜索工具：Twitter/X、小红书、B站、YouTube、GitHub、Reddit、微信公众号、LinkedIn、Boss直聘、RSS、Exa。</li>
-<li>触发：<code>搜推特</code>, <code>搜小红书</code>, <code>上网搜</code>, <code>帮我查</code>, <code>web search</code></li>
-</ul>
-<p><strong>health</strong> — Agent 健康度审计。检查指令/MCP/验证/AI 代码可维护性，按严重等级标记。</p>
-<ul>
-<li>触发：<code>检查 claude</code>, <code>配置检查</code>, <code>健康度</code>, <code>audit config</code></li>
-</ul>
-<p><strong>ContentAnalysis</strong> — 从视频/播客/文章/YouTube 中提取智慧和洞察。</p>
-<ul>
-<li>触发：<code>extract wisdom</code>, <code>content analysis</code>, <code>analyze video</code>, <code>insight report</code></li>
-</ul>
-<p><strong>Aphorisms</strong> — 精选格言 CRUD 系统。按内容/主题/思想家匹配，12+ 主题分类。</p>
-<ul>
-<li>触发：<code>aphorism</code>, <code>找格言</code>, <code>find a quote</code>, <code>research thinker</code></li>
-</ul>
-<p><strong>Media</strong> — 视觉内容创作：插画/图表/Mermaid 流程图/信息图/头图/漫画 + Remotion 程序化视频。</p>
-<ul>
-<li>触发：<code>art</code>, <code>header images</code>, <code>diagrams</code>, <code>mermaid</code>, <code>flowcharts</code>, <code>video</code>, <code>Remotion</code></li>
-</ul>
-<hr />
-<h2 id="7-">六、飞书/协作（7 项）</h2>
-<p>Lark CLI 集成，你在工作中高频使用。</p>
-<p><strong>lark-base</strong> — 飞书多维表格全操作：建表/字段管理/记录读写/视图配置/公式字段/跨表计算/工作流/仪表盘/权限。</p>
-<ul>
-<li>触发：<code>多维表格</code>, <code>Base</code>, <code>bitable</code>, <code>字段管理</code></li>
-</ul>
-<p><strong>lark-doc</strong> ⭐⭐ 超高频（24次/月）</p>
-<ul>
-<li>飞书云文档 v2：创建/读取/编辑。DocxXML/Markdown，三种导出详细度，五种读取模式，八种更新指令。</li>
-<li>触发：<code>创建文档</code>, <code>编辑文档</code>, <code>飞书文档</code>, <code>搜索文档</code></li>
-</ul>
-<p><strong>lark-shared</strong> — lark-cli 基础：配置初始化、认证登录、身份切换、权限 scope 管理。所有 lark-* 的前置依赖。</p>
-<ul>
-<li>触发：<code>配置初始化</code>, <code>认证登录</code>, <code>权限不足</code>, <code>auth login</code></li>
-</ul>
-<p><strong>lark-wiki</strong> ⭐ 偶尔用（3次/月）</p>
-<ul>
-<li>知识空间管理：创建/查询/删除、成员管理（用户/群/部门三种类型）、节点层级管理。</li>
-<li>触发：<code>知识库</code>, <code>知识空间</code>, <code>Wiki</code>, <code>空间成员</code></li>
-</ul>
-<p><strong>lark-whiteboard</strong> — 飞书画板：导出预览/原始节点、DSL/PlantUML/Mermaid 更新内容。</p>
-<ul>
-<li>触发：<code>画板</code>, <code>whiteboard</code>, <code>可视化</code>, <code>流程图</code>, <code>架构图</code>, <code>Mermaid</code></li>
-</ul>
-<p><strong>lark-whiteboard-cli</strong> — 已被 lark-whiteboard 合并取代。建议删除：<code>npx skills remove lark-whiteboard-cli -g</code></p>
-<p><strong>lark-skill-maker</strong> — 把飞书 API 封装成可复用 Skill。调研 API → 确定参数 → 按模板编写。</p>
-<ul>
-<li>触发：<code>创建 Skill</code>, <code>封装 API</code>, <code>自定义 Skill</code></li>
-</ul>
-<hr />
-<h2 id="5-">七、数据/研究（5 项）</h2>
-<p><strong>Research</strong> ⭐ 偶尔用（3次/月）</p>
-<ul>
-<li>综合研究系统：Quick(1 agent) / Standard(3,默认) / Extensive(12) / Deep(迭代) 四种模式。</li>
-<li>触发：<code>research</code>, <code>do research</code>, <code>quick research</code>, <code>deep investigation</code></li>
-</ul>
-<p><strong>Scraping</strong> — 四层渐进式爬取（Bright Data）+ 社交媒体抓取（Apify：Twitter/Instagram/LinkedIn/TikTok 等）。</p>
-<ul>
-<li>触发：<code>scraping</code>, <code>Bright Data</code>, <code>crawl</code>, <code>scrape</code>, <code>Apify</code></li>
-</ul>
-<p><strong>Investigation</strong>（全局）— OSINT/尽职调查/公司情报/人员搜索。</p>
-<ul>
-<li>触发：<code>OSINT</code>, <code>due diligence</code>, <code>company intel</code>, <code>find person</code></li>
-</ul>
-<p><strong>USMetrics</strong> — 68 项美国经济指标（FRED/EIA/Treasury/BLS/Census），趋势分析和跨指标关联。</p>
-<ul>
-<li>触发：<code>GDP</code>, <code>inflation</code>, <code>unemployment</code>, <code>economic metrics</code>, <code>FRED</code></li>
-</ul>
-<hr />
-<h2 id="agent-10-">八、Agent 类型（10 种）</h2>
-<p>可派发的专业代理，通过 Agent 工具或 Algorithm 自动调用。</p>
-<h3 id="81-">8.1 工作角色代理</h3>
-<table>
-<thead>
-<tr>
-<th>Agent</th>
-<th>角色</th>
-<th>何时使用</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><strong>Architect</strong></td>
-<td>软件架构专家</td>
-<td>设计架构、技术决策、需满足 ISC 标准</td>
-</tr>
-<tr>
-<td><strong>Engineer</strong></td>
-<td>高级工程负责人</td>
-<td>编码实现、TDD 方法论、质量门禁</td>
-</tr>
-<tr>
-<td><strong>Designer</strong></td>
-<td>精英 UX/UI 设计师</td>
-<td>界面设计、高保真原型、像素级精度</td>
-</tr>
-<tr>
-<td><strong>Artist</strong></td>
-<td>视觉内容创作者</td>
-<td>配图、图表、出版级设计素材</td>
-</tr>
-<tr>
-<td><strong>QA Tester</strong></td>
-<td>质量验证代理</td>
-<td>最终功能验证，唯一工具是浏览器自动化，实现第五关</td>
-</tr>
-</tbody>
-</table>
-<h3 id="82-">8.2 研究员代理</h3>
-<table>
-<thead>
-<tr>
-<th>Agent</th>
-<th>别名</th>
-<th>特点</th>
-<th>何时使用</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><strong>ClaudeResearcher</strong></td>
-<td>Ava Sterling</td>
-<td>学术研究，多查询分解综合</td>
-<td>结构化学术研究、文献综合</td>
-</tr>
-<tr>
-<td><strong>CodexResearcher</strong></td>
-<td>Remy</td>
-<td>技术考古，多模型咨询</td>
-<td>深度技术调研、代码库分析</td>
-</tr>
-<tr>
-<td><strong>GeminiResearcher</strong></td>
-<td>Alex Rivera</td>
-<td>多角度并行（3-10 变体）</td>
-<td>全面主题覆盖、多观点</td>
-</tr>
-<tr>
-<td><strong>PerplexityResearcher</strong></td>
-<td>Ava Chen</td>
-<td>三级交叉验证，新闻严谨度</td>
-<td>事实核查、调查类研究</td>
-</tr>
-<tr>
-<td><strong>GrokResearcher</strong></td>
-<td>Johannes</td>
-<td>逆反求真，无偏见分析</td>
-<td>逆反性观点、破除偏见</td>
-</tr>
-</tbody>
-</table>
-<h3 id="83-">8.3 代理类型对比</h3>
-<table>
-<thead>
-<tr>
-<th>类型</th>
-<th>持久性</th>
-<th>适合</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><strong>内置代理</strong>（Architect/Engineer/&hellip;）</td>
-<td>无状态</td>
-<td>单次专业任务</td>
-</tr>
-<tr>
-<td><strong>命名代理</strong>（Named Agents）</td>
-<td>持久化身份</td>
-<td>重复性研究、语音输出</td>
-</tr>
-<tr>
-<td><strong>动态代理</strong>（Dynamic Agents）</td>
-<td>即用即弃</td>
-<td>一次性新组合、大量并行</td>
-</tr>
-</tbody>
-</table>
-<hr />
-<h2 id="heading-1">九、快速场景索引</h2>
-<h3 id="heading-2">日常写作</h3>
-<p>humanizer-zh → content-research-writer → read → kami</p>
-<h3 id="heading-3">游戏设计决策</h3>
-<p>lucas-perspective → council-of-minds → SystemsThinking → ApertureOscillation</p>
-<h3 id="heading-4">问题排查</h3>
-<p>hunt → RootCauseAnalysis → Science</p>
-<h3 id="heading-5">深度研究</h3>
-<p>Research → agent-reach → ContentAnalysis → ljg-paper</p>
-<h3 id="heading-6">飞书工作</h3>
-<p>lark-doc → lark-base → lark-wiki → lark-whiteboard</p>
-<h3 id="pai-">PAI 系统维护</h3>
-<p>PAIUpgrade → BitterPillEngineering → health → autoresearch</p>
-<h3 id="heading-7">创意突破</h3>
-<p>BeCreative → Ideate → Council → RedTeam</p>
-<h3 id="heading-8">重大决策</h3>
-<p>FirstPrinciples → WorldThreatModel → Council → lucas-perspective</p>
-<h3 id="heading-9">代码质量</h3>
-<p>check → hunt → Evals → Optimize</p>
-<h3 id="heading-10">知识管理</h3>
-<p>Knowledge → obsidian-cli → Migrate → weread-skills → ContextSearch</p>
-<hr />
-<h2 id="-top-10-">十、你的 Top 10 高频技能</h2>
-<p>基于过去 30 天实际调用数据：</p>
-<table>
-<thead>
-<tr>
-<th>排名</th>
-<th>技能</th>
-<th>调用次数</th>
-<th>分类</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>1</td>
-<td>lark-doc</td>
-<td>24</td>
-<td>飞书</td>
-</tr>
-<tr>
-<td>2</td>
-<td>humanizer-zh</td>
-<td>12</td>
-<td>自定义</td>
-</tr>
-<tr>
-<td>3</td>
-<td>read</td>
-<td>10</td>
-<td>工具</td>
-</tr>
-<tr>
-<td>4</td>
-<td>ISA</td>
-<td>9</td>
-<td>PAI 核心</td>
-</tr>
-<tr>
-<td>5</td>
-<td>lucas-perspective</td>
-<td>9</td>
-<td>自定义</td>
-</tr>
-<tr>
-<td>6</td>
-<td>kami</td>
-<td>4</td>
-<td>工具</td>
-</tr>
-<tr>
-<td>7</td>
-<td>Research</td>
-<td>3</td>
-<td>研究</td>
-</tr>
-<tr>
-<td>8</td>
-<td>agent-reach</td>
-<td>3</td>
-<td>工具</td>
-</tr>
-<tr>
-<td>9</td>
-<td>lark-wiki</td>
-<td>3</td>
-<td>飞书</td>
-</tr>
-<tr>
-<td>10</td>
-<td>update-config</td>
-<td>3</td>
-<td>系统</td>
-</tr>
-</tbody>
-</table>
-<hr />
-<p><em>本手册基于 2026-05-17 实际安装状态。技能描述来源于各 SKILL.md frontmatter 和工作流文件。共覆盖 54 全局 skill + 13 本地 skill + 10 agent 类型。</em></p>
-]]></description>
     </item>
   </channel>
 </rss>
