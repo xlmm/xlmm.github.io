@@ -486,29 +486,257 @@
                         </div>
 
                         
-                        
-                        <div class="featured">
-                            <div class="featured__label">精选写作</div>
-                            <ol class="featured__list">
-                                
-                                <li class="featured__item">
-                                    <a href="/post/when-making-games-costs-zero/">
-                                        <span class="featured__title">做游戏的成本归零之后</span>
-                                        <time class="featured__date">2026-11-18</time>
-                                    </a>
-                                </li>
-                                
-                                <li class="featured__item">
-                                    <a href="/post/what-ai-cannot-learn/">
-                                        <span class="featured__title">什么 AI 学不会</span>
-                                        <time class="featured__date">2026-07-12</time>
-                                    </a>
-                                </li>
-                                
-                            </ol>
-                            <div class="featured__meta"><a href="/post">全部文章 →</a></div>
-                        </div>
-                        
+
+
+<style>
+/* Rotating picks: only items carrying --on are shown. Inline, not in main.css: a
+   returning visitor's service worker may still hold the old stylesheet. */
+.featured__list[data-featured-rotate] .featured__item { display: none; }
+.featured__list[data-featured-rotate] .featured__item--on { display: list-item; }
+</style>
+
+<div class="featured">
+    <div class="featured__label">精选写作</div>
+    <ol class="featured__list" data-featured-rotate data-featured-count="5" data-featured-hours="4">
+        
+        <li class="featured__item featured__item--on" data-tags="游戏设计|数值|概率">
+            <a href="/post/gift-pack-rules/">
+                <span class="featured__title">礼包规则，拆开看</span>
+                <time class="featured__date">2026-11-24</time>
+            </a>
+        </li>
+        
+        <li class="featured__item featured__item--on" data-tags="游戏设计|数值|概率">
+            <a href="/post/gift-pack-value-simulator/">
+                <span class="featured__title">礼包数值，跑出来</span>
+                <time class="featured__date">2026-11-20</time>
+            </a>
+        </li>
+        
+        <li class="featured__item" data-tags="AI|游戏设计|判断力">
+            <a href="/post/when-making-games-costs-zero/">
+                <span class="featured__title">做游戏的成本归零之后</span>
+                <time class="featured__date">2026-11-18</time>
+            </a>
+        </li>
+        
+        <li class="featured__item featured__item--on" data-tags="读书笔记|经济学|判断力">
+            <a href="/post/true-fish-and-paper-fish/">
+                <span class="featured__title">真鱼与纸鱼：一条鱼的经济学</span>
+                <time class="featured__date">2026-11-16</time>
+            </a>
+        </li>
+        
+        <li class="featured__item" data-tags="游戏设计|用户体验|思考方法">
+            <a href="/post/fool-mode-acceptance/">
+                <span class="featured__title">傻逼模式验收</span>
+                <time class="featured__date">2026-11-11</time>
+            </a>
+        </li>
+        
+        <li class="featured__item" data-tags="AI|判断力|游戏设计">
+            <a href="/post/what-ai-cannot-learn/">
+                <span class="featured__title">什么 AI 学不会</span>
+                <time class="featured__date">2026-07-12</time>
+            </a>
+        </li>
+        
+        <li class="featured__item" data-tags="游戏设计|概率">
+            <a href="/post/what-do-designers-design/">
+                <span class="featured__title">设计什么</span>
+                <time class="featured__date">2026-06-28</time>
+            </a>
+        </li>
+        
+        <li class="featured__item featured__item--on" data-tags="AI">
+            <a href="/post/ask-more-questions/">
+                <span class="featured__title">需要的是提问</span>
+                <time class="featured__date">2026-05-11</time>
+            </a>
+        </li>
+        
+        <li class="featured__item featured__item--on" data-tags="思维|判断力|AI">
+            <a href="/post/judging-power-2026-april-20/">
+                <span class="featured__title">判断力</span>
+                <time class="featured__date">2026-04-20</time>
+            </a>
+        </li>
+        
+        <li class="featured__item" data-tags="AI">
+            <a href="/post/ai-assisted-engineering-methods/">
+                <span class="featured__title">AI 辅助工程</span>
+                <time class="featured__date">2026-04-20</time>
+            </a>
+        </li>
+        
+        <li class="featured__item" data-tags="游戏设计">
+            <a href="/post/retention-is-not-a-module/">
+                <span class="featured__title">留存不是模块</span>
+                <time class="featured__date">2026-03-27</time>
+            </a>
+        </li>
+        
+        <li class="featured__item" data-tags="AI|判断力">
+            <a href="/post/when-execution-devalues/">
+                <span class="featured__title">执行力贬值之后</span>
+                <time class="featured__date">2026-03-19</time>
+            </a>
+        </li>
+        
+        <li class="featured__item" data-tags="游戏设计">
+            <a href="/post/gamification-false-progress/">
+                <span class="featured__title">虚假的进步</span>
+                <time class="featured__date">2026-01-18</time>
+            </a>
+        </li>
+        
+        <li class="featured__item" data-tags="游戏设计">
+            <a href="/post/imagination/">
+                <span class="featured__title">想象力</span>
+                <time class="featured__date">2026-01-12</time>
+            </a>
+        </li>
+        
+        <li class="featured__item" data-tags="思考方法">
+            <a href="/post/high-signal-filtering/">
+                <span class="featured__title">高信噪比筛选</span>
+                <time class="featured__date">2025-12-12</time>
+            </a>
+        </li>
+        
+        <li class="featured__item" data-tags="平台治理|自由|产品设计">
+            <a href="/post/bridge-over-info-wasteland/">
+                <span class="featured__title">信息荒原上的桥梁</span>
+                <time class="featured__date">2025-10-12</time>
+            </a>
+        </li>
+        <li class="featured__item" data-tags="个人成长|信念|自我管理">
+            <a href="/post/belief-before-action/">
+                <span class="featured__title">信念先于行动</span>
+                <time class="featured__date">2025-10-01</time>
+            </a>
+        </li>
+        <li class="featured__item" data-tags="产品经理|优先级|ROI">
+            <a href="/post/value-and-impact/">
+                <span class="featured__title">价值与影响</span>
+                <time class="featured__date">2025-09-06</time>
+            </a>
+        </li>
+        <li class="featured__item" data-tags="游戏设计">
+            <a href="/post/why-grow-a-garden-is-popular/">
+                <span class="featured__title">为什么《Grow a Garden》如此受欢迎</span>
+                <time class="featured__date">2025-07-05</time>
+            </a>
+        </li>
+        <li class="featured__item" data-tags="AI|思考方法">
+            <a href="/post/hollow-cognition/">
+                <span class="featured__title">认知空洞化</span>
+                <time class="featured__date">2025-06-23</time>
+            </a>
+        </li>
+        <li class="featured__item" data-tags="产品设计|优先级|克制">
+            <a href="/post/philosophy-of-priority/">
+                <span class="featured__title">优先级哲学</span>
+                <time class="featured__date">2025-06-22</time>
+            </a>
+        </li>
+        <li class="featured__item" data-tags="教育|费曼|学习方法">
+            <a href="/post/between-name-and-behavior/">
+                <span class="featured__title">在「知道名字」与「理解行为」之间</span>
+                <time class="featured__date">2025-05-25</time>
+            </a>
+        </li>
+        <li class="featured__item" data-tags="思考方法">
+            <a href="/post/recording-as-practice/">
+                <span class="featured__title">记录即修行</span>
+                <time class="featured__date">2025-05-10</time>
+            </a>
+        </li>
+        <li class="featured__item" data-tags="个人成长|思考|动机">
+            <a href="/post/self-rescue/">
+                <span class="featured__title">所遇皆自渡</span>
+                <time class="featured__date">2025-03-13</time>
+            </a>
+        </li>
+        <li class="featured__item" data-tags="思考方法">
+            <a href="/post/create-your-way-out/">
+                <span class="featured__title">用创造突围浅薄</span>
+                <time class="featured__date">2024-12-11</time>
+            </a>
+        </li>
+        <li class="featured__item" data-tags="长期主义|产品管理|克制">
+            <a href="/post/against-entropy/">
+                <span class="featured__title">对抗熵增：长期主义与克制之道</span>
+                <time class="featured__date">2024-10-27</time>
+            </a>
+        </li>
+        <li class="featured__item" data-tags="产品管理|团队|自我反省">
+            <a href="/post/slow-is-fast/">
+                <span class="featured__title">精进不怠：慢即是快</span>
+                <time class="featured__date">2024-10-25</time>
+            </a>
+        </li>
+        <li class="featured__item" data-tags="思考方法">
+            <a href="/post/writing-to-think/">
+                <span class="featured__title">以「写」推动思考</span>
+                <time class="featured__date">2024-07-19</time>
+            </a>
+        </li>
+        <li class="featured__item" data-tags="哲学|矛盾论|产品设计">
+            <a href="/post/on-contradiction/">
+                <span class="featured__title">论矛盾</span>
+                <time class="featured__date">2024-05-26</time>
+            </a>
+        </li>
+        <li class="featured__item" data-tags="职业成长|产品经理|方法论">
+            <a href="/post/craftsman/">
+                <span class="featured__title">手艺人</span>
+                <time class="featured__date">2024-03-02</time>
+            </a>
+        </li>
+    </ol>
+    <div class="featured__meta"><a href="/post">全部文章 →</a></div>
+</div>
+
+
+<script>
+(function () {
+    // Featured rotation, visitor half. The pick is seeded by the current time slot,
+    // so it changes every data-featured-hours hours (0: on every visit) and stays
+    // put inside a slot. The build marked the defaults; this swaps them.
+    var list = document.querySelector('[data-featured-rotate]');
+    if (!list) return;
+    var items = list.querySelectorAll('.featured__item');
+    if (items.length < 2) return;
+    var count = parseInt(list.getAttribute('data-featured-count'), 10) || 5;
+    var hours = parseFloat(list.getAttribute('data-featured-hours'));
+    if (isNaN(hours) || hours < 0) hours = 4;
+    var seed = Math.floor(Date.now() / (hours > 0 ? hours * 3600000 : 1));
+    var rand = function () {
+        seed = (seed + 0x6D2B79F5) | 0;
+        var t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+        t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+    var order = [], i, j, tmp;
+    for (i = 0; i < items.length; i++) order.push(i);
+    for (i = order.length - 1; i > 0; i--) { j = Math.floor(rand() * (i + 1)); tmp = order[i]; order[i] = order[j]; order[j] = tmp; }
+    var tagsOf = function(k) { return (items[k].getAttribute('data-tags') || '').split('|').filter(Boolean); };
+    var pick = function(order, tagsOf, count) {
+            var picked = [], used = Object.create(null);
+            var blocked = function(i) { var t = tagsOf(i); for (var k = 0; k < t.length; k++) { if (used[t[k]] >= 2) return true; } return false; };
+            var take = function(i) { picked.push(i); var t = tagsOf(i); for (var k = 0; k < t.length; k++) { used[t[k]] = (used[t[k]] || 0) + 1; } };
+            for (var a = 0; a < order.length && picked.length < count; a++) { if (!blocked(order[a])) take(order[a]); }
+            for (var b = 0; b < order.length && picked.length < count; b++) { if (picked.indexOf(order[b]) === -1) take(order[b]); }
+            return picked;
+        };
+    var chosen = pick(order, tagsOf, count);
+    for (i = 0; i < items.length; i++) items[i].classList.remove('featured__item--on');
+    for (i = 0; i < chosen.length; i++) items[chosen[i]].classList.add('featured__item--on');
+})();
+</script>
+
+
 
                     </div>
 
