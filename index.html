@@ -499,14 +499,14 @@
     <div class="featured__label">精选写作</div>
     <ol class="featured__list" data-featured-rotate data-featured-count="5" data-featured-hours="4">
         
-        <li class="featured__item featured__item--on" data-tags="游戏设计|数值|概率">
+        <li class="featured__item" data-tags="游戏设计|数值|概率">
             <a href="/post/gift-pack-rules/">
                 <span class="featured__title">礼包规则，拆开看</span>
                 <time class="featured__date">2026-11-24</time>
             </a>
         </li>
         
-        <li class="featured__item featured__item--on" data-tags="游戏设计|数值|概率">
+        <li class="featured__item" data-tags="游戏设计|数值|概率">
             <a href="/post/gift-pack-value-simulator/">
                 <span class="featured__title">礼包数值，跑出来</span>
                 <time class="featured__date">2026-11-20</time>
@@ -520,14 +520,14 @@
             </a>
         </li>
         
-        <li class="featured__item featured__item--on" data-tags="读书笔记|经济学|判断力">
+        <li class="featured__item" data-tags="读书笔记|经济学|判断力">
             <a href="/post/true-fish-and-paper-fish/">
                 <span class="featured__title">真鱼与纸鱼：一条鱼的经济学</span>
                 <time class="featured__date">2026-11-16</time>
             </a>
         </li>
         
-        <li class="featured__item" data-tags="游戏设计|用户体验|思考方法">
+        <li class="featured__item featured__item--on" data-tags="游戏设计|用户体验|思考方法">
             <a href="/post/fool-mode-acceptance/">
                 <span class="featured__title">傻逼模式验收</span>
                 <time class="featured__date">2026-11-11</time>
@@ -555,14 +555,14 @@
             </a>
         </li>
         
-        <li class="featured__item featured__item--on" data-tags="思维|判断力|AI">
+        <li class="featured__item" data-tags="思维|判断力|AI">
             <a href="/post/judging-power-2026-april-20/">
                 <span class="featured__title">判断力</span>
                 <time class="featured__date">2026-04-20</time>
             </a>
         </li>
         
-        <li class="featured__item" data-tags="AI">
+        <li class="featured__item featured__item--on" data-tags="AI">
             <a href="/post/ai-assisted-engineering-methods/">
                 <span class="featured__title">AI 辅助工程</span>
                 <time class="featured__date">2026-04-20</time>
@@ -583,7 +583,7 @@
             </a>
         </li>
         
-        <li class="featured__item" data-tags="游戏设计">
+        <li class="featured__item featured__item--on" data-tags="游戏设计">
             <a href="/post/gamification-false-progress/">
                 <span class="featured__title">虚假的进步</span>
                 <time class="featured__date">2026-01-18</time>
@@ -597,7 +597,7 @@
             </a>
         </li>
         
-        <li class="featured__item" data-tags="思考方法">
+        <li class="featured__item featured__item--on" data-tags="思考方法">
             <a href="/post/high-signal-filtering/">
                 <span class="featured__title">高信噪比筛选</span>
                 <time class="featured__date">2025-12-12</time>
@@ -720,6 +720,10 @@
     };
     var order = [], i, j, tmp;
     for (i = 0; i < items.length; i++) order.push(i);
+    // Canonical order by link first: the same slot must pick the same posts on / and
+    // /page/2/, whose DOM orders differ.
+    var hrefOf = function(k) { var a = items[k].querySelector('a'); return a ? a.getAttribute('href') : ''; };
+    order.sort(function(x, y) { return hrefOf(x) < hrefOf(y) ? -1 : hrefOf(x) > hrefOf(y) ? 1 : 0; });
     for (i = order.length - 1; i > 0; i--) { j = Math.floor(rand() * (i + 1)); tmp = order[i]; order[i] = order[j]; order[j] = tmp; }
     var tagsOf = function(k) { return (items[k].getAttribute('data-tags') || '').split('|').filter(Boolean); };
     var pick = function(order, tagsOf, count) {
@@ -727,7 +731,17 @@
             var blocked = function(i) { var t = tagsOf(i); for (var k = 0; k < t.length; k++) { if (used[t[k]] >= 2) return true; } return false; };
             var take = function(i) { picked.push(i); var t = tagsOf(i); for (var k = 0; k < t.length; k++) { used[t[k]] = (used[t[k]] || 0) + 1; } };
             for (var a = 0; a < order.length && picked.length < count; a++) { if (!blocked(order[a])) take(order[a]); }
-            for (var b = 0; b < order.length && picked.length < count; b++) { if (picked.indexOf(order[b]) === -1) take(order[b]); }
+            while (picked.length < count && picked.length < order.length) {
+                var best = -1, bestScore = Infinity;
+                for (var c = 0; c < order.length; c++) {
+                    if (picked.indexOf(order[c]) !== -1) continue;
+                    var tc = tagsOf(order[c]), s = 0;
+                    for (var d = 0; d < tc.length; d++) s += (used[tc[d]] || 0);
+                    if (s < bestScore) { bestScore = s; best = order[c]; }
+                }
+                if (best === -1) break;
+                take(best);
+            }
             return picked;
         };
     var chosen = pick(order, tagsOf, count);

@@ -513,21 +513,21 @@
             </a>
         </li>
         
-        <li class="featured__item featured__item--on" data-tags="产品经理|优先级|ROI">
+        <li class="featured__item" data-tags="产品经理|优先级|ROI">
             <a href="/post/value-and-impact/">
                 <span class="featured__title">价值与影响</span>
                 <time class="featured__date">2025-09-06</time>
             </a>
         </li>
         
-        <li class="featured__item featured__item--on" data-tags="游戏设计">
+        <li class="featured__item" data-tags="游戏设计">
             <a href="/post/why-grow-a-garden-is-popular/">
                 <span class="featured__title">为什么《Grow a Garden》如此受欢迎</span>
                 <time class="featured__date">2025-07-05</time>
             </a>
         </li>
         
-        <li class="featured__item featured__item--on" data-tags="AI|思考方法">
+        <li class="featured__item" data-tags="AI|思考方法">
             <a href="/post/hollow-cognition/">
                 <span class="featured__title">认知空洞化</span>
                 <time class="featured__date">2025-06-23</time>
@@ -541,7 +541,7 @@
             </a>
         </li>
         
-        <li class="featured__item" data-tags="教育|费曼|学习方法">
+        <li class="featured__item featured__item--on" data-tags="教育|费曼|学习方法">
             <a href="/post/between-name-and-behavior/">
                 <span class="featured__title">在「知道名字」与「理解行为」之间</span>
                 <time class="featured__date">2025-05-25</time>
@@ -569,7 +569,7 @@
             </a>
         </li>
         
-        <li class="featured__item" data-tags="长期主义|产品管理|克制">
+        <li class="featured__item featured__item--on" data-tags="长期主义|产品管理|克制">
             <a href="/post/against-entropy/">
                 <span class="featured__title">对抗熵增：长期主义与克制之道</span>
                 <time class="featured__date">2024-10-27</time>
@@ -597,7 +597,7 @@
             </a>
         </li>
         
-        <li class="featured__item" data-tags="职业成长|产品经理|方法论">
+        <li class="featured__item featured__item--on" data-tags="职业成长|产品经理|方法论">
             <a href="/post/craftsman/">
                 <span class="featured__title">手艺人</span>
                 <time class="featured__date">2024-03-02</time>
@@ -720,6 +720,10 @@
     };
     var order = [], i, j, tmp;
     for (i = 0; i < items.length; i++) order.push(i);
+    // Canonical order by link first: the same slot must pick the same posts on / and
+    // /page/2/, whose DOM orders differ.
+    var hrefOf = function(k) { var a = items[k].querySelector('a'); return a ? a.getAttribute('href') : ''; };
+    order.sort(function(x, y) { return hrefOf(x) < hrefOf(y) ? -1 : hrefOf(x) > hrefOf(y) ? 1 : 0; });
     for (i = order.length - 1; i > 0; i--) { j = Math.floor(rand() * (i + 1)); tmp = order[i]; order[i] = order[j]; order[j] = tmp; }
     var tagsOf = function(k) { return (items[k].getAttribute('data-tags') || '').split('|').filter(Boolean); };
     var pick = function(order, tagsOf, count) {
@@ -727,7 +731,17 @@
             var blocked = function(i) { var t = tagsOf(i); for (var k = 0; k < t.length; k++) { if (used[t[k]] >= 2) return true; } return false; };
             var take = function(i) { picked.push(i); var t = tagsOf(i); for (var k = 0; k < t.length; k++) { used[t[k]] = (used[t[k]] || 0) + 1; } };
             for (var a = 0; a < order.length && picked.length < count; a++) { if (!blocked(order[a])) take(order[a]); }
-            for (var b = 0; b < order.length && picked.length < count; b++) { if (picked.indexOf(order[b]) === -1) take(order[b]); }
+            while (picked.length < count && picked.length < order.length) {
+                var best = -1, bestScore = Infinity;
+                for (var c = 0; c < order.length; c++) {
+                    if (picked.indexOf(order[c]) !== -1) continue;
+                    var tc = tagsOf(order[c]), s = 0;
+                    for (var d = 0; d < tc.length; d++) s += (used[tc[d]] || 0);
+                    if (s < bestScore) { bestScore = s; best = order[c]; }
+                }
+                if (best === -1) break;
+                take(best);
+            }
             return picked;
         };
     var chosen = pick(order, tagsOf, count);
